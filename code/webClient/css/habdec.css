@@ -1,0 +1,74 @@
+
+body, html {
+    background-color:hsl(210, 15%, 24%);
+}
+
+div{
+    font-family: Tahoma, Verdana, Segoe, sans-serif;
+}
+
+label {
+    color: hsl(32, 93%, 45%);
+}
+
+button {
+    background-color:hsl(210, 15%, 34%);
+    border: none;
+    color: #AAAAAA;
+    /* padding: 15px 32px; */
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    height: 4.0rem;
+
+    border: 0.1rem solid  hsl(210, 15%, 20%);
+    border-radius: .4rem;
+}
+
+input[type=checkbox]
+{
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(2.5); /* IE */
+  -moz-transform: scale(2.5); /* FF */
+  -webkit-transform: scale(2.5); /* Safari and Chrome */
+  -o-transform: scale(2.5); /* Opera */
+  padding: 10px;
+}
+
+.checkboxtext
+{
+  font-size: 130%;
+  display: inline;
+}
+
+.ctrl_container {
+    width: 100%;
+}
+
+.habsentence_text {
+	font-size: 12px;
+}
+
+.ctrl_box {
+    color: hsl(32, 93%, 60%);
+    background-color: transparent;
+    border: 0.1rem solid #000000;
+    border-radius: .4rem;
+    height: 2.5rem;
+    padding: .6rem 1.0rem;
+    width: 50px;
+}
+
+.increment_button {
+    background-color:hsl(210, 15%, 34%);
+    border: none;
+    color: #AAAAAA;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    height: 60px;
+    width: 80px;
+
+    border: 0.1rem solid  hsl(210, 15%, 20%);
+    border-radius: .4rem;
+}
