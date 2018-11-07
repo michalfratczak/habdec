@@ -34,9 +34,9 @@ Just download and install binaries from https://cmake.org/download/
     ./bootstrap.sh
     ./b2 -j 4 --layout=tagged --build-type=complete stage
 
-#### Windows 
+#### Windows
 Download from https://www.boost.org/users/download/ and unpack.
-    
+
     cd boost
     bootstrap.bat
     b2.exe  --layout=tagged --build-type=complete --build-dir=build/static toolset=msvc address-model=64 link=static  stage
@@ -47,7 +47,7 @@ You need to build FFTW with float (single precission) support. Also, enable neon
 
 #### Linux x86
     wget http://fftw.org/fftw-3.3.8.tar.gz
-    tar -xf ./fftw-3.3.8.tar.gz 
+    tar -xf ./fftw-3.3.8.tar.gz
     cd fftw-3.3.8
     ./configure --with-slow-timer --enable-single CFLAGS="-O4 -pipe -march=native -Wall" --prefix=`pwd`/install
     make
@@ -55,7 +55,7 @@ You need to build FFTW with float (single precission) support. Also, enable neon
 
 #### Linux ARM
     wget http://fftw.org/fftw-3.3.8.tar.gz
-    tar -xf ./fftw-3.3.8.tar.gz 
+    tar -xf ./fftw-3.3.8.tar.gz
     cd fftw-3.3.8
     ./configure --with-slow-timer --enable-single --enable-neon CFLAGS="-O4 -pipe -march=native -mfpu=neon -Wall" --prefix=`pwd`/install
     make
@@ -73,6 +73,13 @@ Download http://fftw.org/fftw-3.3.8.tar.gz and unpack.
 
 #### Windows
 Just go and install binaries from https://github.com/pothosware/PothosCore/wiki/Downloads
+
+#### RaspberryPI Raspbian
+SoapySDR should be available with apt. Try:
+
+    sudo apt search Soapy
+    sudo apt install libsoapysdr0.5-2
+    sudo apt install soapysdr-module-rtlsdr
 
 #### Linux
 
