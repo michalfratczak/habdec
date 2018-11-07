@@ -52,6 +52,8 @@ void prog_opts(int ac, char* av[])
 			("biast",	po::value<bool>(), "biasT, values: 0, 1")
 			("bias_t",	po::value<bool>(), "biasT, values: 0, 1")
 			("afc",		po::value<bool>(), "Auto Frequency Correction, values: 0, 1")
+
+			("sentence_cmd",	po::value<string>(), "call external command with sentence as parameter")
 		;
 
 		po::options_description cli_options("Command Line Interface options");
@@ -120,6 +122,10 @@ void prog_opts(int ac, char* av[])
 		{
 			GLOBALS::get().station_callsign_ = vm["station"].as<string>();
 		}
+		if (vm.count("sentence_cmd"))
+		{
+			GLOBALS::get().sentence_cmd_ = vm["sentence_cmd"].as<string>();
+		}
 		if (vm.count("freq"))
 		{
 			GLOBALS::get().frequency_ = vm["freq"].as<float>() * 1e6;
@@ -180,6 +186,7 @@ void prog_opts(int ac, char* av[])
 	cout<<"\tsampling_rate: "<<GLOBALS::get().sampling_rate_<<endl;
 	cout<<"\tcommand_host: "<<GLOBALS::get().command_host_<<endl;
 	cout<<"\tcommand_port: "<<GLOBALS::get().command_port_<<endl;
+	cout<<"\tsentence_cmd: "<<GLOBALS::get().sentence_cmd_<<endl;
 	cout<<"\tstation: "<<GLOBALS::get().station_callsign_<<endl;
 	cout<<"\tfreq: "<<GLOBALS::get().frequency_<<endl;
 	cout<<"\tgain: "<<GLOBALS::get().gain_<<endl;

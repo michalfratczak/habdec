@@ -82,6 +82,7 @@ public:
 	float 	rtty_ascii_stops_ = 2;
 	bool 	live_print_ = true;
 	bool 	afc_ = false;
+	std::string 	sentence_cmd_ = "";
 
 	static bool DumpToFile(std::string fName)
 	{
@@ -102,6 +103,7 @@ public:
 			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_bits_<<endl;
 			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_stops_<<endl;
 			oFile<<"afc = "<<GLOBALS::get().afc_<<endl;
+			oFile<<"sentence_cmd = "<<GLOBALS::get().sentence_cmd_<<endl;
 		}
 		catch (exception& e) {
 			cout<<"Can't save config "<<fName<<endl;

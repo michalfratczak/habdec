@@ -232,16 +232,10 @@ void DECODER_FEED_THREAD()
 	}
 }
 
-void HAB_UPLOAD_THREAD()
+void LOG_THREAD()
 {
 	using namespace std;
 	using namespace habdec;
-
-	if(GLOBALS::get().station_callsign_ == "")
-	{
-		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
-		return;
-	}
 
 	while(!G_DO_EXIT)
 	{
@@ -255,9 +249,19 @@ void HAB_UPLOAD_THREAD()
 
 		for(auto& sentence : sentences)
 		{
-			string res = HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
-			if( res != "OK" )
-				cout<<C_CLEAR<<"HAB Upload result: "<<res<<endl;
+			if(GLOBALS::get().station_callsign_ != "")
+			{
+				string res = HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
+				if( res != "OK" )
+					cout<<C_CLEAR<<C_RED<<"HAB Upload result: "<<res<<endl;
+			}
+
+			if( GLOBALS::get().sentence_cmd_ != "" )
+			{
+				int res = system( (GLOBALS::get().sentence_cmd_ + " " + sentence).c_str() );
+				if(res)
+					cout<<C_CLEAR<<C_RED<<"sentence_cmd result: "<<res<<endl;
+			}
 		}
 	}
 }
@@ -304,6 +308,9 @@ int main(int argc, char** argv)
 	DECODER.lowpass_trans(.0025);
 	DECODER.livePrint( GLOBALS::get().live_print_ );
 
+	if(GLOBALS::get().station_callsign_ == "")
+		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
+
 	// for every decoded message
 	// put it on two ques: websocket upload, HAB upload
 	DECODER.success_callback_ =
@@ -324,14 +331,14 @@ int main(int argc, char** argv)
 	std::thread* decoder_feed_thread = new std::thread(DECODER_FEED_THREAD);
 
 	// HAB upload
-	std::thread* 	hab_upload_thread = new std::thread(HAB_UPLOAD_THREAD);
+	std::thread* 	log_thread = new std::thread(LOG_THREAD);
 
 	// websocket server thread. this call is blocking
 	RunCommandServer( GLOBALS::get().command_host_ , GLOBALS::get().command_port_ );
 
 	G_DO_EXIT = true;
 	decoder_feed_thread->join();
-	hab_upload_thread->join();
+	log_thread->join();
 
 	return 0;
 }
