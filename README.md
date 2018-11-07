@@ -57,6 +57,7 @@ CLI opts:
   --biast arg                           biasT
   --bias_t arg                          biasT
   --afc arg                             Auto Frequency Correction
+  --sentence_cmd                        call external command with sentence as parameter
 ```
 
 The only mandatory parameter is --sampling_rate. Provide value that is supported by your SDR device.
@@ -154,7 +155,6 @@ To control habdec parameters from your browser, start    `webClient/index.html` 
 - Decoding will stop if decimation setting is too low or too high. It was tested to work with stream around 40kHz bandwidth.
 - Automatic Frequency Correction needs more work. Use consciously.
 - Connecting from browser is not very reliable yet, sometimes you need to refresh and wait.
-- Currently, upload to HABHUB is realized with python habLogger.py which is called with system(). This will get ported to C++.
 - habdec was developed and tested with [AirSpy](https://airspy.com/) and [OdroidXU4](http://hardkernel.com/). Support for windows and RtlSdr is less tested.
 
 
