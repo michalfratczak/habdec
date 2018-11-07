@@ -42,6 +42,8 @@ endif()
 set ( websocketServer_src
 					program_options.h 	program_options.cpp
 					server.h 	server.cpp
+					${CMAKE_SOURCE_DIR}/habitat/habitat_upload.cpp
+					${CMAKE_SOURCE_DIR}/common/http_request.cpp
 					main.cpp
 			)
 

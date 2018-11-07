@@ -32,6 +32,7 @@
 #include "IQSource/IQSource_SoapySDR.h"
 #include "Decoder/Decoder.h"
 #include "common/console_colors.h"
+#include "habitat/habitat_interface.h"
 #include "GLOBALS.h"
 #include "server.h"
 
@@ -234,6 +235,13 @@ void DECODER_FEED_THREAD()
 void HAB_UPLOAD_THREAD()
 {
 	using namespace std;
+	using namespace habdec;
+
+	if(GLOBALS::get().station_callsign_ == "")
+	{
+		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
+		return;
+	}
 
 	while(!G_DO_EXIT)
 	{
@@ -244,18 +252,12 @@ void HAB_UPLOAD_THREAD()
 			lock_guard<mutex> _lock( GLOBALS::get().senteces_to_log_mtx_ );
 			sentences = move( GLOBALS::get().senteces_to_log_ );
 		}
-		if(GLOBALS::get().station_callsign_ != "")
-		{
-			for(auto& sentence : sentences)
-			{
-				string cmd = "python ./habLogger.py ";
-				cmd += sentence;
-				cmd += " ";
-				cmd += GLOBALS::get().station_callsign_;
 
-				auto res = system(cmd.c_str());
-				cout<<"HAB upload res: "<<res<<endl;
-			}
+		for(auto& sentence : sentences)
+		{
+			string res = HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
+			if( res != "OK" )
+				cout<<C_CLEAR<<"HAB Upload result: "<<res<<endl;
 		}
 	}
 }
@@ -292,9 +294,6 @@ int main(int argc, char** argv)
 		cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
 		return 1;
 	}
-
-	if(GLOBALS::get().station_callsign_ == "")
-		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
 
 	// initial options
 	auto& DECODER = GLOBALS::get().decoder_;
