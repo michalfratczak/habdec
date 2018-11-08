@@ -142,6 +142,26 @@ habdecWebsocketServer.exe   --device 0 --sampling_rate 2.5e6
                             --freq 434.5 --gain 20 --biast 1 --afc 1
 ```
 
+Load configuration for specific Habitat Payload
+```
+./habdecWebsocketServer --flights
+Habitat Flights:
+Flight: Belice-3 6d8281c7b6e54c0c9f2488c77d043f8a
+	lat/lon: 49.7665 14.4731
+Payload: DNA-3 289b03bf7a92e06cff8ab4fec1f789bd
+	RS41-1 Belice 10/11/2018 St. Martin's day
+	Flight ID: 6d8281c7b6e54c0c9f2488c77d043f8a
+	freq 434,250,000
+	baud/ascii/stops 50 7 2
+
+./habdecWebsocketServer --payload 289b03bf7a92e06cff8ab4fec1f789bd
+Loading parameters for payload 289b03bf7a92e06cff8ab4fec1f789bd
+	baud: 50
+	ascii_bits: 7
+	ascii_stops: 2
+	frequency: 434,250,000
+```
+
 
 ### Web Client
 
