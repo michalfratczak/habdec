@@ -115,7 +115,7 @@ public:
 		return true;
 	}
 
-	static bool Print()
+	static void Print()
 	{
 		using namespace std;
 		cout<<"\tdevice: "<<GLOBALS::get().device_<<endl;

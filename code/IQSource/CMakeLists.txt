@@ -21,6 +21,7 @@ set ( IQSource_src
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wshadow" )
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-class-memaccess" )
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Werror=return-type" )
 	SET( CMAKE_CXX_FLAGS  " -O3 " )
 endif()
 
