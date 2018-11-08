@@ -83,6 +83,7 @@ public:
 	bool 	live_print_ = true;
 	bool 	afc_ = false;
 	std::string 	sentence_cmd_ = "";
+	std::string 	habitat_payload_ = "";
 
 	static bool DumpToFile(std::string fName)
 	{
@@ -104,6 +105,7 @@ public:
 			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_stops_<<endl;
 			oFile<<"afc = "<<GLOBALS::get().afc_<<endl;
 			oFile<<"sentence_cmd = "<<GLOBALS::get().sentence_cmd_<<endl;
+			oFile<<"payload = "<<GLOBALS::get().habitat_payload_<<endl;
 		}
 		catch (exception& e) {
 			cout<<"Can't save config "<<fName<<endl;
@@ -112,6 +114,26 @@ public:
 
 		return true;
 	}
+
+	static bool Print()
+	{
+		using namespace std;
+		cout<<"\tdevice: "<<GLOBALS::get().device_<<endl;
+		cout<<"\tsampling_rate: "<<GLOBALS::get().sampling_rate_<<endl;
+		cout<<"\tcommand_host: "<<GLOBALS::get().command_host_<<endl;
+		cout<<"\tcommand_port: "<<GLOBALS::get().command_port_<<endl;
+		cout<<"\tsentence_cmd: "<<GLOBALS::get().sentence_cmd_<<endl;
+		cout<<"\tpayload: "<<GLOBALS::get().habitat_payload_<<endl;
+		cout<<"\tstation: "<<GLOBALS::get().station_callsign_<<endl;
+		cout<<"\tfreq: "<<GLOBALS::get().frequency_<<endl;
+		cout<<"\tgain: "<<GLOBALS::get().gain_<<endl;
+		cout<<"\tlive_print: "<<GLOBALS::get().live_print_<<endl;
+		cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;
+		cout<<"\trtty_ascii_bits: "<<GLOBALS::get().rtty_ascii_bits_<<endl;
+		cout<<"\trtty_ascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
+		cout<<"\tbiast: "<<GLOBALS::get().biast_<<endl;
+	}
+
 
 private:
 	GLOBALS() {};

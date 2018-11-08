@@ -132,8 +132,6 @@ bool SetupDevice()
 		return 1;
 	}
 
-	double freq = GLOBALS::get().frequency_;
-	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
 	double gain = GLOBALS::get().gain_;
 	GLOBALS::get().p_iq_source_->setOption("gain_double", &gain);
 	double biastee = GLOBALS::get().biast_;
@@ -232,6 +230,7 @@ void DECODER_FEED_THREAD()
 	}
 }
 
+
 void LOG_THREAD()
 {
 	using namespace std;
@@ -299,7 +298,18 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// initial options
+	// initial options from payload id
+	//
+	/*
+	if( GLOBALS::get().habitat_payload_ != "" )
+	{
+		if( !SetPayloadParameters(GLOBALS::get().habitat_payload_) )
+			cout<<C_RED<<"\nFailed setting options for payload "<<GLOBALS::get().habitat_payload_<<C_OFF<<endl;
+	}
+	*/
+
+	// initial options from globals
+	//
 	auto& DECODER = GLOBALS::get().decoder_;
 	DECODER.baud(GLOBALS::get().baud_);
 	DECODER.rtty_bits(GLOBALS::get().rtty_ascii_bits_);
@@ -307,9 +317,14 @@ int main(int argc, char** argv)
 	DECODER.lowpass_bw(.05);
 	DECODER.lowpass_trans(.0025);
 	DECODER.livePrint( GLOBALS::get().live_print_ );
+	double freq = GLOBALS::get().frequency_;
+	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
 
 	if(GLOBALS::get().station_callsign_ == "")
 		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
+
+	cout<<"Current Options: "<<endl;
+	GLOBALS::Print();
 
 	// for every decoded message
 	// put it on two ques: websocket upload, HAB upload

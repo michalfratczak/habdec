@@ -28,6 +28,44 @@
 
 #include "GLOBALS.h"
 #include "common/console_colors.h"
+#include "habitat/habitat_interface.h"
+
+namespace
+{
+
+int LoadPayloadParameters(std::string i_payload_id)
+{
+	using namespace std;
+	using namespace habdec;
+
+	std::map<std::string, HabitatFlight> flights = ListFlights(0);
+
+	for(auto& flight : flights)
+	{
+		for(auto& payload : flight.second.payloads_)
+		{
+			if( !i_payload_id.compare(payload.second.id_) )
+			{
+				GLOBALS::get().baud_ = payload.second.baud_;
+				GLOBALS::get().rtty_ascii_bits_ = payload.second.ascii_bits_;
+				GLOBALS::get().rtty_ascii_stops_ = payload.second.ascii_stops_;
+				GLOBALS::get().frequency_ = payload.second.frequency_;
+
+				cout<<C_MAGENTA<<"Loading parameters for payload "<<i_payload_id<<C_OFF<<endl;
+
+				cout<<"\tbaud: "<<payload.second.baud_<<endl;
+				cout<<"\tascii_bits: "<<payload.second.ascii_bits_<<endl;
+				cout<<"\tascii_stops: "<<payload.second.ascii_stops_<<endl;
+				cout<<"\tfrequency: "<<payload.second.frequency_<<endl;
+
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+} // namespace
 
 void prog_opts(int ac, char* av[])
 {
@@ -53,7 +91,10 @@ void prog_opts(int ac, char* av[])
 			("bias_t",	po::value<bool>(), "biasT, values: 0, 1")
 			("afc",		po::value<bool>(), "Auto Frequency Correction, values: 0, 1")
 
-			("sentence_cmd",	po::value<string>(), "call external command with sentence as parameter")
+			("sentence_cmd",	po::value<string>(), "Call external command with sentence as parameter")
+
+			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
+			("payload",	po::value<string>(), "Configure for Payload ID")
 		;
 
 		po::options_description cli_options("Command Line Interface options");
@@ -122,6 +163,12 @@ void prog_opts(int ac, char* av[])
 		{
 			GLOBALS::get().station_callsign_ = vm["station"].as<string>();
 		}
+		if (vm.count("payload"))
+		{
+			GLOBALS::get().habitat_payload_ = vm["payload"].as<string>();
+			if( !LoadPayloadParameters( GLOBALS::get().habitat_payload_ ) )
+				cout<<C_RED<<"Failed loading payload "<<GLOBALS::get().habitat_payload_ <<endl;
+		}
 		if (vm.count("sentence_cmd"))
 		{
 			GLOBALS::get().sentence_cmd_ = vm["sentence_cmd"].as<string>();
@@ -174,27 +221,21 @@ void prog_opts(int ac, char* av[])
 			GLOBALS::get().rtty_ascii_bits_ = rtty_tokens[1];
 			GLOBALS::get().rtty_ascii_stops_ = rtty_tokens[2];
 		}
+		if (vm.count("flights"))
+		{
+			using namespace habdec;
+			int hours_offset = vm["flights"].as<int>();
+			cout<<"Habitat Flights: "<<endl;
+			std::map<std::string, HabitatFlight> payloads = ListFlights(hours_offset);
+			for(auto& flight : payloads)
+				cout<<flight.second<<endl;
+			exit(0);
+		}
 	}
 	catch(exception& e)
 	{
 		cout << e.what() << "\n";
 	}
-
-	// print globals:
-	cout<<"Current options: "<<endl;
-	cout<<"\tdevice: "<<GLOBALS::get().device_<<endl;
-	cout<<"\tsampling_rate: "<<GLOBALS::get().sampling_rate_<<endl;
-	cout<<"\tcommand_host: "<<GLOBALS::get().command_host_<<endl;
-	cout<<"\tcommand_port: "<<GLOBALS::get().command_port_<<endl;
-	cout<<"\tsentence_cmd: "<<GLOBALS::get().sentence_cmd_<<endl;
-	cout<<"\tstation: "<<GLOBALS::get().station_callsign_<<endl;
-	cout<<"\tfreq: "<<GLOBALS::get().frequency_<<endl;
-	cout<<"\tgain: "<<GLOBALS::get().gain_<<endl;
-	cout<<"\tlive_print: "<<GLOBALS::get().live_print_<<endl;
-	cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;
-	cout<<"\trtty_ascii_bits: "<<GLOBALS::get().rtty_ascii_bits_<<endl;
-	cout<<"\trtty_ascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
-	cout<<"\tbiast: "<<GLOBALS::get().biast_<<endl;
 
 	GLOBALS::DumpToFile("./habdecWebsocketServer.opts");
 }
