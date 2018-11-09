@@ -30,16 +30,17 @@ std::string FlightsListUrl(int hour_offset = 0)
 
 
 
-std::map<std::string, habdec::HabitatFlight> ParseFlightsJson(const std::string& i_json_str)
+std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std::string& i_json_str)
 {
     using namespace std;
     namespace pt = boost::property_tree;
+    using namespace habdec::habitat;
 
     pt::ptree root;
     stringstream ss; ss << i_json_str;
     pt::read_json(ss, root);
 
-    std::map<string, habdec::HabitatFlight> flights_map;
+    std::map<string, HabitatFlight> flights_map;
 
     // flights
     //
@@ -52,7 +53,7 @@ std::map<std::string, habdec::HabitatFlight> ParseFlightsJson(const std::string&
         /*if( !doc.get<bool>("approved") )
             continue;*/
 
-        habdec::HabitatFlight _f;
+        HabitatFlight _f;
 
         _f.name_ = doc.get<string>("name");
         _f.id_ = doc.get<string>("_id");
@@ -71,7 +72,7 @@ std::map<std::string, habdec::HabitatFlight> ParseFlightsJson(const std::string&
         if( doc.get<string>("type") != "payload_configuration" )
             continue;
 
-        habdec::HabitatPayload _p;
+        HabitatPayload _p;
 
         _p.flight_id_ = row.second.get<string>("id");
         _p.name_ = doc.get<string>("name");
@@ -110,8 +111,10 @@ std::map<std::string, habdec::HabitatFlight> ParseFlightsJson(const std::string&
 
 namespace habdec
 {
+namespace habitat
+{
 
-std::ostream& operator<<(std::ostream& os, const habdec::HabitatPayload& p)
+std::ostream& operator<<(std::ostream& os, const habdec::habitat::HabitatPayload& p)
 {
     os  << "Payload: " << p.name_ << " "
         << C_RED << p.id_ << C_OFF << "\n"
@@ -126,7 +129,7 @@ std::ostream& operator<<(std::ostream& os, const habdec::HabitatPayload& p)
 }
 
 
-std::ostream& operator<<(std::ostream& os, const habdec::HabitatFlight& f)
+std::ostream& operator<<(std::ostream& os, const habdec::habitat::HabitatFlight& f)
 {
     os  << "Flight: " << f.name_ << " " << f.id_ << "\n"
         << "\tlat/lon: " << f.lat_ << " " << f.lon_ << "\n";
@@ -136,16 +139,17 @@ std::ostream& operator<<(std::ostream& os, const habdec::HabitatFlight& f)
 }
 
 
-std::map<std::string, habdec::HabitatFlight> ListFlights(int hour_offset)
+std::map<std::string, habdec::habitat::HabitatFlight> ListFlights(int hour_offset)
 {
     using namespace std;
+    using namespace habdec::habitat;
 
     string docs_json;
     int result = HttpRequest(
             "habitat.habhub.org", FlightsListUrl(hour_offset), 80,
             habdec::HTTP_VERB::kGet, "application/json", "", docs_json );
 
-    std::map<std::string, habdec::HabitatFlight> flights;
+    std::map<std::string, HabitatFlight> flights;
 
 	if( result )
         flights = ParseFlightsJson( docs_json );
@@ -154,4 +158,5 @@ std::map<std::string, habdec::HabitatFlight> ListFlights(int hour_offset)
     return flights;
 }
 
+} // namespace habitat
 } // namespace habdec

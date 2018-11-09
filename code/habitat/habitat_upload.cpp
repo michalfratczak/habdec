@@ -106,6 +106,8 @@ std::string SentenceToHabJson(
 
 namespace habdec
 {
+namespace habitat
+{
 
 std::string HabitatUploadSentence(
         const std::string& i_sentence,
@@ -157,4 +159,101 @@ std::string HabitatUploadSentence(
     return result;
 }
 
+
+int UploadStationInfo(
+        const std::string& i_callsign,
+        const std::string& i_radio
+    )
+{
+    using namespace std;
+    using namespace boost::posix_time;
+    using namespace habdec;
+
+    ptime now = second_clock::universal_time();
+    string utc_now_str = to_iso_extended_string(now) + "Z"; // habitat needs Z at the end
+
+    const string info_template = R"_(
+        {
+            "type": "listener_information",
+            "data": {"callsign": "$callsign", "radio": "$radio" },
+            "time_created": "$time",
+            "time_uploaded": "$time"
+        }
+    )_";
+
+    string info_data_str = info_template;
+    info_data_str.replace( info_data_str.find("$callsign"), 9, i_callsign );
+    info_data_str.replace( info_data_str.find("$time"), 5, utc_now_str );
+    info_data_str.replace( info_data_str.find("$time"), 5, utc_now_str );
+    info_data_str.replace( info_data_str.find("$radio"), 6, "habdec" );
+
+    string http_req_result;
+    int res = HttpRequest(
+            "habitat.habhub.org",
+            "/habitat",
+            80,
+            habdec::HTTP_VERB::kPost,
+            "application/json",
+            info_data_str,
+            http_req_result
+        );
+    return res;
+}
+
+int UploadStationTelemetry(
+        const std::string& i_callsign,
+        const float i_lat, const float i_lon,
+        const float i_alt, const float i_speed,
+        bool i_chase
+    )
+{
+    using namespace std;
+    using namespace boost::posix_time;
+    using namespace habdec;
+
+    ptime now = second_clock::universal_time();
+    string utc_now_str = to_iso_extended_string(now) + "Z"; // habitat needs Z at the end
+
+    const string telemetry_template = R"_(
+        {
+            "type": "listener_telemetry",
+            "time_created":  "$time",
+            "time_uploaded": "$time",
+            "data": {
+                "callsign":     "$callsign",
+                "latitude":     $lat,
+                "longitude":    $lon,
+                "altitude":     $alt,
+                "speed":        $speed,
+                "chase":        $chase
+            }
+        }
+    )_";
+
+    string telemetry_data_str = telemetry_template;
+    telemetry_data_str.replace( telemetry_data_str.find("$callsign"), 9, i_callsign );
+    telemetry_data_str.replace( telemetry_data_str.find("$time"), 5, utc_now_str );
+    telemetry_data_str.replace( telemetry_data_str.find("$time"), 5, utc_now_str );
+    telemetry_data_str.replace( telemetry_data_str.find("$lat"), 4, to_string(i_lat) );
+    telemetry_data_str.replace( telemetry_data_str.find("$lon"), 4, to_string(i_lon) );
+    telemetry_data_str.replace( telemetry_data_str.find("$alt"), 4, to_string(i_alt) );
+    telemetry_data_str.replace( telemetry_data_str.find("$speed"), 6, to_string(i_speed) );
+    telemetry_data_str.replace( telemetry_data_str.find("$chase"), 6, i_chase ? "true" : "false" );
+
+    string http_req_result;
+    int res = HttpRequest(
+            "habitat.habhub.org",
+            "/habitat",
+            80,
+            habdec::HTTP_VERB::kPost,
+            "application/json",
+            telemetry_data_str,
+            http_req_result
+        );
+
+    return res;
+
+}
+
+} // namespace habitat
 } // namespace habdec

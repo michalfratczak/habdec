@@ -66,7 +66,7 @@ void PrintDevicesList(const SoapySDR::KwargsList& device_list)
 }
 
 
-bool SetupDevice()
+bool SetupDevice(SoapySDR::Kwargs& o_device)
 {
 	SoapySDR::KwargsList device_list = SoapySDR::Device::enumerate();
 
@@ -138,6 +138,7 @@ bool SetupDevice()
 	GLOBALS::get().p_iq_source_->setOption("biastee_double", &biastee);
 	GLOBALS::get().p_iq_source_->setOption("sampling_rate_double", &GLOBALS::get().sampling_rate_);
 
+	o_device = device;
 	return true;
 }
 
@@ -234,7 +235,6 @@ void DECODER_FEED_THREAD()
 void LOG_THREAD()
 {
 	using namespace std;
-	using namespace habdec;
 
 	while(!G_DO_EXIT)
 	{
@@ -250,7 +250,7 @@ void LOG_THREAD()
 		{
 			if(GLOBALS::get().station_callsign_ != "")
 			{
-				string res = HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
+				string res = habdec::habitat::HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
 				if( res != "OK" )
 					cout<<C_CLEAR<<C_RED<<"HAB Upload result: "<<res<<endl;
 			}
@@ -292,21 +292,27 @@ int main(int argc, char** argv)
 	prog_opts(argc, argv);
 
 	// setup SoapySDR device
-	if(!SetupDevice())
+	SoapySDR::Kwargs device;
+	if(!SetupDevice(device))
 	{
 		cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
 		return 1;
 	}
 
-	// initial options from payload id
-	//
-	/*
-	if( GLOBALS::get().habitat_payload_ != "" )
+	// station info
+	if(	GLOBALS::get().station_callsign_ != "" )
 	{
-		if( !SetPayloadParameters(GLOBALS::get().habitat_payload_) )
-			cout<<C_RED<<"\nFailed setting options for payload "<<GLOBALS::get().habitat_payload_<<C_OFF<<endl;
+		habdec::habitat::UploadStationInfo(	GLOBALS::get().station_callsign_,
+											device["driver"] + " - habdec" );
+
+		if(		GLOBALS::get().station_lat_
+			&& 	GLOBALS::get().station_lon_ )
+					habdec::habitat::UploadStationTelemetry(
+						GLOBALS::get().station_callsign_,
+						GLOBALS::get().station_lat_, GLOBALS::get().station_lon_,
+						0, 0, false
+					);
 	}
-	*/
 
 	// initial options from globals
 	//

@@ -36,7 +36,7 @@ namespace
 int LoadPayloadParameters(std::string i_payload_id)
 {
 	using namespace std;
-	using namespace habdec;
+	using namespace habdec::habitat;
 
 	std::map<std::string, HabitatFlight> flights = ListFlights(0);
 
@@ -81,7 +81,9 @@ void prog_opts(int ac, char* av[])
 			("sampling_rate",	po::value<double>()->default_value(0), "Sampling Rate, as supported by device")
 
 			("port",	po::value<string>()->default_value("5555"),	"Command Port, example: --port 127.0.0.1:5555")
+
 			("station",	po::value<string>()->default_value(""),	"HABHUB station callsign")
+			("latlon",	po::value< std::vector<float> >()->multitoken(), "station GPS location (decimal)")
 
 			("freq",	po::value<float>(), "frequency in MHz")
 			("gain",	po::value<int>(), "gain")
@@ -223,13 +225,24 @@ void prog_opts(int ac, char* av[])
 		}
 		if (vm.count("flights"))
 		{
-			using namespace habdec;
+			using namespace habdec::habitat;
 			int hours_offset = vm["flights"].as<int>();
 			cout<<"Habitat Flights: "<<endl;
 			std::map<std::string, HabitatFlight> payloads = ListFlights(hours_offset);
 			for(auto& flight : payloads)
 				cout<<flight.second<<endl;
 			exit(0);
+		}
+		if (vm.count("latlon"))
+		{
+			vector<float> latlon_vec = vm["latlon"].as< vector<float> >();
+			if( latlon_vec.size() != 2 )
+			{
+				cout<<C_RED<<"--latlon option needs 2 args"<<C_OFF<<endl;
+				exit(1);
+			}
+			GLOBALS::get().station_lat_ = latlon_vec[0];
+			GLOBALS::get().station_lon_ = latlon_vec[1];
 		}
 	}
 	catch(exception& e)

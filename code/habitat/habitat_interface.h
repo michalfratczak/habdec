@@ -5,6 +5,8 @@
 
 namespace habdec
 {
+namespace habitat
+{
 
 std::string HabitatUploadSentence(
         const std::string& i_sentence,
@@ -40,7 +42,22 @@ struct HabitatFlight
 std::ostream&
 operator<<(std::ostream& os, const HabitatFlight& f);
 
-std::map<std::string, habdec::HabitatFlight>
+
+std::map<std::string, HabitatFlight>
 ListFlights(int hour_offset);
 
+
+int UploadStationInfo(
+        const std::string& i_callsign,
+        const std::string& i_radio
+    );
+
+int UploadStationTelemetry(
+        const std::string& i_callsign,
+        const float i_lat, const float i_lon,
+        const float i_alt, const float i_speed,
+        bool i_chase
+    );
+
+} // namespace habitat
 } // namespace habdec
