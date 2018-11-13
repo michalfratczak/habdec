@@ -74,12 +74,13 @@ Download http://fftw.org/fftw-3.3.8.tar.gz and unpack.
 #### Windows
 Just go and install binaries from https://github.com/pothosware/PothosCore/wiki/Downloads
 
-#### RaspberryPI Raspbian
-SoapySDR should be available with apt. Try:
+#### RaspberryPI
+SoapySDR packages are available with apt on Raspbian, but I had problems with these.
+You are encouraged to build from source, otherwise performance problems may arise.
 
-    sudo apt search Soapy
-    sudo apt install libsoapysdr0.5-2
-    sudo apt install soapysdr-module-rtlsdr
+tip: while building osmocom-rtlsdr driver, use this command:
+
+    cmake ../ -DINSTALL_UDEV_RULES=ON -DDETACH_KERNEL_DRIVER=ON
 
 #### Linux
 
@@ -117,7 +118,7 @@ If you managed to build or install dependencies, you're ready do build habdec
     cd habdec
     mkdir build
     cd build
-    cmake cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install ../code
+    cmake cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=RELEASE ../code
     make
     make install
 
