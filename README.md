@@ -25,6 +25,8 @@ To get habdec you can download precompiled exec or build it from source.
 - Install SoapySDR binaries from [here](https://github.com/pothosware/SoapySDR/wiki#installation)
 - Download habdec executable for your platform from [here](https://github.com/ogre/habdec/wiki)
 
+There's also raspberryPi 3 image with ready to use binary and build env. Go to [Wiki](https://github.com/ogre/habdec/wiki)
+
 #### Building from source:
 To build habdec you need a C++11 compiler and CMake version 3.8.2
 You also need to build or install some dependencies:
