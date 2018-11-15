@@ -86,6 +86,7 @@ void prog_opts(int ac, char* av[])
 			("latlon",	po::value< std::vector<float> >()->multitoken(), "station GPS location (decimal)")
 
 			("freq",	po::value<float>(), "frequency in MHz")
+			("ppm",		po::value<float>(), "frequency correction in PPM")
 			("gain",	po::value<int>(), "gain")
 			("print",   po::value<bool>(), "live print received chars, values: 0, 1")
 			("rtty",	po::value< std::vector<float> >()->multitoken(), "rtty: baud bits stops, example: -rtty 300 8 2")
@@ -178,6 +179,10 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("freq"))
 		{
 			GLOBALS::get().frequency_ = vm["freq"].as<float>() * 1e6;
+		}
+		if (vm.count("ppm"))
+		{
+			GLOBALS::get().ppm_ = vm["ppm"].as<float>();
 		}
 		if (vm.count("gain"))
 		{

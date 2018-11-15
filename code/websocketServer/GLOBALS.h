@@ -84,6 +84,7 @@ public:
 	float 	rtty_ascii_stops_ = 2;
 	bool 	live_print_ = true;
 	bool 	afc_ = false;
+	double  ppm_ = 0;
 	std::string 	sentence_cmd_ = "";
 	std::string 	habitat_payload_ = "";
 
@@ -101,6 +102,7 @@ public:
 			oFile<<"latlon = "<<GLOBALS::get().station_lon_<<endl;
 
 			oFile<<"freq = "<<setprecision(9)<<GLOBALS::get().frequency_/1e6<<endl;
+			oFile<<"ppm = "<<setprecision(9)<<GLOBALS::get().ppm_<<endl;
 			oFile<<"gain = "<<GLOBALS::get().gain_<<endl;
 			oFile<<"biast = "<<GLOBALS::get().biast_<<endl;
 			oFile<<"print = "<<GLOBALS::get().live_print_<<endl;
@@ -131,6 +133,7 @@ public:
 		cout<<"\tstation: "<<GLOBALS::get().station_callsign_<<endl;
 		cout<<"\tlatlon: "<<GLOBALS::get().station_lat_<<" "<<GLOBALS::get().station_lon_<<endl;
 		cout<<"\tfreq: "<<GLOBALS::get().frequency_<<endl;
+		cout<<"\tppm: "<<GLOBALS::get().ppm_<<endl;
 		cout<<"\tgain: "<<GLOBALS::get().gain_<<endl;
 		cout<<"\tlive_print: "<<GLOBALS::get().live_print_<<endl;
 		cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;

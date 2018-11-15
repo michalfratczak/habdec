@@ -313,6 +313,17 @@ bool IQSource_SoapySDR::setOption(const std::string& option, const void* p_data)
 		}
 		return true;
 	}
+	else if(option == "ppm_double")
+	{
+		double value = *reinterpret_cast<double*>(p_data_nonconst);
+		if( p_device_ && p_device_->hasFrequencyCorrection(SOAPY_SDR_RX, 0) )
+		{
+			if(b_verbose)
+				cout<<"Set "<<option<<" = "<<setprecision(1)<<value<<endl;
+			p_device_->setFrequencyCorrection( SOAPY_SDR_RX, 0, value );
+		}
+		return true;
+	}
 	else if(option == "gain_double")
 	{
 		double value = *reinterpret_cast<double*>(p_data_nonconst);
@@ -371,6 +382,17 @@ bool IQSource_SoapySDR::getOption(const std::string& option, void* p_data)
 		if(p_device_)
 		{
 			*reinterpret_cast<double*>(p_data) = p_device_->getFrequency( SOAPY_SDR_RX, 0);
+			if(b_verbose)
+				cout<<"getOption "<<option<<" "<<*reinterpret_cast<double*>(p_data)<<endl;
+			return true;
+		}
+		return false;
+	}
+	else if(option == "ppm_double")
+	{
+		if( p_device_ && p_device_->hasFrequencyCorrection(SOAPY_SDR_RX, 0) )
+		{
+			*reinterpret_cast<double*>(p_data) = p_device_->getFrequencyCorrection( SOAPY_SDR_RX, 0);
 			if(b_verbose)
 				cout<<"getOption "<<option<<" "<<*reinterpret_cast<double*>(p_data)<<endl;
 			return true;

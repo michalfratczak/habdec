@@ -60,6 +60,13 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		string o_command = "cmd::set:frequency=" + to_string(frequency);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 	}
+	else if(i_command == "get:ppm")
+	{
+		double ppm = 0;
+		GLOBALS::get().p_iq_source_->getOption("ppm_double", &ppm);
+		string o_command = "cmd::set:ppm=" + to_string(ppm);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
 	else if(i_command == "get:gain")
 	{
 		double gain = 0;
@@ -137,6 +144,14 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		GLOBALS::get().decoder_.setupDecimationStagesFactor( pow(2,decim_factor_log) );
 		string o_command = "cmd::set:decimation=" + to_string(decim_factor_log);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	else if( regex_match(i_command, match, regex(R"_(set\:ppm=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
+	{
+		double ppm = stod(match[1]);
+		GLOBALS::get().p_iq_source_->setOption("ppm_double", &ppm);
+		string o_command = "cmd::set:ppm=" + to_string(ppm);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().ppm_ = ppm;
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:gain=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
