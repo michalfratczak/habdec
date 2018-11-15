@@ -185,7 +185,7 @@ int UploadStationInfo(
     info_data_str.replace( info_data_str.find("$callsign"), 9, i_callsign );
     info_data_str.replace( info_data_str.find("$time"), 5, utc_now_str );
     info_data_str.replace( info_data_str.find("$time"), 5, utc_now_str );
-    info_data_str.replace( info_data_str.find("$radio"), 6, "habdec" );
+    info_data_str.replace( info_data_str.find("$radio"), 6, i_radio );
 
     string http_req_result;
     int res = HttpRequest(
