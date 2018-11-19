@@ -167,7 +167,14 @@ Loading parameters for payload 289b03bf7a92e06cff8ab4fec1f789bd
 
 ### Web Client
 
-To control habdec parameters from your browser, start    `webClient/index.html` and connect to ip:port
+To control habdec parameters from your browser:
+- start browser
+- open `habitat/code/webClient/index.html` file from disk
+- set server field ip:port and Connect
+
+Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP server and you will see this error:
+
+`The WebSocket handshake Connection field is missing the upgrade token`
 
 
 ## Known Limitations
