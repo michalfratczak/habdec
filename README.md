@@ -40,29 +40,28 @@ Instructions how to build habdec and it's dependencies are described in [BuildIn
 `habdecWebsocketServer.exe --help`
 ```
 Command Line Interface options:
-  --config arg (=./habdecWebsocketServer.opts)
-                                        Last run config file. Autosaved on
-                                        every successfull decode.
+  --config arg              Last run config file. Autosaved on every
+                            successfull decode.
 
 CLI opts:
-  --help                                Display help message
-  --device arg (=-1)                    SDR Device Numer
-  --sampling_rate arg (=0)              Sampling Rate, as supported by device
-  --port arg (=5555)                    Command Port, example: --port
-                                        127.0.0.1:5555
-  --station arg (=habdec)               HABHUB station callsign
-  --freq arg                            frequency in MHz
-  --gain arg                            gain
-  --print arg                           live print received chars
-  --rtty arg                            rtty: baud bits stops, example -rtty
-                                        300 8 2
-  --biast arg                           biasT
-  --bias_t arg                          biasT
-  --afc arg                             Auto Frequency Correction
-  --sentence_cmd                        call external command with sentence as parameter
+  --help                    Display help message
+  --device arg              SDR Device Numer. -1 to list
+  --sampling_rate arg (=0)  Sampling Rate, as supported by device
+  --port arg                Command Port, example: --port 127.0.0.1:5555
+  --station arg             HABHUB station callsign
+  --latlon arg              station GPS location (decimal)
+  --freq arg                frequency in MHz
+  --ppm arg                 frequency correction in PPM
+  --gain arg                gain
+  --print arg               live print received chars, values: 0, 1
+  --rtty arg                rtty: baud bits stops, example: --rtty 300 8 2
+  --biast arg               biasT, values: 0, 1
+  --bias_t arg              biasT, values: 0, 1
+  --afc arg                 Auto Frequency Correction, values: 0, 1
+  --sentence_cmd arg        Call external command with sentence as parameter
+  --flights [=arg(=0)]      List Habitat flights
+  --payload arg             Configure for Payload ID
 ```
-
-The only mandatory parameter is --sampling_rate. Provide value that is supported by your SDR device.
 
 ### Examples:
 Print available devices

@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cstdlib>
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
@@ -104,17 +105,25 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 		return false;
 	}
 
-	if(!GLOBALS::get().sampling_rate_)
-	{
-		PrintDevicesList(device_list);
-		cout<<C_RED<<"Sampling Rate not set."<<C_OFF<<endl;
-		return false;
-	}
-
 	// setup DEVICE
 	//
 	auto& device = device_list[device_index];
 	cout<<"Running with "<<device["driver"]<<endl<<endl;
+
+	if( !GLOBALS::get().sampling_rate_ )
+	{
+		// find what is nearest to 2e6
+		double sr_diff = std::numeric_limits<double>::max();
+		auto p_device = SoapySDR::Device::make(device);
+		for(double sr : p_device->listSampleRates(SOAPY_SDR_RX, 0))
+		{
+			if( abs(sr - 2e6) < sr_diff )
+			{
+				sr_diff = abs(sr - 2e6);
+				GLOBALS::get().sampling_rate_ = sr;
+			}
+		}
+	}
 
 	GLOBALS::get().p_iq_source_.reset(new habdec::IQSource_SoapySDR);
 
