@@ -137,7 +137,9 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	double biastee = GLOBALS::get().biast_;
 	GLOBALS::get().p_iq_source_->setOption("biastee_double", &biastee);
 	GLOBALS::get().p_iq_source_->setOption("sampling_rate_double", &GLOBALS::get().sampling_rate_);
-	GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().ppm_);
+
+	// this works only if device is running. not yet here
+	// GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().ppm_);
 
 	o_device = device;
 	return true;
@@ -165,6 +167,10 @@ void DECODER_FEED_THREAD()
 		cout<<C_RED<<"Device not running. Exit DECODER_FEED_THREAD."<<C_OFF<<endl;
 		return;
 	}
+
+	// this works only if device is running, but feels out of place here
+	// consider moving start() outside of this function
+	GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().ppm_);
 
 	//////
 	//
