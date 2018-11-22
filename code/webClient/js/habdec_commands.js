@@ -23,7 +23,7 @@ var GLOBALS =
 
 function debug_print()
 {
-	console.debug(arguments);
+	// console.debug(arguments);
 	/*
 	document.getElementById("cnt_debug").innerHTML = "";
 	for (i = 0; i < arguments.length; i++)
