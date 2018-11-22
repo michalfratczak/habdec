@@ -46,6 +46,7 @@ var AccSpectrumArray = {
 var AvgCnt = 10; // Rolling average length. Smooths out spectrum drawing.
 var NoiseFloorAvg = new Average(AvgCnt);
 var SpectrumMinAvg = new Average(AvgCnt);
+var SpectrumMaxAvg = new Average(AvgCnt);
 
 // rolling average on array
 function AccumulateSpectrumArray(i_arr)
@@ -121,11 +122,6 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
 	// SPECTRUM
 	//
-	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	power_grd.addColorStop(0.2, "yellow");
-	power_grd.addColorStop(.6, "#993311");
-	power_grd.addColorStop(1, "black");
-
 
 	// decode spectrum values
 	var spectrum_values_arr = new Array(i_canvas.width);
@@ -152,12 +148,18 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	spectrum_values_arr = AccumulateSpectrumArray(spectrum_values_arr);
 	NoiseFloorAvg.add(i_spectrum.noise_floor_);
 	SpectrumMinAvg.add(i_spectrum.min_);
+	SpectrumMaxAvg.add(i_spectrum.max_);
 
 	var noise_floor_avg = NoiseFloorAvg.get_avg();
 	var spectrum_min_avg = SpectrumMinAvg.get_avg();
+	var spectrum_max_avg = SpectrumMaxAvg.get_avg();
 	// spectrum_min_avg *= 1.3; // drawing pedestal
 
 	// draw
+	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
+	power_grd.addColorStop(1-Math.abs(noise_floor_avg / spectrum_min_avg), "yellow");
+	power_grd.addColorStop(1-Math.abs(spectrum_max_avg / spectrum_min_avg), "#993311");
+	power_grd.addColorStop(1 , "#301000");
 	ctx.strokeStyle = power_grd;
 	ctx.beginPath();
 	for(var x=0; x<i_canvas.width; ++x)
