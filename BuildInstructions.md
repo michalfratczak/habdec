@@ -109,6 +109,10 @@ tip: while building osmocom-rtlsdr driver, use this command:
 ### SoapySDR RTL-SDR Support
 Refer to https://github.com/pothosware/SoapyRTLSDR
 
+Tip: you might need to configure with:
+
+`cmake ../ -DINSTALL_UDEV_RULES=ON -DDETACH_KERNEL_DRIVER=ON`
+
 
 ## HABDEC Build
 
