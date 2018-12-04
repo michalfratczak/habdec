@@ -146,6 +146,8 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	double biastee = GLOBALS::get().biast_;
 	GLOBALS::get().p_iq_source_->setOption("biastee_double", &biastee);
 	GLOBALS::get().p_iq_source_->setOption("sampling_rate_double", &GLOBALS::get().sampling_rate_);
+	double usb_pack = GLOBALS::get().usb_pack_;
+	GLOBALS::get().p_iq_source_->setOption("usb_pack_double", &usb_pack);
 
 	// this works only if device is running. not yet here
 	// GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().ppm_);

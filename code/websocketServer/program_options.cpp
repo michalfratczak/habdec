@@ -93,6 +93,7 @@ void prog_opts(int ac, char* av[])
 			("biast",	po::value<bool>(), "biasT, values: 0, 1")
 			("bias_t",	po::value<bool>(), "biasT, values: 0, 1")
 			("afc",		po::value<bool>(), "Auto Frequency Correction, values: 0, 1")
+			("usb_pack",		po::value<bool>(), "AirSpy USB bit packing")
 
 			("sentence_cmd",	po::value<string>(), "Call external command with sentence as parameter")
 
@@ -203,6 +204,10 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("afc"))
 		{
 			GLOBALS::get().afc_ = vm["afc"].as<bool>();
+		}
+		if (vm.count("usb_pack"))
+		{
+			GLOBALS::get().usb_pack_ = vm["usb_pack"].as<bool>();
 		}
 		if (vm.count("rtty"))
 		{

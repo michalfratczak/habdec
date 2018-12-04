@@ -349,6 +349,20 @@ bool IQSource_SoapySDR::setOption(const std::string& option, const void* p_data)
 		}
 		return true;
 	}
+	else if(option == "usb_pack_double")
+	{
+		double value = *reinterpret_cast<double*>(p_data_nonconst);
+		if(p_device_)
+		{
+			if(b_verbose)
+				cout<<"Set "<<option<<" = "<<setprecision(12)<<value<<endl;
+			if(value)
+				p_device_->writeSetting("bitpack", "true");
+			else
+				p_device_->writeSetting("bitpack", "false");
+		}
+		return true;
+	}
 	else
 	{
 		cout<<"IQSource_SoapySDR::setOption error. Unknown option: "<<option<<endl;
@@ -416,6 +430,19 @@ bool IQSource_SoapySDR::getOption(const std::string& option, void* p_data)
 		{
 			double biastee_val =
 						p_device_->readSetting("biastee") == string("true");
+			*reinterpret_cast<double*>(p_data) = biastee_val;
+			if(b_verbose)
+				cout<<"getOption "<<option<<" "<<biastee_val<<endl;
+			return true;
+		}
+		return false;
+	}
+	else if(option == "usb_pack_double")
+	{
+		if(p_device_)
+		{
+			double biastee_val =
+						p_device_->readSetting("bitpack") == string("true");
 			*reinterpret_cast<double*>(p_data) = biastee_val;
 			if(b_verbose)
 				cout<<"getOption "<<option<<" "<<biastee_val<<endl;
