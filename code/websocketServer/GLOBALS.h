@@ -86,6 +86,7 @@ public:
 	bool 	afc_ = false;
 	double  ppm_ = 0;
 	bool 	usb_pack_ = false; // airspy usb bitpack
+	bool 	dc_remove_ = false;
 	std::string 	sentence_cmd_ = "";
 	std::string 	habitat_payload_ = "";
 
@@ -112,6 +113,7 @@ public:
 			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_stops_<<endl;
 			oFile<<"afc = "<<GLOBALS::get().afc_<<endl;
 			oFile<<"usb_pack = "<<GLOBALS::get().usb_pack_<<endl;
+			oFile<<"dc_remove = "<<GLOBALS::get().dc_remove_<<endl;
 			oFile<<"sentence_cmd = "<<GLOBALS::get().sentence_cmd_<<endl;
 			oFile<<"payload = "<<GLOBALS::get().habitat_payload_<<endl;
 		}
@@ -143,6 +145,7 @@ public:
 		cout<<"\trtty_ascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
 		cout<<"\tbiast: "<<GLOBALS::get().biast_<<endl;
 		cout<<"\tusb_pack: "<<GLOBALS::get().usb_pack_<<endl;
+		cout<<"\tdc_remove: "<<GLOBALS::get().dc_remove_<<endl;
 	}
 
 

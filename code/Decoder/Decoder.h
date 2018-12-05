@@ -82,6 +82,8 @@ public:
 	size_t	rtty_bits() const;
 	void	rtty_stops(float i_ascii_stops);
 	float	rtty_stops() const;
+	void 	dc_remove(bool);
+	bool 	dc_remove() const;
 
 	size_t 	setupDecimationStagesFactor(const size_t i_factor);
 	size_t 	setupDecimationStagesBW(const double i_max_sampling_rate);
@@ -140,6 +142,9 @@ private:
 	const double max_decimated_sampling_rate_ = 40e3;
 	std::vector<TDecimator>		decimation_stages_;
 	int 						decimation_factor_ = 1;
+
+	// DC removal
+	bool dc_remove_ = false;
 
 	// FFT
 	const size_t 		fft_bins_cnt_ = 1<<12;
@@ -434,6 +439,17 @@ void habdec::Decoder<TReal>::process()
 		decimated_samples_size = _decimator();
 	}
 	iq_samples_temp_.resize( decimated_samples_size );
+
+	// DC removal
+	// https://www.embedded.com/design/configurable-systems/4007653/DSP-Tricks-DC-Removal
+	if(dc_remove_)
+	{
+		auto _avg = accumulate( iq_samples_temp_.begin(), iq_samples_temp_.end(), TComplex(0) )
+					/ TComplex(iq_samples_temp_.size());
+		for(size_t i=0; i<iq_samples_temp_.size(); ++i)
+			iq_samples_temp_[i] -= _avg;
+	}
+
 	iq_samples_decimated_.insert( iq_samples_decimated_.end(), iq_samples_temp_.begin(), iq_samples_temp_.end() );
 	iq_samples_decimated_.samplingRate( getDecimatedSamplingRate() );
 
@@ -662,6 +678,20 @@ template<typename TReal>
 float Decoder<TReal>::rtty_stops() const
 {
 	return rtty_.ascii_stops();
+}
+
+
+template<typename TReal>
+void Decoder<TReal>::dc_remove(bool dc_rem)
+{
+	dc_remove_ = dc_rem;
+}
+
+
+template<typename TReal>
+bool Decoder<TReal>::dc_remove() const
+{
+	return dc_remove_;
 }
 
 

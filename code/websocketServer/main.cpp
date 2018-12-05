@@ -341,6 +341,8 @@ int main(int argc, char** argv)
 	DECODER.lowpass_bw(.05);
 	DECODER.lowpass_trans(.0025);
 	DECODER.livePrint( GLOBALS::get().live_print_ );
+	DECODER.dc_remove( GLOBALS::get().dc_remove_ );
+
 	double freq = GLOBALS::get().frequency_;
 	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
 
