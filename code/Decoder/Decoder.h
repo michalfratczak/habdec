@@ -441,13 +441,15 @@ void habdec::Decoder<TReal>::process()
 	iq_samples_temp_.resize( decimated_samples_size );
 
 	// DC removal
-	// https://www.embedded.com/design/configurable-systems/4007653/DSP-Tricks-DC-Removal
 	if(dc_remove_)
 	{
-		auto _avg = accumulate( iq_samples_temp_.begin(), iq_samples_temp_.end(), TComplex(0) )
-					/ TComplex(iq_samples_temp_.size());
+		TComplex w_prev = .97f * TComplex(iq_samples_temp_[0]);
 		for(size_t i=0; i<iq_samples_temp_.size(); ++i)
-			iq_samples_temp_[i] -= _avg;
+		{
+			TComplex w = iq_samples_temp_[i] + .97f * w_prev;
+			iq_samples_temp_[i] = w - w_prev;
+			w_prev = w;
+		}
 	}
 
 	iq_samples_decimated_.insert( iq_samples_decimated_.end(), iq_samples_temp_.begin(), iq_samples_temp_.end() );
