@@ -36,6 +36,7 @@
 #include "habitat/habitat_interface.h"
 #include "GLOBALS.h"
 #include "server.h"
+#include "common/git_repo_sha1.h"
 
 
 bool G_DO_EXIT = false;
@@ -308,6 +309,8 @@ int main(int argc, char** argv)
 
 	// setup GLOBALS
 	prog_opts(argc, argv);
+
+	cout<<"habdec websocketServer git repo version: "<<g_GIT_SHA1<<endl;
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;

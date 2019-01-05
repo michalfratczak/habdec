@@ -1,4 +1,7 @@
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake/")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
 include_directories( ${PROJECT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -39,7 +42,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set (PlatformSpecificLinking "pthread")
 endif()
 
-
 set ( websocketServer_src
 					program_options.h 	program_options.cpp
 					server.h 	server.cpp
@@ -48,6 +50,10 @@ set ( websocketServer_src
 					${CMAKE_SOURCE_DIR}/common/http_request.cpp
 					main.cpp
 			)
+
+# compile in git repo version
+configure_file("${PROJECT_SOURCE_DIR}/common/git_repo_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_repo_sha1.cpp" @ONLY)
+list(APPEND websocketServer_src "${CMAKE_CURRENT_BINARY_DIR}/git_repo_sha1.cpp" ${PROJECT_SOURCE_DIR}/common/git_repo_sha1.h)
 
 add_executable ( 		habdecWebsocketServer ${websocketServer_src} )
 target_link_libraries( 	habdecWebsocketServer
