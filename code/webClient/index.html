@@ -71,7 +71,7 @@
 
 <div>
 	<div><label>Server Address</label></div>
-	<input id="server_address" value="127.0.0.1:5555">
+	<input id="server_address" value="127.0.0.1:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
 	<button  onclick="OpenConnection()" >Connect</button>
 </div>
 
@@ -84,6 +84,7 @@ function habdec_init()
 {
 	OpenConnection();
 	CreateControls();
+	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
 }
