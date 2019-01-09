@@ -307,10 +307,10 @@ int main(int argc, char** argv)
 
 	}
 
+	cout<<"git version: "<<g_GIT_SHA1<<endl;
+
 	// setup GLOBALS
 	prog_opts(argc, argv);
-
-	cout<<"habdec websocketServer git repo version: "<<g_GIT_SHA1<<endl;
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
