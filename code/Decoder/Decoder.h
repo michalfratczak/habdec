@@ -159,7 +159,7 @@ private:
 
 	// Low Pass FIR
 	float 				lowpass_bw_ = 0.05;
-	float 				lowpass_trans_ = 0.0025;
+	float 				lowpass_trans_ = 0.025;
 	TFIR				lowpass_fir_;
 	mutable std::mutex	lowpass_fir_mtx_;
 
