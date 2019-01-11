@@ -93,9 +93,9 @@ std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std
             else
                 continue;
 
-            _p.baud_ = t.second.get<int>("baud");
-            _p.ascii_stops_ = t.second.get<int>("stop");
-            _p.frequency_ = t.second.get<int>("frequency");
+            _p.baud_ = t.second.get<float>("baud");
+            _p.ascii_stops_ = t.second.get<float>("stop");
+            _p.frequency_ = t.second.get<float>("frequency");
 
             break; // use first of RTTY transmissions
         }
