@@ -93,30 +93,9 @@ double AFC<TReal>::process()
 {
 	using namespace std;
 
-	bool b_debug = 0;
-
-	if(b_debug)
-		cout<<"AFC::process begin"<<endl;
-
-	// if(fft_samples_.size() != 4096)
-	if(0)
-	{
-		fft_samples_.clear();
-		frequency_correction_ = 0;
-		if(b_debug)
-			cout<<"AFC::process fft_samples_.size() != 1024 exit "<<fft_samples_.size()<<endl;
-		return 0;
-	}
-
-	if(b_debug)
-			cout<<"AFC::process FftPower..."<<endl;
-
 	if( !FftPower(fft_samples_, power_arr_) )
 	{
-		// fft_samples_.clear();
 		frequency_correction_ = 0;
-		if(b_debug)
-			cout<<"AFC::process !FftPower. exit."<<endl;
 		return 0;
 	}
 
@@ -126,9 +105,6 @@ double AFC<TReal>::process()
 	noise_floor_avg_.add( noise_floor_ );
 	noise_variance_avg_.add( noise_variance_ );
 
-	if(b_debug)
-		cout<<"AFC::process noise_floor_avg_:"<<noise_floor_avg_<<" noise_variance_avg_:"<<noise_variance_avg_<<endl;
-
 	// expected separation between peaks
 	// const float fsk_shift = ( 0 < shift_Hz_ && shift_Hz_ < 2000 ) ? shift_Hz_ : 500; //Hz
 	const float fsk_shift = 500;
@@ -137,8 +113,6 @@ double AFC<TReal>::process()
 	// two maximum peaks
 	int p1, p2;
 	FindPeaks(power_arr_, expected_relative_separation, &p1, &p2);
-	if(b_debug)
-		cout<<"AFC::process peaks: "<<p1<<" "<<p2<<endl;
 
 	// it cannot be resolved which is left/right
 	// unless both are present (stronger than peak_detect_threshold)
@@ -265,34 +239,20 @@ bool FftPower(const TIQVector& fft_samples, TRVector& o_power_arr)
 
 	using namespace std;
 
-	bool b_debug = 0;
-
 	if(!fft_samples.size())
 		return 0;
 
 	if(!fft_samples.samplingRate())
 		return 0;
 
-	if(0)
-	{
-		size_t i=0;
-		for(auto c : fft_samples)
-			cout<<i++<<" "<<c<<"\n";
-		cout<<endl;
-	}
-
 	auto* p_fft_samples_data = const_cast<typename TIQVector::TComplex*>(fft_samples.data());
 
-	if(b_debug)
-		cout<<"FftPower NaN"<<endl;
 	if( hasNan(reinterpret_cast<typename TIQVector::TValue*>(p_fft_samples_data), fft_samples.size()*2) )
 	{
 		cout<<"FftSpectrum Nan"<<endl;
 		return 0;
 	}
 
-	if(b_debug)
-		cout<<"FftPower Inf"<<endl;
 	if( hasInf(reinterpret_cast<typename TIQVector::TValue*>(p_fft_samples_data), fft_samples.size()*2) )
 	{
 		cout<<"FftSpectrum Inf"<<endl;
@@ -301,11 +261,6 @@ bool FftPower(const TIQVector& fft_samples, TRVector& o_power_arr)
 
 
 	o_power_arr.resize(fft_samples.size());
-	if(b_debug)
-		cout<<"FftPower o_power_arr.size() "<<o_power_arr.size()<<endl;
-
-	if(b_debug)
-		cout<<"FftPower compute... "<<endl;
 
 	for(size_t i=0; i<fft_samples.size(); ++i)
 	{
@@ -315,24 +270,17 @@ bool FftPower(const TIQVector& fft_samples, TRVector& o_power_arr)
 		o_power_arr[i] = 10.0f * log10( o_power_arr[i] );
 	}
 
-	if(b_debug)
-		cout<<"FftPower post NaN"<<endl;
 	if( hasNan(o_power_arr.data(), o_power_arr.size()) )
 	{
 		cout<<"Power Nan"<<endl;
 		return 0;
 	}
 
-	if(b_debug)
-		cout<<"FftPower post inf"<<endl;
 	if( hasInf(o_power_arr.data(), o_power_arr.size()) )
 	{
 		cout<<"Power Inf"<<endl;
 		return 0;
 	}
-
-	if(b_debug)
-		cout<<"FftPower DONE."<<endl;
 
 	return 1;
 }

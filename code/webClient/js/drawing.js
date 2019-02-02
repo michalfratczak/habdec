@@ -174,7 +174,7 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
 	// CENTER LINE
 	//
-	ctx.strokeStyle = '#888888';
+	ctx.strokeStyle = '#555555';
 	ctx.beginPath();
 	ctx.moveTo(i_canvas.width/2, i_canvas.height - 1);
 	ctx.lineTo(i_canvas.width/2, 0);

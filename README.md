@@ -8,14 +8,14 @@ Some facts:
 - builds and runs on Windows/Linux and x64/RaspberryPI/OdroixXU4 platforms
 - Uses [SoapySDR](https://github.com/pothosware/SoapySDR) to consume IQ stream from your SDR
 - runs in command line (headless)
-- provides websocket server so can be cotrolled from any web browser [even on your phone](https://www.youtube.com/watch?v=dli8FEFy5tM)
+- provides websocket server so can be controlled from any web browser [even on your phone](https://www.youtube.com/watch?v=dli8FEFy5tM)
 - can be easily integrated into your own code
 
 Original motivation for habdec was to have a portable tracking device you could take to a chasecar or into a field.
 
 Fatty laptop with dl-fldigi, full-fledged SDR app and required internet connection is not too comfortable.
 
-Ultimatelly habdec is intended for integration into bigger app, probably based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4. Right now you can run it on headless board and cotrol from your mobile.
+Ultimatelly habdec is intended for integration into bigger app, probably based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4. Right now you can run it on headless board and control from your mobile.
 
 ## Getting habdec
 
@@ -41,11 +41,11 @@ Instructions how to build habdec and it's dependencies are described in [BuildIn
 ```
 Command Line Interface options:
   --config arg              Last run config file. Autosaved on every
-                            successfull decode.
+                            successful decode.
 
 CLI opts:
   --help                    Display help message
-  --device arg              SDR Device Numer. -1 to list
+  --device arg              SDR Device Number. -1 to list
   --sampling_rate arg (=0)  Sampling Rate, as supported by device
   --port arg                Command Port, example: --port 127.0.0.1:5555
   --station arg             HABHUB station callsign
@@ -84,7 +84,6 @@ Current options:
         rtty_ascii_bits: 8
         rtty_ascii_stops: 2
         biast: 0
-ERROR: Unable to find host: Nieznany host.
 Found Rafael Micro R820T tuner
 [INFO] [UHD] Win32; Microsoft Visual C++ version 14.0; Boost_106700; UHD_3.13.0.2-1-g78745bda
 
@@ -179,9 +178,9 @@ Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP serv
 ## Known Limitations
 
 - RTTY Modes **NOT** supported: 5bit baudot, 1.5 bit stop
-- SSTV is not supported
+- SSDV is not supported
 - Decoding will stop if decimation setting is too low or too high. It was tested to work with stream around 40kHz bandwidth.
-- Automatic Frequency Correction needs more work. Use consciously.
+- Automatic Frequency Correction needs more work. Use consciously. dc_remove=on can help if AFC is confused by center spike.
 - Connecting from browser is not very reliable yet, sometimes you need to refresh and wait.
 - habdec was developed and tested with [AirSpy](https://airspy.com/) and [OdroidXU4](http://hardkernel.com/). Support for windows and RtlSdr is less tested.
 

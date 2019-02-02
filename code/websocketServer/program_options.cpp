@@ -77,7 +77,7 @@ void prog_opts(int ac, char* av[])
 		po::options_description generic("CLI opts");
 		generic.add_options()
 			("help", "Display help message")
-			("device",	po::value<int>(), "SDR Device Numer. -1 to list")
+			("device",	po::value<int>(), "SDR Device Number. -1 to list")
 			("sampling_rate",	po::value<double>()->default_value(GLOBALS::get().sampling_rate_), "Sampling Rate, as supported by device")
 
 			("port",	po::value<string>(),	"Command Port, example: --port 127.0.0.1:5555")

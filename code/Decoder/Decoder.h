@@ -403,31 +403,18 @@ void habdec::Decoder<TReal>::process()
 
 	std::lock_guard<std::mutex> lock(process_mutex_);
 
-	bool b_debug = 0;
-
-	if(b_debug)
-		cout<<endl<<endl;
-
 	// copy samples from buffer to temp
 	{
 		lock_guard<mutex> _lock(iq_in_buffer_mtx_);
 
 		if( int(iq_in_buffer_.size()) < decimation_factor_)
-		{
-			if(b_debug)
-				cout<<"Decoder::process() "<<"iq_in_buffer_.size()) < decimation_factor_"<<endl;
 			return;
-		}
 
 		const size_t samples_to_decimate_cnt = iq_in_buffer_.size() - (iq_in_buffer_.size() % decimation_factor_);
 		iq_samples_temp_.resize(samples_to_decimate_cnt);
 		memcpy( iq_samples_temp_.data(), iq_in_buffer_.data(), samples_to_decimate_cnt * sizeof(TComplex) );
-		if(b_debug)
-			cout<<"Decoder::process() "<<"samples_to_decimate_cnt "<<samples_to_decimate_cnt<<" of "<<iq_in_buffer_.size()<<endl;
-
 		iq_in_buffer_.erase( iq_in_buffer_.begin(), iq_in_buffer_.begin()+samples_to_decimate_cnt );
 	}
-
 
 	// DECIMATE
 	//
@@ -455,9 +442,6 @@ void habdec::Decoder<TReal>::process()
 	iq_samples_decimated_.insert( iq_samples_decimated_.end(), iq_samples_temp_.begin(), iq_samples_temp_.end() );
 	iq_samples_decimated_.samplingRate( getDecimatedSamplingRate() );
 
-	if(b_debug)
-		cout<<"Decoder::process() "<<"iq_samples_decimated_.size() "<<iq_samples_decimated_.size()<<endl;
-
 	// FFT
 	//
 	// collect at least fft_bins_cnt_ samples from decimation
@@ -467,9 +451,6 @@ void habdec::Decoder<TReal>::process()
 		freq_in_.insert (
 				freq_in_.end(),
 				iq_samples_temp_.begin(), iq_samples_temp_.begin()+_to_push );
-
-		if(b_debug)
-			cout<<"Decoder::process() "<<"FFT _to_push "<<_to_push<<endl;
 	}
 
 	freq_in_.samplingRate( getDecimatedSamplingRate() );
@@ -492,11 +473,7 @@ void habdec::Decoder<TReal>::process()
 	const size_t batch_size = 256;  // why does it have to be 256 ?
 
 	if(iq_samples_decimated_.size() < batch_size)
-	{
-		if(b_debug)
-			cout<<"Decoder::process() "<<"iq_samples_decimated_.size() < batch_size : "<<iq_samples_decimated_.size()<<endl;
 		return;
-	}
 
 
 	// AFC
@@ -545,10 +522,6 @@ void habdec::Decoder<TReal>::process()
 	}
 	iq_samples_decimated_.erase( iq_samples_decimated_.begin(), iq_samples_decimated_.begin()+samples_to_filter_cnt );
 
-	if(b_debug)
-		cout<<"Decoder::process() "<<"FIR taps : "<<lowpass_fir_.taps_size()<<endl;
-
-
 	// Demod - converts frequency to amplitudes
 	//
 	{
@@ -562,19 +535,11 @@ void habdec::Decoder<TReal>::process()
 		symbol_extractor_.pushSamples(demodulated_);
 	}
 
-
-	if(b_debug)
-		cout<<"Decoder::process() "<<"demodulated_.size() "<<demodulated_.size()<<endl;
-
-
 	// Symbol Extractor
 	//
 	symbol_extractor_();
 
 	vector<bool> symbols = symbol_extractor_.get();
-	if(b_debug)
-		cout<<"Decoder::process() "<<"symbols.size() "<<symbols.size()<<endl;
-
 	if(symbols.size())
 	{
 		rtty_.push(symbols);
@@ -583,6 +548,7 @@ void habdec::Decoder<TReal>::process()
 
 	if( !rtty_.size() )
 		return;
+
 
 	auto decoded_chars = rtty_.get();
 	rtty_char_stream_.insert( rtty_char_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
