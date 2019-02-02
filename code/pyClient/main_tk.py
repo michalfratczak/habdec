@@ -316,8 +316,12 @@ def BuildMainWindow():
 	CONTROLS['lowpass_trans'] = MakeWidget('Float', 'lowpass_trans',hdc.STATE['lowpass_trans'],	partial(ControlCallback, 'lowpass_trans') )
 	CONTROLS['biastee'] = 	 	MakeWidget('Bool', 	'biastee', 		hdc.STATE['biastee'], 		partial(ControlCallback, 'biastee') )
 	CONTROLS['afc'] = 			MakeWidget('Bool', 	'afc', 			hdc.STATE['afc'], 			partial(ControlCallback, 'afc') )
+	CONTROLS['dc_remove'] =		MakeWidget('Bool', 	'dc_remove',	hdc.STATE['dc_remove'],		partial(ControlCallback, 'dc_remove') )
 
-	for param in [ 'frequency', 'gain', 'decimation', 'lowpass_bw', 'lowpass_trans', 'baud', 'rtty_bits', 'rtty_stops', 'biastee', 'afc']:
+	for param in [ 'frequency', 'gain', 'decimation',
+					'lowpass_bw', 'lowpass_trans',
+					'baud', 'rtty_bits', 'rtty_stops',
+					'biastee', 'afc', 'dc_remove']:
 		widget = CONTROLS[param]
 		tk.Label(text=param).grid(row=grid_row, column=0)
 		widget[0].grid(row=grid_row, column=1)

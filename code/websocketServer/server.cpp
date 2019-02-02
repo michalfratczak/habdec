@@ -127,6 +127,12 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		string o_command = "cmd::info:sampling_rate=" + to_string(sr);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 	}
+	else if(i_command == "get:dc_remove")
+	{
+		double dc_rem = GLOBALS::get().decoder_.dc_remove();
+		string o_command = "cmd::set:dc_remove=" + to_string(dc_rem);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
 	// SET
 	else if( regex_match(i_command, match, regex(R"_(set\:frequency=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
@@ -218,6 +224,14 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		int value = stoi(match[1]);
 		GLOBALS::get().afc_ = value;
 		string o_command = "cmd::set:afc=" + to_string(value);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	else if( regex_match(i_command, match, regex(R"_(set\:dc_remove=([0-9])+)_")) && match.size() > 1 )
+	{
+		int value = stoi(match[1]);
+		GLOBALS::get().decoder_.dc_remove(value);
+		GLOBALS::get().dc_remove_ = value;
+		string o_command = "cmd::set:dc_remove=" + to_string(value);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 	}
 	else

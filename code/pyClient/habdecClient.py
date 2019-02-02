@@ -65,6 +65,7 @@ STATE = {
 	'biastee': 0,
 	'decimation': 0,
 	'afc': 0,
+	'dc_remove': 0,
 }
 SENTENCES = []
 RTTY_STREAM = ''
@@ -131,6 +132,7 @@ def SendCommand(i_cmd):
 		set:biastee=1			get:biastee
 		set:decimation=2		get:decimation
 		set:afc=1				get:afc
+		set:dc_remove=1			get:dc_remove
 		power:res=512,zoom=0.5
 		demod:res=256
 		liveprint
@@ -168,6 +170,8 @@ def HandleResponse_Set(i_cmd):
 			STATE['decimation'] = int(float(value))
 		elif i_cmd.startswith('cmd::set:afc'):
 			STATE['afc'] = bool( float(value) )
+		elif i_cmd.startswith('cmd::set:dc_remove'):
+			STATE['dc_remove'] = bool( float(value) )
 
 
 def HandleResponse_Info(i_cmd):
@@ -227,17 +231,8 @@ def HandleResponse_Demod(_data):
 
 
 def UpdateState():
-	SendCommand('get:frequency')
-	SendCommand('get:sampling_rate')
-	SendCommand('get:gain')
-	SendCommand('get:baud')
-	SendCommand('get:rtty_bits')
-	SendCommand('get:rtty_stops')
-	SendCommand('get:lowpass_bw')
-	SendCommand('get:lowpass_trans')
-	SendCommand('get:biastee')
-	SendCommand('get:decimation')
-	SendCommand('get:afc')
+	for _key in STATE:
+		SendCommand('get:' + _key)
 
 
 def DecodeValues(i_data):

@@ -17,7 +17,8 @@ var GLOBALS =
 	lowpass_trans: 0,
 	biastee: 0,
 	decimation: 0,
-	afc: 0
+	afc: 0,
+	dc_remove: 0
 };
 
 
@@ -184,6 +185,11 @@ function HandleMessage(i_data)
 			GLOBALS.afc = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
+		else if(set_match[1] == "dc_remove")
+		{
+			GLOBALS.dc_remove = parseFloat(set_match[2]);
+			debug_print("Received Message: ", i_data);
+		}
 
 		SetGuiToGlobals(GLOBALS);
 
@@ -282,4 +288,13 @@ function SetAFC()
 		SendCommand("set:afc=1");
 	else
 		SendCommand("set:afc=0");
+}
+
+function SetDCRemove()
+{
+	var value = document.getElementById("dc_remove").checked;
+	if(value)
+		SendCommand("set:dc_remove=1");
+	else
+		SendCommand("set:dc_remove=0");
 }
