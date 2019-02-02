@@ -108,11 +108,14 @@ function ws_onMessage(evt)
 				widget.setAttribute("step_small", GLOBALS.sampling_rate / 1e6 / 500);
 			}
 			DrawPowerSpectrum(document.getElementById("powerSpectrumCanvas"), spectrum);
+			RefreshPowerSpectrum_lastReq = 0;
+
 		}
 		else if(what == "DEM_")
 		{
 			var demod = DecodeDemod(evt.data, 4);
 			DrawDemod(document.getElementById("demodCanvas"), demod);
+			RefreshDemod_lastReq = 0;
 		}
 	}
 	else
@@ -239,26 +242,63 @@ function HandleMessage(i_data)
 }
 
 
+var RefreshPowerSpectrum_lastReq = 0; // limits number of requests to server
 function RefreshPowerSpectrum()
 {
 	if(!connected)
 		return;
 
+	var FPS = 40; // frames per second refresh
+
+	// wait 250ms for last request to be realized
+	var d = new Date();
+	var now = d.getTime();
+	if( 	RefreshPowerSpectrum_lastReq 				 /* last request not realized */
+		&& ((now - RefreshPowerSpectrum_lastReq) < 250) /* under 250ms since last request */
+		)
+	{
+		// console.debug("waiting ... ", (now - RefreshPowerSpectrum_lastReq), now);
+		setTimeout(function () {RefreshPowerSpectrum();}, 1000 / FPS);
+		return;
+	}
+
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var zoom = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var canvas = document.getElementById("powerSpectrumCanvas");
+
 	SendCommand("power:res=" + canvas.width + ",zoom=" + zoom);
-	setTimeout(function () {RefreshPowerSpectrum();}, 1000 / 15);
+	RefreshPowerSpectrum_lastReq = d.getTime();
+
+	setTimeout(function () {RefreshPowerSpectrum();}, 1000 / FPS);
 }
 
 
+var RefreshDemod_lastReq = 0; // limits number of requests to server
 function RefreshDemod()
 {
 	if(!connected)
 		return;
+
+	var FPS = 4; // frames per second refresh
+
+	// wait 250ms for last request to be realized
+	var d = new Date();
+	var now = d.getTime();
+	if( 	RefreshDemod_lastReq 				 /* last request not realized */
+		&& ((now - RefreshDemod_lastReq) < 250) /* under 250ms since last request */
+		)
+	{
+		// console.debug("waiting ... ", (now - RefreshDemod_lastReq), now);
+		setTimeout(function () {RefreshDemod();}, 1000 / FPS);
+		return;
+	}
+
 	var canvas = document.getElementById("demodCanvas");
+
 	SendCommand("demod:res=" + canvas.width);
-	setTimeout(function () {RefreshDemod();}, 1000 / 3);
+	RefreshDemod_lastReq = d.getTime();
+
+	setTimeout(function () {RefreshDemod();}, 1000 / FPS);
 }
 
 
