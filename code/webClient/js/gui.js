@@ -110,7 +110,7 @@ function CreateControls()
 	CreateFloatBoxWithArrows("cnt_gain", "gain",
 						SendCommand,  0, 49, 21, 1, 5);
 	CreateFloatBoxWithArrows("cnt_lowpass_bw", "lowpass_bw",
-						SendCommand,  .0, 1.0, .05, .002, .02);
+						SendCommand,  100, 4000, 1500, 50, 200, 10);
 	CreateFloatBoxWithArrows("cnt_lowpass_trans", "lowpass_trans",
 						SendCommand,  .0025, 0.1, .05, .0025, .01);
 	CreateFloatBoxWithArrows("cnt_baud", "baud",

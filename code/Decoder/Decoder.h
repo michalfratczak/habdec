@@ -158,7 +158,7 @@ private:
 	mutable std::mutex 	afc_mtx_;
 
 	// Low Pass FIR
-	float 				lowpass_bw_ = 0.05;
+	float 				lowpass_bw_Hz_ = 1500;
 	float 				lowpass_trans_ = 0.025;
 	TFIR				lowpass_fir_;
 	mutable std::mutex	lowpass_fir_mtx_;
@@ -216,17 +216,17 @@ void habdec::Decoder<TReal>::init(const float i_sampling_rate)
 
 
 template<typename TReal>
-void 	habdec::Decoder<TReal>::lowpass_bw(float i_lowpass_bw)
+void 	habdec::Decoder<TReal>::lowpass_bw(float i_lowpass_bw_Hz)
 {
 	std::lock_guard<std::mutex>	_lock(lowpass_fir_mtx_);
-	lowpass_bw_ = i_lowpass_bw;
-	lowpass_fir_.LP_BlackmanHarris(lowpass_bw_, lowpass_trans_);
+	lowpass_bw_Hz_ = i_lowpass_bw_Hz;
+	lowpass_fir_.LP_BlackmanHarris(lowpass_bw_Hz_ * getDecimatedSamplingRate(), lowpass_trans_);
 }
 
 template<typename TReal>
 float 	habdec::Decoder<TReal>::lowpass_bw() const
 {
-	return lowpass_bw_;
+	return lowpass_bw_Hz_;
 }
 
 template<typename TReal>
@@ -234,7 +234,7 @@ void 	habdec::Decoder<TReal>::lowpass_trans(float i_lowpass_trans)
 {
 	std::lock_guard<std::mutex>	_lock(lowpass_fir_mtx_);
 	lowpass_trans_ = i_lowpass_trans;
-	lowpass_fir_.LP_BlackmanHarris(lowpass_bw_, lowpass_trans_);
+	lowpass_fir_.LP_BlackmanHarris(lowpass_bw_Hz_ * getDecimatedSamplingRate(), lowpass_trans_);
 }
 
 template<typename TReal>
@@ -516,7 +516,7 @@ void habdec::Decoder<TReal>::process()
 		lock_guard<mutex>	_lock(lowpass_fir_mtx_);
 		lowpass_fir_.setInput (iq_samples_decimated_.data(), samples_to_filter_cnt);
 		lowpass_fir_.setOutput(iq_samples_filtered_.data());
-		lowpass_fir_.LP_BlackmanHarris(lowpass_bw_, lowpass_trans_);
+		lowpass_fir_.LP_BlackmanHarris(lowpass_bw_Hz_ * getDecimatedSamplingRate(), lowpass_trans_);
 		lowpass_fir_();
 		iq_samples_filtered_.samplingRate( getDecimatedSamplingRate() );
 	}

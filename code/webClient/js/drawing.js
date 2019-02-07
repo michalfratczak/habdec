@@ -102,14 +102,14 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	var zoom = G_SPECTRUM_ZOOM;
 
     // LOWPASS FILTER DRAW
-    //
-    var _lowpass_bw = GLOBALS.lowpass_bw / (1.0 - .999*zoom);
+	//
+	var _lowpass_bw_relative = GLOBALS.lowpass_bw / i_spectrum.sampling_rate_ / (1.0 - .999*zoom);
     var _lowpass_trans = GLOBALS.lowpass_trans / (1.0 - .999*zoom);
 	var grd_lowpass = ctx.createLinearGradient(0, 0, i_canvas.width-1, 0);
-	var _l  = Math.max(0, .5 - .5 * _lowpass_bw);
-	var _ll = Math.max(0, .5 - .5 * (_lowpass_bw + _lowpass_trans));
-	var _r  = Math.min(1, .5 + .5 * _lowpass_bw);
-	var _rr = Math.min(1, .5 + .5 * (_lowpass_bw + _lowpass_trans));
+	var _l  = Math.max(0, .5 - .5 * _lowpass_bw_relative);
+	var _ll = Math.max(0, .5 - .5 * (_lowpass_bw_relative + _lowpass_trans));
+	var _r  = Math.min(1, .5 + .5 * _lowpass_bw_relative);
+	var _rr = Math.min(1, .5 + .5 * (_lowpass_bw_relative + _lowpass_trans));
 
 	grd_lowpass.addColorStop(0, "rgba(15,25,50,0)");
 	grd_lowpass.addColorStop(_ll, "rgba(15,25,50,0)");

@@ -341,8 +341,6 @@ int main(int argc, char** argv)
 	DECODER.baud(GLOBALS::get().baud_);
 	DECODER.rtty_bits(GLOBALS::get().rtty_ascii_bits_);
 	DECODER.rtty_stops(GLOBALS::get().rtty_ascii_stops_);
-	DECODER.lowpass_bw(.05);
-	DECODER.lowpass_trans(.025);
 	DECODER.livePrint( GLOBALS::get().live_print_ );
 	DECODER.dc_remove( GLOBALS::get().dc_remove_ );
 

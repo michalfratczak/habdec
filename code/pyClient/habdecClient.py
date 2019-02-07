@@ -127,7 +127,7 @@ def SendCommand(i_cmd):
 		set:baud=50				get:baud
 		set:rtty_bits=8			get:rtty_bits
 		set:rtty_stops=2		get:rtty_stops
-		set:lowpass_bw=.1		get:lowpass_bw
+		set:lowpass_bw=1500		get:lowpass_bw
 		set:lowpass_trans=.01	get:lowpass_trans
 		set:biastee=1			get:biastee
 		set:decimation=2		get:decimation

@@ -104,10 +104,10 @@ def RedrawSpectrum():
 
 		# LOWPASS FILTER DRAW
 		#
-		_lowpass_bw = hdc.STATE['lowpass_bw'] / (1.0 - .999*zoom)
+		_lowpass_bw_relative = hdc.STATE['lowpass_bw'] / hdc.SPECTRUM.sampling_rate_ / (1.0 - .999*zoom)
 		_lowpass_trans = hdc.STATE['lowpass_trans'] / (1.0 - .999*zoom)
-		_l  = max(0, .5 - .5 * _lowpass_bw)
-		_r  = min(1, .5 + .5 * _lowpass_bw)
+		_l  = max(0, .5 - .5 * _lowpass_bw_relative)
+		_r  = min(1, .5 + .5 * _lowpass_bw_relative)
 		SPECTRUM_CANVAS.create_rectangle(
 						_l*SPECTRUM_CANVAS_RES_X, 0,
 						_r*SPECTRUM_CANVAS_RES_X, SPECTRUM_CANVAS_RES_Y-1,
@@ -304,7 +304,7 @@ def BuildMainWindow():
 		return [widget, var, i_type]
 
 	hdc.UpdateState()
-	print(hdc.STATE)
+
 	global CONTROLS
 	CONTROLS['frequency'] = 	MakeWidget('Float', 'frequency', 	hdc.STATE['frequency'],		partial(ControlCallback, 'frequency') )
 	CONTROLS['gain'] = 			MakeWidget('Int', 	'gain', 		hdc.STATE['gain'], 			partial(ControlCallback, 'gain') )

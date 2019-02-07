@@ -100,16 +100,11 @@ function ws_onMessage(evt)
 		if(what == "PWR_")
 		{
 			var spectrum = DecodeSpectrum(evt.data, 4);
-			if(GLOBALS.sampling_rate != spectrum.sampling_rate_)
-			{
-				GLOBALS.sampling_rate = spectrum.sampling_rate_;
-				var widget = document.getElementById("frequency");
-				widget.setAttribute("step_big", GLOBALS.sampling_rate / 1e6 / 30);
-				widget.setAttribute("step_small", GLOBALS.sampling_rate / 1e6 / 500);
-			}
+			var widget = document.getElementById("frequency");
+			widget.setAttribute("step_big", spectrum.sampling_rate_ / 1e6 / 30);
+			widget.setAttribute("step_small", spectrum.sampling_rate_ / 1e6 / 500);
 			DrawPowerSpectrum(document.getElementById("powerSpectrumCanvas"), spectrum);
 			RefreshPowerSpectrum_lastReq = 0;
-
 		}
 		else if(what == "DEM_")
 		{
