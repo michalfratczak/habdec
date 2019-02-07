@@ -343,6 +343,8 @@ int main(int argc, char** argv)
 	DECODER.rtty_stops(GLOBALS::get().rtty_ascii_stops_);
 	DECODER.livePrint( GLOBALS::get().live_print_ );
 	DECODER.dc_remove( GLOBALS::get().dc_remove_ );
+	DECODER.lowpass_bw( GLOBALS::get().lowpass_bw_Hz_ );
+	DECODER.lowpass_trans( GLOBALS::get().lowpass_tr_ );
 
 	double freq = GLOBALS::get().frequency_;
 	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);

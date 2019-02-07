@@ -87,6 +87,8 @@ public:
 	double  ppm_ = 0;
 	bool 	usb_pack_ = false; // airspy usb bitpack
 	bool 	dc_remove_ = false;
+	float	lowpass_bw_Hz_ = 1500;
+	float	lowpass_tr_ = 0.025;
 	std::string 	sentence_cmd_ = "";
 	std::string 	habitat_payload_ = "";
 
@@ -114,6 +116,8 @@ public:
 			oFile<<"afc = "<<GLOBALS::get().afc_<<endl;
 			oFile<<"usb_pack = "<<GLOBALS::get().usb_pack_<<endl;
 			oFile<<"dc_remove = "<<GLOBALS::get().dc_remove_<<endl;
+			oFile<<"lowpass = "<<GLOBALS::get().lowpass_bw_Hz_<<endl;
+			oFile<<"lp_trans = "<<GLOBALS::get().lowpass_tr_<<endl;
 			oFile<<"sentence_cmd = "<<GLOBALS::get().sentence_cmd_<<endl;
 			oFile<<"payload = "<<GLOBALS::get().habitat_payload_<<endl;
 		}
@@ -146,6 +150,8 @@ public:
 		cout<<"\tbiast: "<<GLOBALS::get().biast_<<endl;
 		cout<<"\tusb_pack: "<<GLOBALS::get().usb_pack_<<endl;
 		cout<<"\tdc_remove: "<<GLOBALS::get().dc_remove_<<endl;
+		cout<<"\tlowpass: "<<GLOBALS::get().lowpass_bw_Hz_<<endl;
+		cout<<"\tlp_trans: "<<GLOBALS::get().lowpass_tr_<<endl;
 	}
 
 

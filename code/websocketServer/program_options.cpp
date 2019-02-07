@@ -96,6 +96,10 @@ void prog_opts(int ac, char* av[])
 			("usb_pack",		po::value<bool>(), "AirSpy USB bit packing")
 			("dc_remove",		po::value<bool>(), "DC remove")
 
+			("lowpass",		po::value<float>(), "lowpass bandwidth in Hertz")
+			("lp_trans",	po::value<float>(), "lowpass transition width. (0-1)")
+
+
 			("sentence_cmd",	po::value<string>(), "Call external command with sentence as parameter")
 
 			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
@@ -213,6 +217,14 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("dc_remove"))
 		{
 			GLOBALS::get().dc_remove_ = vm["dc_remove"].as<bool>();
+		}
+		if (vm.count("lowpass"))
+		{
+			GLOBALS::get().lowpass_bw_Hz_ = vm["lowpass"].as<float>();
+		}
+		if (vm.count("lp_trans"))
+		{
+			GLOBALS::get().lowpass_tr_ = vm["lp_trans"].as<float>();
 		}
 		if (vm.count("rtty"))
 		{
