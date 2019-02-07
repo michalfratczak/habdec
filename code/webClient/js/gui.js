@@ -153,3 +153,122 @@ function toggleFullscreen(elem)
 		}
 	}
 }
+
+
+////////////////////////////////////////
+///////////// Flights Menu /////////////
+////////////////////////////////////////
+
+function LoadFlightsData()
+{
+	var d = new Date();
+	var now = d.getTime() / 1000;
+	var _url = 'http://habitat.habhub.org/habitat/_design/flight/_view/end_start_including_payloads?startkey=[' + now + ']&include_docs=True'
+	console.debug(_url);
+
+	$.ajax({
+		url: _url,
+		dataType: "json",
+		success: function(result) { LoadFlightsData_CB(result) }
+	});
+}
+
+
+function LoadFlightsData_CB(i_data)
+{
+	var FLIGHTS = {};
+
+	var flights = i_data["rows"];
+
+	for(i in flights)
+	{
+		var _id = flights[i]["id"];
+		var doc = flights[i]["doc"];
+
+		if(doc["type"] == "flight")
+		{
+			var payloads = doc["payloads"];
+			if(payloads && payloads.length)
+			{
+				FLIGHTS[_id] = {};
+				FLIGHTS[_id]["payloads"] = {};
+				for(p in payloads)
+				{
+					var payload_id = doc["payloads"][p];
+					FLIGHTS[_id]["payloads"][payload_id] = {};
+				}
+			}
+		}
+	}
+
+	for(i in flights)
+	{
+		var _id = flights[i]["id"];
+		var doc = flights[i]["doc"];
+
+		if(doc["type"] == "payload_configuration")
+		{
+			var payload_id = doc["_id"];
+			var transmissions = doc["transmissions"];
+
+			for(t_id in transmissions)
+			{
+				if(transmissions[t_id]["modulation"] == "RTTY")
+				{
+					FLIGHTS[_id]["payloads"][payload_id]["name"] = doc["name"];
+					FLIGHTS[_id]["payloads"][payload_id]["name"] = doc["name"];
+					FLIGHTS[_id]["payloads"][payload_id]["frequency"] = transmissions[t_id]["frequency"];
+					FLIGHTS[_id]["payloads"][payload_id]["baud"] = transmissions[t_id]["baud"];
+					FLIGHTS[_id]["payloads"][payload_id]["encoding"] = transmissions[t_id]["encoding"];
+					FLIGHTS[_id]["payloads"][payload_id]["stop"] = transmissions[t_id]["stop"];
+				}
+			}
+		}
+	}
+
+	CreatePayloadsButton(FLIGHTS)
+}
+
+function CreatePayloadsButton(i_Flights)
+{
+	console.debug(i_Flights);
+
+	var PayloadsWrapperDiv = document.getElementById("PayloadsWrapperDiv");
+	PayloadsWrapperDiv.classList.add("PayloadsDropdownWrapper")
+
+	var PayloadsButton = document.createElement("button");
+	PayloadsButton.classList.add("PayloadsDropButton");
+	PayloadsButton.onclick = function() { document.getElementById("PayloadsDropMenuDiv").classList.toggle("show") };
+	PayloadsButton.innerHTML = "HabHub Flights";
+	PayloadsWrapperDiv.appendChild(PayloadsButton);
+
+	var DropMenuDiv = document.createElement("div");
+	DropMenuDiv.id = "PayloadsDropMenuDiv";
+	DropMenuDiv.classList.add("PayloadsDropMenu");
+	PayloadsWrapperDiv.appendChild(DropMenuDiv);
+
+	for(f_id in i_Flights)
+	{
+		for(p_id in i_Flights[f_id]["payloads"])
+		(
+			function(p_id)
+			{
+				var payload = i_Flights[f_id]["payloads"][p_id];
+				var label = payload["name"] + ": " + payload["baud"] + "Bd " + payload["encoding"] + "/" + payload["stop"] + " " + (parseInt(payload["frequency"])/1000000) + "MHz";
+				console.debug(label, p_id);
+
+				var pl_button = document.createElement("button");
+				pl_button.innerHTML = label;
+				pl_button.onclick = function(){ SetPayload(p_id) };
+
+				DropMenuDiv.appendChild(pl_button);
+			}
+		)(p_id)
+	}
+
+}
+
+function PayloadButtonClickCB()
+{
+	document.getElementById("PayloadsDropMenuDiv").classList.toggle("show");
+}

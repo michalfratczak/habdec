@@ -274,6 +274,7 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 
 		double frequency = 0;
 		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
+		frequency /= 1e6;
 		o_command = "cmd::set:frequency=" + to_string(frequency);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 

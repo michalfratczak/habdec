@@ -201,6 +201,7 @@ function HandleMessage(i_data)
 	var info_re = new RegExp(info_rex);
 	var info_match = info_re.exec(data_without_new_lines);
 	// if (info_match && info_match.length == 3)
+	if (info_match)
 	{
 		if(info_match[1] == "sentence")
 		{
@@ -332,4 +333,9 @@ function SetDCRemove()
 		SendCommand("set:dc_remove=1");
 	else
 		SendCommand("set:dc_remove=0");
+}
+
+function SetPayload(i_payload_id)
+{
+	SendCommand("set:payload=" + i_payload_id);
 }

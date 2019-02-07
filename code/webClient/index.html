@@ -6,6 +6,7 @@
 <script src="js/habdec_commands.js"></script>
 <script src="js/drawing.js"></script>
 <script src="js/gui.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <head>
 <style>
@@ -76,6 +77,9 @@
 	<button  onclick="OpenConnection()" >Connect</button>
 </div>
 
+<!-- Payloads Dropwown Menu -->
+<div id="PayloadsWrapperDiv"></div>
+
 </body>
 
 
@@ -88,6 +92,7 @@ function habdec_init()
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
+	LoadFlightsData();
 }
 
 window.addEventListener("load", habdec_init, false);
