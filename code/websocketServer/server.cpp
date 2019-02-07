@@ -39,9 +39,9 @@ namespace websocket = 	boost::beast::websocket;
 #include "CompressedVector.h"
 #include "GLOBALS.h"
 #include "NetTransport.h"
+#include "habitat/habitat_interface.h"
 
 extern bool G_DO_EXIT;
-
 
 bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& ws)
 {
@@ -232,6 +232,61 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		GLOBALS::get().decoder_.dc_remove(value);
 		GLOBALS::get().dc_remove_ = value;
 		string o_command = "cmd::set:dc_remove=" + to_string(value);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	else if( regex_match(i_command, match, regex(R"_(set\:payload=(\w+))_")) && match.size() > 1 )
+	{
+		using namespace habdec::habitat;
+
+		string payload_id = match[1];
+		std::map<std::string, HabitatFlight> flights = ListFlights(0);
+		auto& DEC = GLOBALS::get().decoder_;
+
+		for(auto& flight : flights)
+		{
+			for(auto& payload : flight.second.payloads_)
+			{
+				if( !payload_id.compare(payload.second.id_) )
+				{
+					GLOBALS::get().baud_ = payload.second.baud_;
+					GLOBALS::get().rtty_ascii_bits_ = payload.second.ascii_bits_;
+					GLOBALS::get().rtty_ascii_stops_ = payload.second.ascii_stops_;
+					GLOBALS::get().frequency_ = payload.second.frequency_;
+
+					DEC.baud( GLOBALS::get().baud_ );
+					DEC.rtty_bits( GLOBALS::get().rtty_ascii_bits_ );
+					DEC.rtty_stops( GLOBALS::get().rtty_ascii_stops_ );
+					GLOBALS::get().p_iq_source_->setOption("frequency_double", &GLOBALS::get().frequency_);
+
+					cout<<C_MAGENTA<<"Loading parameters for payload "<<payload_id<<C_OFF<<endl;
+					cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;
+					cout<<"\tascii_bits: "<<GLOBALS::get().rtty_ascii_bits_<<endl;
+					cout<<"\tascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
+					cout<<"\tfrequency: "<<GLOBALS::get().frequency_<<endl;
+
+					break;
+				}
+			}
+		}
+
+		// speak back
+		string o_command;
+
+		double frequency = 0;
+		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
+		o_command = "cmd::set:frequency=" + to_string(frequency);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		size_t baud = GLOBALS::get().decoder_.baud();
+		o_command = "cmd::set:baud=" + to_string(baud);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		size_t rtty_bits = GLOBALS::get().decoder_.rtty_bits();
+		o_command = "cmd::set:rtty_bits=" + to_string(rtty_bits);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		float rtty_stops = GLOBALS::get().decoder_.rtty_stops();
+		o_command = "cmd::set:rtty_stops=" + to_string(rtty_stops);
 		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 	}
 	else

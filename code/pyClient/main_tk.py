@@ -346,7 +346,7 @@ def BuildMainWindow():
 	grid_row += 1
 
 
-if __name__ == "__main__":
+def main():
 	hdc.InitConnection("ws://localhost:5555/", UpdateControls, UpdateRtty)
 	hdc.UpdateState()
 
@@ -354,5 +354,10 @@ if __name__ == "__main__":
 	GUI.after( 500, RedrawSpectrum )
 	GUI.after( 500, RedrawDemod )
 	GUI.after( 250, RefreshRttyStream )
+
+
 	GUI.mainloop()
 	hdc.CloseConnection()
+
+if __name__ == "__main__":
+	main()
