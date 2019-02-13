@@ -101,7 +101,7 @@ tip: while building osmocom-rtlsdr driver, use this command:
     git clone https://github.com/pothosware/SoapyAirspy.git
     mkdir build
     cd build
-    cmake ../SoapySDR
+    cmake ../SoapyAirspy
     make
     sudo make install
     sudo ldconfig
@@ -123,7 +123,7 @@ If you managed to build or install dependencies, you're ready do build habdec
     mkdir build
     cd build
     cmake cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=RELEASE ../code
-    make
+    make -j 4
     make install
 
-You should end up with `install` dir that contains executable and a shell script that runs in loop (for cases where habdec should crash and you wan't continous run).
+You should end up with `install` dir that contains executable and a shell script that runs in loop (for cases where habdec crashes and you need continous run).
