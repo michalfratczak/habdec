@@ -91,7 +91,7 @@ tip: while building osmocom-rtlsdr driver, use this command:
     mkdir build
     cd build
     cmake ..
-    make -j
+    make
     sudo make install
     sudo ldconfig
     SoapySDRUtil --info
@@ -118,7 +118,7 @@ Tip: you might need to configure with:
 
 If you managed to build or install dependencies, you're ready do build habdec
 
-    git clone habdec
+    git clone https://github.com/ogre/habdec.git
     cd habdec
     mkdir build
     cd build
