@@ -18,7 +18,8 @@ var GLOBALS =
 	biastee: 0,
 	decimation: 0,
 	afc: 0,
-	dc_remove: 0
+	dc_remove: 0,
+	datasize: 1
 };
 
 
@@ -39,7 +40,7 @@ function OpenConnection()
 		return;
 
 	var server = document.getElementById("server_address").value;
-	debug_print("Connecting to ", server, " ...");
+	console.debug("Connecting to ", server, " ...");
 	websocket = new WebSocket("ws://" + server);
 	websocket.binaryType = 'arraybuffer'; // or 'blob'
 
@@ -186,6 +187,11 @@ function HandleMessage(i_data)
 		else if(set_match[1] == "dc_remove")
 		{
 			GLOBALS.dc_remove = parseFloat(set_match[2]);
+			debug_print("Received Message: ", i_data);
+		}
+		else if(set_match[1] == "datasize")
+		{
+			GLOBALS.datasize = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 

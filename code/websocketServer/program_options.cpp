@@ -46,10 +46,10 @@ int LoadPayloadParameters(std::string i_payload_id)
 		{
 			if( !i_payload_id.compare(payload.second.id_) )
 			{
-				GLOBALS::get().baud_ = payload.second.baud_;
-				GLOBALS::get().rtty_ascii_bits_ = payload.second.ascii_bits_;
-				GLOBALS::get().rtty_ascii_stops_ = payload.second.ascii_stops_;
-				GLOBALS::get().frequency_ = payload.second.frequency_;
+				GLOBALS::get().par_.baud_ = payload.second.baud_;
+				GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
+				GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
+				GLOBALS::get().par_.frequency_ = payload.second.frequency_;
 
 				cout<<C_MAGENTA<<"Loading parameters for payload "<<i_payload_id<<C_OFF<<endl;
 
@@ -78,7 +78,7 @@ void prog_opts(int ac, char* av[])
 		generic.add_options()
 			("help", "Display help message")
 			("device",	po::value<int>(), "SDR Device Number. -1 to list")
-			("sampling_rate",	po::value<double>()->default_value(GLOBALS::get().sampling_rate_), "Sampling Rate, as supported by device")
+			("sampling_rate",	po::value<double>()->default_value(GLOBALS::get().par_.sampling_rate_), "Sampling Rate, as supported by device")
 
 			("port",	po::value<string>(),	"Command Port, example: --port 127.0.0.1:5555")
 
@@ -93,12 +93,12 @@ void prog_opts(int ac, char* av[])
 			("biast",	po::value<bool>(), "biasT, values: 0, 1")
 			("bias_t",	po::value<bool>(), "biasT, values: 0, 1")
 			("afc",		po::value<bool>(), "Auto Frequency Correction, values: 0, 1")
-			("usb_pack",		po::value<bool>(), "AirSpy USB bit packing")
-			("dc_remove",		po::value<bool>(), "DC remove")
+			("usb_pack",	po::value<bool>(), "AirSpy USB bit packing")
+			("dc_remove",	po::value<bool>(), "DC remove")
+			("dec",			po::value<int>(), "decimation: 2^dec, range: 0-8")
 
 			("lowpass",		po::value<float>(), "lowpass bandwidth in Hertz")
 			("lp_trans",	po::value<float>(), "lowpass transition width. (0-1)")
-
 
 			("sentence_cmd",	po::value<string>(), "Call external command with sentence as parameter")
 
@@ -144,11 +144,11 @@ void prog_opts(int ac, char* av[])
 
 		if (vm.count("device"))
 		{
-			GLOBALS::get().device_ = vm["device"].as<int>();
+			GLOBALS::get().par_.device_ = vm["device"].as<int>();
 		}
 		if (vm.count("sampling_rate"))
 		{
-			GLOBALS::get().sampling_rate_ = vm["sampling_rate"].as<double>();
+			GLOBALS::get().par_.sampling_rate_ = vm["sampling_rate"].as<double>();
 		}
 		if (vm.count("port")) // [host:][port]
 		{
@@ -159,72 +159,76 @@ void prog_opts(int ac, char* av[])
 			{
 				if(match[2] == "" && match[3] == "") // special case when only port is given: --port 5555
 				{
-					GLOBALS::get().command_port_ = stoi(match[1]);
+					GLOBALS::get().par_.command_port_ = stoi(match[1]);
 				}
 				else
 				{
-					if(match[1] != "")	GLOBALS::get().command_host_ = match[1];
-					if(match[3] != "")	GLOBALS::get().command_port_ = stoi(match[3]);
+					if(match[1] != "")	GLOBALS::get().par_.command_host_ = match[1];
+					if(match[3] != "")	GLOBALS::get().par_.command_port_ = stoi(match[3]);
 				}
 			}
 		}
 		if (vm.count("station"))
 		{
-			GLOBALS::get().station_callsign_ = vm["station"].as<string>();
+			GLOBALS::get().par_.station_callsign_ = vm["station"].as<string>();
 		}
 		if (vm.count("payload"))
 		{
-			GLOBALS::get().habitat_payload_ = vm["payload"].as<string>();
-			if( !LoadPayloadParameters( GLOBALS::get().habitat_payload_ ) )
-				cout<<C_RED<<"Failed loading payload "<<GLOBALS::get().habitat_payload_ <<endl;
+			GLOBALS::get().par_.habitat_payload_ = vm["payload"].as<string>();
+			if( !LoadPayloadParameters( GLOBALS::get().par_.habitat_payload_ ) )
+				cout<<C_RED<<"Failed loading payload "<<GLOBALS::get().par_.habitat_payload_ <<endl;
 		}
 		if (vm.count("sentence_cmd"))
 		{
-			GLOBALS::get().sentence_cmd_ = vm["sentence_cmd"].as<string>();
+			GLOBALS::get().par_.sentence_cmd_ = vm["sentence_cmd"].as<string>();
 		}
 		if (vm.count("freq"))
 		{
-			GLOBALS::get().frequency_ = vm["freq"].as<float>() * 1e6;
+			GLOBALS::get().par_.frequency_ = vm["freq"].as<float>() * 1e6;
 		}
 		if (vm.count("ppm"))
 		{
-			GLOBALS::get().ppm_ = vm["ppm"].as<float>();
+			GLOBALS::get().par_.ppm_ = vm["ppm"].as<float>();
 		}
 		if (vm.count("gain"))
 		{
-			GLOBALS::get().gain_ = vm["gain"].as<int>();
+			GLOBALS::get().par_.gain_ = vm["gain"].as<int>();
 		}
 		if (vm.count("print"))
 		{
-			GLOBALS::get().live_print_ = vm["print"].as<bool>();
+			GLOBALS::get().par_.live_print_ = vm["print"].as<bool>();
 		}
 		if (vm.count("biast"))
 		{
-			GLOBALS::get().biast_ = vm["biast"].as<bool>();
+			GLOBALS::get().par_.biast_ = vm["biast"].as<bool>();
 		}
 		if (vm.count("bias_t"))
 		{
-			GLOBALS::get().biast_ = vm["bias_t"].as<bool>();
+			GLOBALS::get().par_.biast_ = vm["bias_t"].as<bool>();
 		}
 		if (vm.count("afc"))
 		{
-			GLOBALS::get().afc_ = vm["afc"].as<bool>();
+			GLOBALS::get().par_.afc_ = vm["afc"].as<bool>();
 		}
 		if (vm.count("usb_pack"))
 		{
-			GLOBALS::get().usb_pack_ = vm["usb_pack"].as<bool>();
+			GLOBALS::get().par_.usb_pack_ = vm["usb_pack"].as<bool>();
 		}
 		if (vm.count("dc_remove"))
 		{
-			GLOBALS::get().dc_remove_ = vm["dc_remove"].as<bool>();
+			GLOBALS::get().par_.dc_remove_ = vm["dc_remove"].as<bool>();
 		}
 		if (vm.count("lowpass"))
 		{
-			GLOBALS::get().lowpass_bw_Hz_ = vm["lowpass"].as<float>();
+			GLOBALS::get().par_.lowpass_bw_Hz_ = vm["lowpass"].as<float>();
 		}
 		if (vm.count("lp_trans"))
 		{
-			GLOBALS::get().lowpass_tr_ = vm["lp_trans"].as<float>();
+			GLOBALS::get().par_.lowpass_tr_ = vm["lp_trans"].as<float>();
+		}
+		if (vm.count("dec"))
+		{
+			GLOBALS::get().par_.decimation_ = std::max(0, vm["dec"].as<int>());
 		}
 		if (vm.count("rtty"))
 		{
@@ -246,9 +250,9 @@ void prog_opts(int ac, char* av[])
 				exit(1);
 			}
 
-			GLOBALS::get().baud_ = rtty_tokens[0];
-			GLOBALS::get().rtty_ascii_bits_ = rtty_tokens[1];
-			GLOBALS::get().rtty_ascii_stops_ = rtty_tokens[2];
+			GLOBALS::get().par_.baud_ = rtty_tokens[0];
+			GLOBALS::get().par_.rtty_ascii_bits_ = rtty_tokens[1];
+			GLOBALS::get().par_.rtty_ascii_stops_ = rtty_tokens[2];
 		}
 		if (vm.count("flights"))
 		{
@@ -268,8 +272,8 @@ void prog_opts(int ac, char* av[])
 				cout<<C_RED<<"--latlon option needs 2 args"<<C_OFF<<endl;
 				exit(1);
 			}
-			GLOBALS::get().station_lat_ = latlon_vec[0];
-			GLOBALS::get().station_lon_ = latlon_vec[1];
+			GLOBALS::get().par_.station_lat_ = latlon_vec[0];
+			GLOBALS::get().par_.station_lon_ = latlon_vec[1];
 		}
 	}
 	catch(exception& e)

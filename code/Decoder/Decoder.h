@@ -205,7 +205,7 @@ void habdec::Decoder<TReal>::init(const float i_sampling_rate)
 {
 	iq_in_buffer_.samplingRate(i_sampling_rate);
 
-	setupDecimationStagesBW(10.1e6/256);
+	// setupDecimationStagesBW(10.1e6/256);
 
 	std::lock_guard<std::mutex> lock(process_mutex_);
 
@@ -256,8 +256,8 @@ size_t habdec::Decoder<TReal>::setupDecimationStagesFactor(const size_t i_factor
 		return getDecimationFactor();
 	}
 
-	if(!iq_in_buffer_.samplingRate())
-		return 0;
+	/*if(!iq_in_buffer_.samplingRate())
+		return 0;*/
 
 	std::lock_guard<std::mutex> lock(process_mutex_);
 
@@ -576,6 +576,7 @@ void habdec::Decoder<TReal>::process()
 				rtty_char_stream_ = result["stream"]; // rest of stream after sentence
 				last_sentence_ = result["callsign"] + "," + result["data"] + "*" + result["crc"];
 				printHabhubSentence( result["callsign"], result["data"], result["crc"] );
+				cout<<endl;
 
 				if( success_callback_ &&
 					result["crc"] == CRC(result["callsign"] + "," + result["data"]) )

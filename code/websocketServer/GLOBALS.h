@@ -53,44 +53,76 @@ public:
 	std::unique_ptr<habdec::IQSource> 	p_iq_source_;
 
 	enum class TransportDataType {kUnknown=0, kChar, kShort, kFloat}; // 8, 16, 32 bits
-	TransportDataType  	transport_data_type_ = TransportDataType::kChar;
 
 	std::vector<TDecoder::TValue>	demod_accumulated_; // acuumulated demod samples, used for GUI display
 	std::mutex demod_accumulated_mtx_;
 
-	// decoded sentences que
-	std::vector<std::string> 		senteces_to_log_;
-	std::mutex 						senteces_to_log_mtx_;
-	std::vector<std::string> 		senteces_to_web_;
-	std::mutex 						senteces_to_web_mtx_;
+	// decoded sentences, key is sentende id
+	std::map<int, std::string>			sentences_map_;
+	std::timed_mutex					sentences_map_mtx_;
 
-	// outgoing commands. used to sync webgui
-	std::vector<std::string> 		out_commands_;
-	std::mutex 						out_commands_mtx_;
+	// options
+	struct PARAMS
+	{
+		int 			device_ = -1; 	// index to SoapySDR::Device::enumerate()
+		std::string 	command_host_ = "0.0.0.0";
+		int 		 	command_port_ = 5555;
+		std::string 	station_callsign_ = ""; // habitat upload
+		float 	station_lat_ = 0;
+		float 	station_lon_ = 0;
+		double	sampling_rate_ = 0;
+		int 	decimation_ = 6;
+		double 	frequency_ = 434349500.0f;
+		double 	gain_ = 15;
+		bool 	biast_ = false;
+		float 	baud_ = 300;
+		int 	rtty_ascii_bits_ = 8;
+		float 	rtty_ascii_stops_ = 2;
+		bool 	live_print_ = true;
+		bool 	afc_ = false;
+		double  ppm_ = 0;
+		bool 	usb_pack_ = false; // airspy usb bitpack
+		bool 	dc_remove_ = false;
+		float	lowpass_bw_Hz_ = 1500;
+		float	lowpass_tr_ = 0.025;
+		std::string 	sentence_cmd_ = "";
+		std::string 	habitat_payload_ = "";
+		// int 	datasize_ = 1;
+		TransportDataType  	transport_data_type_ = TransportDataType::kChar;
 
-	// OPTS:
-	int 			device_ = -1; 	// index to SoapySDR::Device::enumerate()
-	std::string 	command_host_ = "0.0.0.0";
-	int 		 	command_port_ = 5555;
-	std::string 	station_callsign_ = ""; // habitat upload
-	float 	station_lat_ = 0;
-	float 	station_lon_ = 0;
-	double	sampling_rate_ = 0;
-	double 	frequency_ = 434349500.0f;
-	double 	gain_ = 15;
-	bool 	biast_ = false;
-	float 	baud_ = 300;
-	int 	rtty_ascii_bits_ = 8;
-	float 	rtty_ascii_stops_ = 2;
-	bool 	live_print_ = true;
-	bool 	afc_ = false;
-	double  ppm_ = 0;
-	bool 	usb_pack_ = false; // airspy usb bitpack
-	bool 	dc_remove_ = false;
-	float	lowpass_bw_Hz_ = 1500;
-	float	lowpass_tr_ = 0.025;
-	std::string 	sentence_cmd_ = "";
-	std::string 	habitat_payload_ = "";
+
+		bool operator==(const PARAMS& rhs) const
+		{
+			return
+				   frequency_ == rhs.frequency_
+				&& gain_ == rhs.gain_
+				&& lowpass_bw_Hz_ == rhs.lowpass_bw_Hz_
+				&& lowpass_tr_ == rhs.lowpass_tr_
+				&& decimation_ == rhs.decimation_
+				&& biast_ == rhs.biast_
+				&& baud_ == rhs.baud_
+				&& rtty_ascii_bits_ == rhs.rtty_ascii_bits_
+				&& rtty_ascii_stops_ == rhs.rtty_ascii_stops_
+				&& live_print_ == rhs.live_print_
+				&& afc_ == rhs.afc_
+				&& ppm_ == rhs.ppm_
+				&& dc_remove_ == rhs.dc_remove_
+				&& transport_data_type_ == rhs.transport_data_type_
+				&& usb_pack_ == rhs.usb_pack_
+				&& device_ == rhs.device_
+				&& command_host_ == rhs.command_host_
+				&& command_port_ == rhs.command_port_
+				&& station_callsign_ == rhs.station_callsign_
+				&& station_lat_ == rhs.station_lat_
+				&& station_lon_ == rhs.station_lon_
+				&& sampling_rate_ == rhs.sampling_rate_
+				&& sentence_cmd_ == rhs.sentence_cmd_
+				&& habitat_payload_ == rhs.habitat_payload_
+				;
+		}
+		bool operator!=(const PARAMS& rhs) const { return !operator==(rhs); }
+	};
+	PARAMS par_;
 
 	static bool DumpToFile(std::string fName)
 	{
@@ -98,28 +130,29 @@ public:
 		try{
 			fstream oFile(fName, fstream::out);
 
-			oFile<<"device = "<<GLOBALS::get().device_<<endl;
-			oFile<<"sampling_rate = "<<GLOBALS::get().sampling_rate_<<endl;
-			oFile<<"port = "<<GLOBALS::get().command_host_<<":"<<GLOBALS::get().command_port_<<endl;
-			oFile<<"station = "<<GLOBALS::get().station_callsign_<<endl;
-			oFile<<"latlon = "<<GLOBALS::get().station_lat_<<endl;
-			oFile<<"latlon = "<<GLOBALS::get().station_lon_<<endl;
+			oFile<<"device = "<<GLOBALS::get().par_.device_<<endl;
+			oFile<<"sampling_rate = "<<GLOBALS::get().par_.sampling_rate_<<endl;
+			oFile<<"port = "<<GLOBALS::get().par_.command_host_<<":"<<GLOBALS::get().par_.command_port_<<endl;
+			oFile<<"station = "<<GLOBALS::get().par_.station_callsign_<<endl;
+			oFile<<"latlon = "<<GLOBALS::get().par_.station_lat_<<endl;
+			oFile<<"latlon = "<<GLOBALS::get().par_.station_lon_<<endl;
 
-			oFile<<"freq = "<<setprecision(9)<<GLOBALS::get().frequency_/1e6<<endl;
-			oFile<<"ppm = "<<setprecision(9)<<GLOBALS::get().ppm_<<endl;
-			oFile<<"gain = "<<GLOBALS::get().gain_<<endl;
-			oFile<<"biast = "<<GLOBALS::get().biast_<<endl;
-			oFile<<"print = "<<GLOBALS::get().live_print_<<endl;
-			oFile<<"rtty = "<<GLOBALS::get().baud_<<endl;
-			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_bits_<<endl;
-			oFile<<"rtty = "<<GLOBALS::get().rtty_ascii_stops_<<endl;
-			oFile<<"afc = "<<GLOBALS::get().afc_<<endl;
-			oFile<<"usb_pack = "<<GLOBALS::get().usb_pack_<<endl;
-			oFile<<"dc_remove = "<<GLOBALS::get().dc_remove_<<endl;
-			oFile<<"lowpass = "<<GLOBALS::get().lowpass_bw_Hz_<<endl;
-			oFile<<"lp_trans = "<<GLOBALS::get().lowpass_tr_<<endl;
-			oFile<<"sentence_cmd = "<<GLOBALS::get().sentence_cmd_<<endl;
-			oFile<<"payload = "<<GLOBALS::get().habitat_payload_<<endl;
+			oFile<<"freq = "<<setprecision(9)<<GLOBALS::get().par_.frequency_/1e6<<endl;
+			oFile<<"dec = "<<GLOBALS::get().par_.decimation_<<endl;
+			oFile<<"ppm = "<<setprecision(9)<<GLOBALS::get().par_.ppm_<<endl;
+			oFile<<"gain = "<<GLOBALS::get().par_.gain_<<endl;
+			oFile<<"biast = "<<GLOBALS::get().par_.biast_<<endl;
+			oFile<<"print = "<<GLOBALS::get().par_.live_print_<<endl;
+			oFile<<"rtty = "<<GLOBALS::get().par_.baud_<<endl;
+			oFile<<"rtty = "<<GLOBALS::get().par_.rtty_ascii_bits_<<endl;
+			oFile<<"rtty = "<<GLOBALS::get().par_.rtty_ascii_stops_<<endl;
+			oFile<<"afc = "<<GLOBALS::get().par_.afc_<<endl;
+			oFile<<"usb_pack = "<<GLOBALS::get().par_.usb_pack_<<endl;
+			oFile<<"dc_remove = "<<GLOBALS::get().par_.dc_remove_<<endl;
+			oFile<<"lowpass = "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
+			oFile<<"lp_trans = "<<GLOBALS::get().par_.lowpass_tr_<<endl;
+			oFile<<"sentence_cmd = "<<GLOBALS::get().par_.sentence_cmd_<<endl;
+			oFile<<"payload = "<<GLOBALS::get().par_.habitat_payload_<<endl;
 		}
 		catch (exception& e) {
 			cout<<"Can't save config "<<fName<<endl;
@@ -132,26 +165,27 @@ public:
 	static void Print()
 	{
 		using namespace std;
-		cout<<"\tdevice: "<<GLOBALS::get().device_<<endl;
-		cout<<"\tsampling_rate: "<<GLOBALS::get().sampling_rate_<<endl;
-		cout<<"\tcommand_host: "<<GLOBALS::get().command_host_<<endl;
-		cout<<"\tcommand_port: "<<GLOBALS::get().command_port_<<endl;
-		cout<<"\tsentence_cmd: "<<GLOBALS::get().sentence_cmd_<<endl;
-		cout<<"\tpayload: "<<GLOBALS::get().habitat_payload_<<endl;
-		cout<<"\tstation: "<<GLOBALS::get().station_callsign_<<endl;
-		cout<<"\tlatlon: "<<GLOBALS::get().station_lat_<<" "<<GLOBALS::get().station_lon_<<endl;
-		cout<<"\tfreq: "<<GLOBALS::get().frequency_<<endl;
-		cout<<"\tppm: "<<GLOBALS::get().ppm_<<endl;
-		cout<<"\tgain: "<<GLOBALS::get().gain_<<endl;
-		cout<<"\tlive_print: "<<GLOBALS::get().live_print_<<endl;
-		cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;
-		cout<<"\trtty_ascii_bits: "<<GLOBALS::get().rtty_ascii_bits_<<endl;
-		cout<<"\trtty_ascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
-		cout<<"\tbiast: "<<GLOBALS::get().biast_<<endl;
-		cout<<"\tusb_pack: "<<GLOBALS::get().usb_pack_<<endl;
-		cout<<"\tdc_remove: "<<GLOBALS::get().dc_remove_<<endl;
-		cout<<"\tlowpass: "<<GLOBALS::get().lowpass_bw_Hz_<<endl;
-		cout<<"\tlp_trans: "<<GLOBALS::get().lowpass_tr_<<endl;
+		cout<<"\tdevice: "<<GLOBALS::get().par_.device_<<endl;
+		cout<<"\tsampling_rate: "<<GLOBALS::get().par_.sampling_rate_<<endl;
+		cout<<"\tdecimation: "<<GLOBALS::get().par_.decimation_<<endl;
+		cout<<"\tcommand_host: "<<GLOBALS::get().par_.command_host_<<endl;
+		cout<<"\tcommand_port: "<<GLOBALS::get().par_.command_port_<<endl;
+		cout<<"\tsentence_cmd: "<<GLOBALS::get().par_.sentence_cmd_<<endl;
+		cout<<"\tpayload: "<<GLOBALS::get().par_.habitat_payload_<<endl;
+		cout<<"\tstation: "<<GLOBALS::get().par_.station_callsign_<<endl;
+		cout<<"\tlatlon: "<<GLOBALS::get().par_.station_lat_<<" "<<GLOBALS::get().par_.station_lon_<<endl;
+		cout<<"\tfreq: "<<GLOBALS::get().par_.frequency_<<endl;
+		cout<<"\tppm: "<<GLOBALS::get().par_.ppm_<<endl;
+		cout<<"\tgain: "<<GLOBALS::get().par_.gain_<<endl;
+		cout<<"\tlive_print: "<<GLOBALS::get().par_.live_print_<<endl;
+		cout<<"\tbaud: "<<GLOBALS::get().par_.baud_<<endl;
+		cout<<"\trtty_ascii_bits: "<<GLOBALS::get().par_.rtty_ascii_bits_<<endl;
+		cout<<"\trtty_ascii_stops: "<<GLOBALS::get().par_.rtty_ascii_stops_<<endl;
+		cout<<"\tbiast: "<<GLOBALS::get().par_.biast_<<endl;
+		cout<<"\tusb_pack: "<<GLOBALS::get().par_.usb_pack_<<endl;
+		cout<<"\tdc_remove: "<<GLOBALS::get().par_.dc_remove_<<endl;
+		cout<<"\tlowpass: "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
+		cout<<"\tlp_trans: "<<GLOBALS::get().par_.lowpass_tr_<<endl;
 	}
 
 

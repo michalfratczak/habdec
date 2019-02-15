@@ -22,14 +22,42 @@
 
 #include <iostream>
 
+#include "CRC.h"
+
 namespace habdec
 {
 
 std::regex HABHUB_REGEX( R"_(.*?(\$+)([\w,\-]+?),(.+?)(\*|\$)(\w\w\w\w).*)_" );
 
+
+// usefull for some testing
+std::map<std::string,std::string> extractSentence_testing(std::string stream)
+{
+	using namespace std;
+
+	map<string,string> result;
+	if(stream.size()>25)
+	{
+		static thread_local int index = 0;
+		index++;
+		string res = "CALLSIGN," + to_string(index) + ",15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9";
+
+		result["success"] = string("OK");
+		result["callsign"] = "CALLSIGN";
+		result["data"] = to_string(index) + ",15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9";
+		result["crc"] = CRC(result["callsign"] + "," + result["data"]);
+		result["stream"] = stream.substr(stream.size()/3);
+		return result;
+	}
+	return result;
+}
+
+
 std::map<std::string,std::string> extractSentence(std::string stream)
 {
 	using namespace std;
+
+	// return extractSentence_testing(stream);
 
 	// replace '\n' in stream with spaces, otherwise regex will fail (C++ 11 issue)
 	replace( stream.begin(), stream.end(), '\n', ' ');

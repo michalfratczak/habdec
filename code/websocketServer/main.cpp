@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <future>
 #include <cstdlib>
 
 #include <SoapySDR/Device.hpp>
@@ -84,7 +85,7 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 		cout<<endl;
 	}
 
-	int device_index = GLOBALS::get().device_;
+	int device_index = GLOBALS::get().par_.device_;
 	if( device_index >= int(device_list.size()) )
 	{
 		cout<<C_RED<<"No device with number "<<device_index<<endl;
@@ -111,7 +112,7 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	auto& device = device_list[device_index];
 	cout<<"Running with "<<device["driver"]<<endl<<endl;
 
-	if( !GLOBALS::get().sampling_rate_ )
+	if( !GLOBALS::get().par_.sampling_rate_ )
 	{
 		// find what is nearest to 2e6
 		double sr_diff = std::numeric_limits<double>::max();
@@ -121,7 +122,7 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 			if( abs(sr - 2e6) < sr_diff )
 			{
 				sr_diff = abs(sr - 2e6);
-				GLOBALS::get().sampling_rate_ = sr;
+				GLOBALS::get().par_.sampling_rate_ = sr;
 			}
 		}
 	}
@@ -142,12 +143,12 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 		return 1;
 	}
 
-	double gain = GLOBALS::get().gain_;
+	double gain = GLOBALS::get().par_.gain_;
 	GLOBALS::get().p_iq_source_->setOption("gain_double", &gain);
-	double biastee = GLOBALS::get().biast_;
+	double biastee = GLOBALS::get().par_.biast_;
 	GLOBALS::get().p_iq_source_->setOption("biastee_double", &biastee);
-	GLOBALS::get().p_iq_source_->setOption("sampling_rate_double", &GLOBALS::get().sampling_rate_);
-	double usb_pack = GLOBALS::get().usb_pack_;
+	GLOBALS::get().p_iq_source_->setOption("sampling_rate_double", &GLOBALS::get().par_.sampling_rate_);
+	double usb_pack = GLOBALS::get().par_.usb_pack_;
 	GLOBALS::get().p_iq_source_->setOption("usb_pack_double", &usb_pack);
 
 	// this works only if device is running. not yet here
@@ -158,10 +159,10 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 }
 
 
-void DECODER_FEED_THREAD()
+void DECODER_THREAD()
 {
 	using namespace std;
-	cout<<"Start DECODER_FEED_THREAD"<<endl;
+	cout<<"Start DECODER_THREAD"<<endl;
 
 	auto& p_iq_src = GLOBALS::get().p_iq_source_;
 
@@ -170,19 +171,19 @@ void DECODER_FEED_THREAD()
 
 	if(!p_iq_src->start())
 	{
-		cout<<C_RED<<"Failed to start device. Exit DECODER_FEED_THREAD."<<C_OFF<<endl;
+		cout<<C_RED<<"Failed to start device. Exit DECODER_THREAD."<<C_OFF<<endl;
 		return;
 	}
 
 	if(!p_iq_src->isRunning())
 	{
-		cout<<C_RED<<"Device not running. Exit DECODER_FEED_THREAD."<<C_OFF<<endl;
+		cout<<C_RED<<"Device not running. Exit DECODER_THREAD."<<C_OFF<<endl;
 		return;
 	}
 
 	// this works only if device is running, but feels out of place here
 	// consider moving start() outside of this function
-	GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().ppm_);
+	GLOBALS::get().p_iq_source_->setOption("ppm_double", &GLOBALS::get().par_.ppm_);
 
 	//////
 	//
@@ -201,6 +202,7 @@ void DECODER_FEED_THREAD()
 
 		size_t count = p_iq_src->get( samples.data(), samples.size() );
 		DECODER.pushSamples(samples);
+
 		DECODER(); // DECODE !
 
 		// AFC - don't do this too often. Too unstable, needs more work.
@@ -210,21 +212,15 @@ void DECODER_FEED_THREAD()
 			)
 		{
 			double freq_corr = DECODER.getFrequencyCorrection();
-			if(GLOBALS::get().afc_)
+			if(GLOBALS::get().par_.afc_)
 			{
 				if( 100 < abs(freq_corr)  )
 				{
-					GLOBALS::get().frequency_ += freq_corr;
-					double f = GLOBALS::get().frequency_;
+					GLOBALS::get().par_.frequency_ += freq_corr;
+					double f = GLOBALS::get().par_.frequency_;
 					p_iq_src->setOption("frequency_double", &f);
 					DECODER.resetFrequencyCorrection(freq_corr);
 					last_afc_time = std::chrono::high_resolution_clock::now();
-
-					// notify webgui
-					{
-						lock_guard<mutex> _lock( GLOBALS::get().out_commands_mtx_ );
-						GLOBALS::get().out_commands_.emplace_back("cmd::set:frequency=" + to_string(f / 1e6));
-					}
 				}
 			}
 		}
@@ -251,36 +247,50 @@ void DECODER_FEED_THREAD()
 }
 
 
-void LOG_THREAD()
+void SentenceCallback(std::string callsign, std::string data, std::string crc)
 {
 	using namespace std;
+	using Ms = std::chrono::milliseconds;
 
-	while(!G_DO_EXIT)
+	string sentence = callsign + "," + data + "*" + crc;
+	int sentence_number = stoi( data.substr(0, data.find(',')) );
+
+	// register in globals
+	if( GLOBALS::get().sentences_map_mtx_.try_lock_for(Ms(1000)) )
 	{
-		this_thread::sleep_for( chrono::duration<double, milli>(500) );
+		GLOBALS::get().sentences_map_[sentence_number] = sentence;
+		GLOBALS::get().sentences_map_mtx_.unlock();
+	}
 
-		vector<string> sentences;
-		{
-			lock_guard<mutex> _lock( GLOBALS::get().senteces_to_log_mtx_ );
-			sentences = move( GLOBALS::get().senteces_to_log_ );
+
+	// save opts
+	try {
+		GLOBALS::DumpToFile("./habdecWebsocketServer.opts");
+	}
+	catch(const exception& e) {
+		cout<<"Failed saving options "<<e.what()<<endl;
+	}
+
+
+	// habitat upload
+	if(GLOBALS::get().par_.station_callsign_ != "")
+	{
+		try {
+			string res = habdec::habitat::HabitatUploadSentence( sentence, GLOBALS::get().par_.station_callsign_ );
+			if( res != "OK" )
+				cout<<C_CLEAR<<C_RED<<"HAB Upload result: "<<res<<endl;
 		}
-
-		for(auto& sentence : sentences)
-		{
-			if(GLOBALS::get().station_callsign_ != "")
-			{
-				string res = habdec::habitat::HabitatUploadSentence( sentence, GLOBALS::get().station_callsign_ );
-				if( res != "OK" )
-					cout<<C_CLEAR<<C_RED<<"HAB Upload result: "<<res<<endl;
-			}
-
-			if( GLOBALS::get().sentence_cmd_ != "" )
-			{
-				int res = system( (GLOBALS::get().sentence_cmd_ + " " + sentence).c_str() );
-				if(res)
-					cout<<C_CLEAR<<C_RED<<"sentence_cmd result: "<<res<<endl;
-			}
+		catch(const exception& e) {
+			cout<<"Failed upload to habitat: "<<e.what()<<endl;
 		}
+	}
+
+
+	if( GLOBALS::get().par_.sentence_cmd_ != "" )
+	{
+		int res = system( (GLOBALS::get().par_.sentence_cmd_ + " " + sentence).c_str() );
+		if(res)
+			cout<<C_CLEAR<<C_RED<<"sentence_cmd result: "<<res<<endl;
 	}
 }
 
@@ -321,16 +331,16 @@ int main(int argc, char** argv)
 	}
 
 	// station info
-	if(	GLOBALS::get().station_callsign_ != "" )
+	if(	GLOBALS::get().par_.station_callsign_ != "" )
 	{
-		habdec::habitat::UploadStationInfo(	GLOBALS::get().station_callsign_,
+		habdec::habitat::UploadStationInfo(	GLOBALS::get().par_.station_callsign_,
 											device["driver"] + " - habdec" );
 
-		if(		GLOBALS::get().station_lat_
-			&& 	GLOBALS::get().station_lon_ )
+		if(		GLOBALS::get().par_.station_lat_
+			&& 	GLOBALS::get().par_.station_lon_ )
 					habdec::habitat::UploadStationTelemetry(
-						GLOBALS::get().station_callsign_,
-						GLOBALS::get().station_lat_, GLOBALS::get().station_lon_,
+						GLOBALS::get().par_.station_callsign_,
+						GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
 						0, 0, false
 					);
 	}
@@ -338,51 +348,39 @@ int main(int argc, char** argv)
 	// initial options from globals
 	//
 	auto& DECODER = GLOBALS::get().decoder_;
-	DECODER.baud(GLOBALS::get().baud_);
-	DECODER.rtty_bits(GLOBALS::get().rtty_ascii_bits_);
-	DECODER.rtty_stops(GLOBALS::get().rtty_ascii_stops_);
-	DECODER.livePrint( GLOBALS::get().live_print_ );
-	DECODER.dc_remove( GLOBALS::get().dc_remove_ );
-	DECODER.lowpass_bw( GLOBALS::get().lowpass_bw_Hz_ );
-	DECODER.lowpass_trans( GLOBALS::get().lowpass_tr_ );
+	DECODER.baud(GLOBALS::get().par_.baud_);
+	DECODER.rtty_bits(GLOBALS::get().par_.rtty_ascii_bits_);
+	DECODER.rtty_stops(GLOBALS::get().par_.rtty_ascii_stops_);
+	DECODER.livePrint( GLOBALS::get().par_.live_print_ );
+	DECODER.dc_remove( GLOBALS::get().par_.dc_remove_ );
+	DECODER.lowpass_bw( GLOBALS::get().par_.lowpass_bw_Hz_ );
+	DECODER.lowpass_trans( GLOBALS::get().par_.lowpass_tr_ );
+	int _decim = GLOBALS::get().par_.decimation_;
+	DECODER.setupDecimationStagesFactor( pow(2,_decim) );
 
-	double freq = GLOBALS::get().frequency_;
+	double freq = GLOBALS::get().par_.frequency_;
 	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
 
-	if(GLOBALS::get().station_callsign_ == "")
+	if(GLOBALS::get().par_.station_callsign_ == "")
 		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
 
 	cout<<"Current Options: "<<endl;
 	GLOBALS::Print();
 
-	// for every decoded message
-	// put it on two ques: websocket upload, HAB upload
 	DECODER.success_callback_ =
 		[](std::string callsign, std::string data, std::string crc)
 		{
-			{
-				lock_guard<mutex> _lock( GLOBALS::get().senteces_to_log_mtx_ );
-				GLOBALS::get().senteces_to_log_.emplace_back( callsign + "," + data + "*" + crc );
-			}
-			{
-				lock_guard<mutex> _lock( GLOBALS::get().senteces_to_web_mtx_ );
-				GLOBALS::get().senteces_to_web_.emplace_back( callsign + "," + data + "*" + crc );
-			}
-			GLOBALS::DumpToFile("./habdecWebsocketServer.opts");
+			std::async(std::launch::async, SentenceCallback, callsign, data, crc);
 		};
 
-	// feed decoder with IQ samples
-	std::thread* decoder_feed_thread = new std::thread(DECODER_FEED_THREAD);
-
-	// HAB upload
-	std::thread* 	log_thread = new std::thread(LOG_THREAD);
+	// feed decoder with IQ samples and decode
+	std::thread* decoder_thread = new std::thread(DECODER_THREAD);
 
 	// websocket server thread. this call is blocking
-	RunCommandServer( GLOBALS::get().command_host_ , GLOBALS::get().command_port_ );
+	RunCommandServer( GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_ );
 
 	G_DO_EXIT = true;
-	decoder_feed_thread->join();
-	log_thread->join();
+	decoder_thread->join();
 
 	return 0;
 }

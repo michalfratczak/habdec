@@ -43,6 +43,111 @@ namespace websocket = 	boost::beast::websocket;
 
 extern bool G_DO_EXIT;
 
+
+// i_param == "" --> sends all parameters
+void EchoParameter(const std::string i_param, websocket::stream<tcp::socket>& ws)
+{
+	using namespace std;
+	smatch match;
+	ws.text(true);
+
+	if(i_param == "frequency" || i_param == "")
+	{
+		double frequency = 0;
+		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
+		frequency /= 1e6;
+		string o_command = "cmd::set:frequency=" + to_string(frequency);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "ppm" || i_param == "")
+	{
+		double ppm = 0;
+		GLOBALS::get().p_iq_source_->getOption("ppm_double", &ppm);
+		string o_command = "cmd::set:ppm=" + to_string(ppm);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "gain" || i_param == "")
+	{
+		double gain = 0;
+		GLOBALS::get().p_iq_source_->getOption("gain_double", &gain);
+		string o_command = "cmd::set:gain=" + to_string(gain);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "baud" || i_param == "")
+	{
+		size_t baud = GLOBALS::get().decoder_.baud();
+		string o_command = "cmd::set:baud=" + to_string(baud);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "rtty_bits" || i_param == "")
+	{
+		size_t rtty_bits = GLOBALS::get().decoder_.rtty_bits();
+		string o_command = "cmd::set:rtty_bits=" + to_string(rtty_bits);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "rtty_stops" || i_param == "")
+	{
+		float rtty_stops = GLOBALS::get().decoder_.rtty_stops();
+		string o_command = "cmd::set:rtty_stops=" + to_string(rtty_stops);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "lowpass_bw" || i_param == "")
+	{
+		string o_command = "cmd::set:lowpass_bw=" + to_string(GLOBALS::get().decoder_.lowpass_bw());
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "lowpass_trans" || i_param == "")
+	{
+		string o_command = "cmd::set:lowpass_trans=" + to_string(GLOBALS::get().decoder_.lowpass_trans());
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "biastee" || i_param == "")
+	{
+		double biastee = 0;
+		GLOBALS::get().p_iq_source_->getOption("biastee_double", &biastee);
+		string o_command = "cmd::set:biastee=" + to_string(biastee);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "afc" || i_param == "")
+	{
+		string o_command = "cmd::set:afc=" + to_string(GLOBALS::get().par_.afc_);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "decimation" || i_param == "")
+	{
+		int decim_factor_log = std::log2( GLOBALS::get().decoder_.getDecimationFactor() );
+		string o_command = "cmd::set:decimation=" + to_string(decim_factor_log);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "sampling_rate" || i_param == "")
+	{
+		double sr = 0;
+		GLOBALS::get().p_iq_source_->getOption("sampling_rate_double", &sr);
+		string o_command = "cmd::info:sampling_rate=" + to_string(sr);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "dc_remove" || i_param == "")
+	{
+		double dc_rem = GLOBALS::get().decoder_.dc_remove();
+		string o_command = "cmd::set:dc_remove=" + to_string(dc_rem);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+	if(i_param == "datasize" || i_param == "")
+	{
+		int datasize = 1;
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kChar )
+			datasize = 1;
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kShort )
+			datasize = 2;
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kFloat )
+			datasize = 4;
+
+		string o_command = "cmd::set:datasize=" + to_string(datasize);
+		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+	}
+}
+
+
 bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& ws)
 {
 	if(!GLOBALS::get().p_iq_source_)
@@ -52,194 +157,129 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 	smatch match;
 
 	// GET
-	if(i_command == "get:frequency")
-	{
-		double frequency = 0;
-		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
-		frequency /= 1e6;
-		string o_command = "cmd::set:frequency=" + to_string(frequency);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:ppm")
-	{
-		double ppm = 0;
-		GLOBALS::get().p_iq_source_->getOption("ppm_double", &ppm);
-		string o_command = "cmd::set:ppm=" + to_string(ppm);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:gain")
-	{
-		double gain = 0;
-		GLOBALS::get().p_iq_source_->getOption("gain_double", &gain);
-		string o_command = "cmd::set:gain=" + to_string(gain);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:baud")
-	{
-		size_t baud = GLOBALS::get().decoder_.baud();
-		string o_command = "cmd::set:baud=" + to_string(baud);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:rtty_bits")
-	{
-		size_t rtty_bits = GLOBALS::get().decoder_.rtty_bits();
-		string o_command = "cmd::set:rtty_bits=" + to_string(rtty_bits);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:rtty_stops")
-	{
-		float rtty_stops = GLOBALS::get().decoder_.rtty_stops();
-		string o_command = "cmd::set:rtty_stops=" + to_string(rtty_stops);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:lowpass_bw")
-	{
-		string o_command = "cmd::set:lowpass_bw=" + to_string(GLOBALS::get().decoder_.lowpass_bw());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:lowpass_trans")
-	{
-		string o_command = "cmd::set:lowpass_trans=" + to_string(GLOBALS::get().decoder_.lowpass_trans());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:biastee")
-	{
-		double biastee = 0;
-		GLOBALS::get().p_iq_source_->getOption("biastee_double", &biastee);
-		string o_command = "cmd::set:biastee=" + to_string(biastee);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:afc")
-	{
-		string o_command = "cmd::set:afc=" + to_string(GLOBALS::get().afc_);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:decimation")
-	{
-		int decim_factor_log = std::log2( GLOBALS::get().decoder_.getDecimationFactor() );
-		string o_command = "cmd::set:decimation=" + to_string(decim_factor_log);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:sampling_rate")
-	{
-		double sr = 0;
-		GLOBALS::get().p_iq_source_->getOption("sampling_rate_double", &sr);
-		string o_command = "cmd::info:sampling_rate=" + to_string(sr);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
-	else if(i_command == "get:dc_remove")
-	{
-		double dc_rem = GLOBALS::get().decoder_.dc_remove();
-		string o_command = "cmd::set:dc_remove=" + to_string(dc_rem);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
+	if( i_command.size() > 4 && i_command.substr(0,4) == "get:" )
+		EchoParameter( i_command.substr(4), ws );
+
 	// SET
 	else if( regex_match(i_command, match, regex(R"_(set\:frequency=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double frequency = stod(match[1]);
 		frequency *= 1e6;
 		GLOBALS::get().p_iq_source_->setOption("frequency_double", &frequency);
-		GLOBALS::get().frequency_ = frequency;
-
-		string o_command = "cmd::set:frequency=" + to_string(frequency/1e6);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().par_.frequency_ = frequency;
+		EchoParameter("frequency", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:decimation=(\d+))_")) && match.size() > 1 )
 	{
 		int decim_factor_log = stoi(match[1]);
 		GLOBALS::get().decoder_.setupDecimationStagesFactor( pow(2,decim_factor_log) );
-		string o_command = "cmd::set:decimation=" + to_string(decim_factor_log);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().par_.decimation_ = decim_factor_log;
+		EchoParameter("decimation", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:ppm=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double ppm = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("ppm_double", &ppm);
-		string o_command = "cmd::set:ppm=" + to_string(ppm);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-		GLOBALS::get().ppm_ = ppm;
+		GLOBALS::get().par_.ppm_ = ppm;
+		EchoParameter("ppm", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:gain=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double gain = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("gain_double", &gain);
-		string o_command = "cmd::set:gain=" + to_string(gain);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-		GLOBALS::get().gain_ = gain;
+		GLOBALS::get().par_.gain_ = gain;
+		EchoParameter("gain", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:lowpass_bw=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
-		cout<<"set lowpass_bw "<<stof(match[1])<<endl;
-		GLOBALS::get().decoder_.lowpass_bw(stof(match[1]));
-		string o_command = "cmd::set:lowpass_bw=" + to_string(GLOBALS::get().decoder_.lowpass_bw());
-		cout<<"speak back "<<o_command<<endl;
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		float lpbw = stof(match[1]);
+		GLOBALS::get().decoder_.lowpass_bw(lpbw);
+		GLOBALS::get().par_.lowpass_bw_Hz_ = lpbw;
+		EchoParameter("lowpass_bw", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:lowpass_trans=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
-		GLOBALS::get().decoder_.lowpass_trans(stof(match[1]));
-		string o_command = "cmd::set:lowpass_trans=" + to_string(GLOBALS::get().decoder_.lowpass_trans());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		float lptr = stof(match[1]);
+		GLOBALS::get().decoder_.lowpass_trans(lptr);
+		GLOBALS::get().par_.lowpass_tr_ = lptr;
+		EchoParameter("lowpass_trans", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:baud=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
-		GLOBALS::get().decoder_.baud( stof(match[1]) );
-		string o_command = "cmd::set:baud=" + to_string(GLOBALS::get().decoder_.baud());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		float baud = stof(match[1]);
+		GLOBALS::get().decoder_.baud( baud );
+		GLOBALS::get().par_.baud_ = baud;
+		EchoParameter("baud", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:rtty_bits=(\d+))_")) && match.size() > 1 )
 	{
-		GLOBALS::get().decoder_.rtty_bits(stoi(match[1]));
-		string o_command = "cmd::set:rtty_bits=" + to_string(GLOBALS::get().decoder_.rtty_bits());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		int rtty_bits = stoi(match[1]);
+		GLOBALS::get().decoder_.rtty_bits(rtty_bits);
+		GLOBALS::get().par_.rtty_ascii_bits_ = rtty_bits;
+		EchoParameter("rtty_bits", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:rtty_stops=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
-		GLOBALS::get().decoder_.rtty_stops(stof(match[1]));
-		string o_command = "cmd::set:rtty_stops=" + to_string(GLOBALS::get().decoder_.rtty_stops());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		int rtty_stops = stoi(match[1]);
+		GLOBALS::get().decoder_.rtty_stops(rtty_stops);
+		GLOBALS::get().par_.rtty_ascii_stops_ = rtty_stops;
+		EchoParameter("rtty_stops", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:datasize=(\d+))_")) && match.size() > 1 )
 	{
 		int datasize = stoi(match[1]);
+
+		// 3 is illegal value, skip to 2 or 4
+		if(datasize == 3)
+		{
+			if(GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kShort)
+				datasize = 4;
+			else
+				datasize = 2;
+		}
+
 		if(datasize != 1 && datasize != 2 && datasize != 4)
 			datasize = 1;
 
-		if(datasize == 1)	GLOBALS::get().transport_data_type_ = GLOBALS::TransportDataType::kChar; // 8bit
-		if(datasize == 2)	GLOBALS::get().transport_data_type_ = GLOBALS::TransportDataType::kShort;// 16 bit
-		if(datasize == 4)	GLOBALS::get().transport_data_type_ = GLOBALS::TransportDataType::kFloat;// 32bit
-		string o_command = "cmd::set:datasize=" + to_string(datasize);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		if(datasize == 1)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kChar; // 8bit
+		if(datasize == 2)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kShort;// 16 bit
+		if(datasize == 4)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kFloat;// 32bit
+		EchoParameter("datasize", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:biastee=([0-9])+)_")) && match.size() > 1 )
 	{
 		double value = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("biastee_double", &value);
-		GLOBALS::get().biast_ = value;
-		string o_command = "cmd::set:biastee=" + to_string(value);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().par_.biast_ = value;
+		EchoParameter("biastee", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:afc=([0-9])+)_")) && match.size() > 1 )
 	{
 		int value = stoi(match[1]);
-		GLOBALS::get().afc_ = value;
-		string o_command = "cmd::set:afc=" + to_string(value);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().par_.afc_ = value;
+		EchoParameter("afc", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:dc_remove=([0-9])+)_")) && match.size() > 1 )
 	{
 		int value = stoi(match[1]);
 		GLOBALS::get().decoder_.dc_remove(value);
-		GLOBALS::get().dc_remove_ = value;
-		string o_command = "cmd::set:dc_remove=" + to_string(value);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		GLOBALS::get().par_.dc_remove_ = value;
+		EchoParameter("dc_remove", ws);
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:payload=(\w+))_")) && match.size() > 1 )
 	{
 		using namespace habdec::habitat;
 
 		string payload_id = match[1];
-		std::map<std::string, HabitatFlight> flights = ListFlights(0);
+		std::map<std::string, HabitatFlight> flights;
+		try {
+			flights = ListFlights(0);
+		}
+		catch(const exception& e) {
+			cout<<"Failed loading flights list: "<<e.what()<<endl;
+			return false;
+		}
+
 		auto& DEC = GLOBALS::get().decoder_;
 
 		for(auto& flight : flights)
@@ -248,47 +288,31 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 			{
 				if( !payload_id.compare(payload.second.id_) )
 				{
-					GLOBALS::get().baud_ = payload.second.baud_;
-					GLOBALS::get().rtty_ascii_bits_ = payload.second.ascii_bits_;
-					GLOBALS::get().rtty_ascii_stops_ = payload.second.ascii_stops_;
-					GLOBALS::get().frequency_ = payload.second.frequency_;
+					GLOBALS::get().par_.baud_ = payload.second.baud_;
+					GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
+					GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
+					GLOBALS::get().par_.frequency_ = payload.second.frequency_;
 
-					DEC.baud( GLOBALS::get().baud_ );
-					DEC.rtty_bits( GLOBALS::get().rtty_ascii_bits_ );
-					DEC.rtty_stops( GLOBALS::get().rtty_ascii_stops_ );
-					GLOBALS::get().p_iq_source_->setOption("frequency_double", &GLOBALS::get().frequency_);
+					DEC.baud( GLOBALS::get().par_.baud_ );
+					DEC.rtty_bits( GLOBALS::get().par_.rtty_ascii_bits_ );
+					DEC.rtty_stops( GLOBALS::get().par_.rtty_ascii_stops_ );
+					GLOBALS::get().p_iq_source_->setOption("frequency_double", &GLOBALS::get().par_.frequency_);
 
 					cout<<C_MAGENTA<<"Loading parameters for payload "<<payload_id<<C_OFF<<endl;
-					cout<<"\tbaud: "<<GLOBALS::get().baud_<<endl;
-					cout<<"\tascii_bits: "<<GLOBALS::get().rtty_ascii_bits_<<endl;
-					cout<<"\tascii_stops: "<<GLOBALS::get().rtty_ascii_stops_<<endl;
-					cout<<"\tfrequency: "<<GLOBALS::get().frequency_<<endl;
+					cout<<"\tbaud: "<<GLOBALS::get().par_.baud_<<endl;
+					cout<<"\tascii_bits: "<<GLOBALS::get().par_.rtty_ascii_bits_<<endl;
+					cout<<"\tascii_stops: "<<GLOBALS::get().par_.rtty_ascii_stops_<<endl;
+					cout<<"\tfrequency: "<<GLOBALS::get().par_.frequency_<<endl;
 
 					break;
 				}
 			}
 		}
 
-		// speak back
-		string o_command;
-
-		double frequency = 0;
-		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
-		frequency /= 1e6;
-		o_command = "cmd::set:frequency=" + to_string(frequency);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-
-		size_t baud = GLOBALS::get().decoder_.baud();
-		o_command = "cmd::set:baud=" + to_string(baud);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-
-		size_t rtty_bits = GLOBALS::get().decoder_.rtty_bits();
-		o_command = "cmd::set:rtty_bits=" + to_string(rtty_bits);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-
-		float rtty_stops = GLOBALS::get().decoder_.rtty_stops();
-		o_command = "cmd::set:rtty_stops=" + to_string(rtty_stops);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		EchoParameter("frequency", ws);
+		EchoParameter("baud", ws);
+		EchoParameter("rtty_bits", ws);
+		EchoParameter("rtty_stops", ws);
 	}
 	else
 	{
@@ -359,11 +383,11 @@ size_t SpectrumToStream(std::stringstream& res_stream, float zoom, int resolutio
 
 	// choose transport bit resolution: 8, 16, 32 bit
 	//
-	if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kChar )
+	if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kChar )
 		SerializeSpectrum( spectrum_info, res_stream, (unsigned char*)0 );
-	if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kShort )
+	if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kShort )
 		SerializeSpectrum( spectrum_info, res_stream, (unsigned short int*)0 );
-	if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kFloat )
+	if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kFloat )
 		SerializeSpectrum( spectrum_info, res_stream, (float*)0 );
 
 	return spectrum_info.size();
@@ -382,36 +406,24 @@ size_t DemodToStream(std::stringstream& res_stream, int resolution)
 	{
 		ShrinkVector(demod_acc, resolution);
 		// choose transport datatype: 8, 16, 32 bit
-		if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kChar )
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kChar )
 			SerializeDemodulation( demod_acc, res_stream, (unsigned char*)0 );
-		if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kShort )
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kShort )
 			SerializeDemodulation( demod_acc, res_stream, (unsigned short int*)0 );
-		if( GLOBALS::get().transport_data_type_ == GLOBALS::TransportDataType::kFloat )
+		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kFloat )
 			SerializeDemodulation( demod_acc, res_stream, (float*)0 );
 	}
 
 	return demod_acc.size();
 }
 
-void DoSession(tcp::socket& i_socket)
+void WS_CLIENT_SESSION_THREAD(tcp::socket& i_socket)
 {
 	using namespace std;
-
-	// allow just one session
-	static std::atomic<bool> close_session{false};
-	static std::atomic<bool> session_running{false};
-
-	// close previous session
-	while(session_running)
-	{
-		close_session = true;
-		std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(300) ));
-	}
 
 	try {
 		websocket::stream<tcp::socket> ws{std::move(i_socket)};
 		ws.accept();
-		session_running = true;
 		// this line does not work
 		// ws.accept_ex([](websocket::response_type &m) { m.insert(beast::http::field::server, "habdec_server"); });
 
@@ -419,14 +431,6 @@ void DoSession(tcp::socket& i_socket)
 
 		while(!G_DO_EXIT)
 		{
-			if(close_session)
-			{
-				cout<<"Closing Session."<<endl;
-				close_session = false;
-				session_running = false;
-				return;
-			}
-
 			beast::multi_buffer buffer;
 			ws.read(buffer);
 
@@ -472,31 +476,25 @@ void DoSession(tcp::socket& i_socket)
 				HandleCommand(command.substr(5), ws);
 			}
 
-			// check for new sentences
-			vector<string> sentences;
+			// give last sentence
+			static thread_local int last_sentence_id = -1;
+			auto& sen_map = GLOBALS::get().sentences_map_;
+			if( sen_map.crbegin() != sen_map.crend() && sen_map.crbegin()->first != last_sentence_id )
 			{
-				lock_guard<mutex> _lock( GLOBALS::get().senteces_to_web_mtx_ );
-				sentences = std::move(GLOBALS::get().senteces_to_web_);
-			}
-			for(auto& sentence : sentences)
-			{
-				string o_command = "cmd::info:sentence=" + sentence;
+				string o_command = "cmd::info:sentence=" + sen_map.crbegin()->second;
 				ws.text(true);
 				ws.write( boost::asio::buffer( o_command.c_str(), o_command.size()) );
+				last_sentence_id = sen_map.crbegin()->first;
 			}
 
-			// check for out commands
-			vector<string> out_cmds;
+			// send parameters if they changed
+			static thread_local typename 	GLOBALS::PARAMS params;
+			if(params != GLOBALS::get().par_)
 			{
-				lock_guard<mutex> _lock( GLOBALS::get().out_commands_mtx_ );
-				out_cmds = std::move(GLOBALS::get().out_commands_);
+				// cout<<"need to update parametes "<<std::this_thread::get_id()<<endl;
+				EchoParameter("", ws);
+				params = GLOBALS::get().par_;
 			}
-			for(auto& cmd : out_cmds)
-			{
-				ws.text(true);
-				ws.write( boost::asio::buffer( cmd.c_str(), cmd.size()) );
-			}
-
 		}
 	}
 	catch(const boost::system::system_error& se) {
@@ -510,7 +508,6 @@ void DoSession(tcp::socket& i_socket)
 		cout << "Session Error: " << e.what() << endl;
 	}
 
-	session_running = false;
 	cout << "Session END."<<endl;
 }
 
@@ -545,7 +542,7 @@ void RunCommandServer(const std::string command_host, const int command_port)
 				acceptor.accept(socket); // Block until we get a connection
 				cout<<C_MAGENTA<<"\nNew Client"<<C_OFF<<endl;
 
-				std::thread{std::bind(&DoSession, std::move(socket))}.detach();
+				std::thread{std::bind(&WS_CLIENT_SESSION_THREAD, std::move(socket))}.detach();
 			}
 		}
 		catch(const exception& e) {
