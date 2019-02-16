@@ -82,8 +82,8 @@ std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std
         auto& transmissions = doc.get_child("transmissions");
         for(auto& t : transmissions )
         {
-            /*if( t.second.get<string>("modulation") != "RTTY" )
-                continue;*/
+            if( t.second.get<string>("modulation") != "RTTY" )
+                continue;
 
             string ascii_bits = t.second.get<string>("encoding");
             if( ascii_bits == "ASCII-7" )
@@ -100,7 +100,8 @@ std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std
             break; // use first of RTTY transmissions
         }
 
-        flights_map[_p.flight_id_].payloads_[_p.id_] = _p;
+        if(_p.baud_ && _p.ascii_bits_ && _p.ascii_stops_)
+            flights_map[_p.flight_id_].payloads_[_p.id_] = _p;
     }
 
     return flights_map;
