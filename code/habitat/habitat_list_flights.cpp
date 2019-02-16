@@ -76,8 +76,9 @@ std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std
 
         _p.flight_id_ = row.second.get<string>("id");
         _p.name_ = doc.get<string>("name");
-        _p.desc_ = doc.get_child("metadata").get<string>("description");
         _p.id_ = doc.get<string>("_id");
+        if( doc.count("metadata") )
+            _p.desc_ = doc.get_child("metadata").get<string>("description", "no description");
 
         auto& transmissions = doc.get_child("transmissions");
         for(auto& t : transmissions )
