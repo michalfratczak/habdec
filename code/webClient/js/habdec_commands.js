@@ -315,30 +315,60 @@ function RefreshLivePrint()
 
 function SetBiasT()
 {
-	var value = document.getElementById("biastee").checked;
+	var value = GLOBALS.biastee;
 	if(value)
-		SendCommand("set:biastee=1");
-	else
+	{
 		SendCommand("set:biastee=0");
+		var button = document.getElementById("HD_biastee");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
+	else
+	{
+		SendCommand("set:biastee=1");
+		var button = document.getElementById("HD_biastee");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}
 }
 
 
 function SetAFC()
 {
-	var value = document.getElementById("afc").checked;
+	var value = GLOBALS.afc
 	if(value)
-		SendCommand("set:afc=1");
-	else
+	{
 		SendCommand("set:afc=0");
+		var button = document.getElementById("HD_afc");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
+	else
+	{
+		SendCommand("set:afc=1");
+		var button = document.getElementById("HD_afc");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}s
 }
 
 function SetDCRemove()
 {
-	var value = document.getElementById("dc_remove").checked;
+	var value = GLOBALS.dc_remove;
 	if(value)
-		SendCommand("set:dc_remove=1");
-	else
+	{
 		SendCommand("set:dc_remove=0");
+		var button = document.getElementById("HD_dc_remove");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
+	else
+	{
+		SendCommand("set:dc_remove=1");
+		var button = document.getElementById("HD_dc_remove");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}
 }
 
 function SetPayload(i_payload_id)

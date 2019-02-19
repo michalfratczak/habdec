@@ -97,6 +97,50 @@ function SetGuiToGlobals(i_globals)
 		try {document.getElementById(param + "_box").value = value; }	catch(err) {};
 		try {document.getElementById(param).checked = value; }			catch(err) {};
 	}
+
+	// buttons
+	var biastee_value = GLOBALS.biastee;
+	if(biastee_value)
+	{
+		var button = document.getElementById("HD_biastee");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}
+	else
+	{
+		var button = document.getElementById("HD_biastee");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
+
+
+	var afc_value = GLOBALS.afc
+	if(afc_value)
+	{
+		var button = document.getElementById("HD_afc");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}
+	else
+	{
+		var button = document.getElementById("HD_afc");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
+
+	var dcremove_value = GLOBALS.dc_remove;
+	if(dcremove_value)
+	{
+		var button = document.getElementById("HD_dc_remove");
+		button.style.backgroundColor = "#bb0";
+		button.style.color = "#000";
+	}
+	else
+	{
+		var button = document.getElementById("HD_dc_remove");
+		button.style.backgroundColor = "hsl(210, 15%, 34%)";
+		button.style.color = "#AAA";
+	}
 }
 
 

@@ -65,15 +65,18 @@
 </div>
 
 <div>
-	<input type="checkbox" id="biastee" 	oninput="SetBiasT()"> <span class="checkboxtext">BiasTee</span> <br> <br>
-	<input type="checkbox" id="afc" 		oninput="SetAFC()"> <span class="checkboxtext">AFC</span> <br> <br>
-	<input type="checkbox" id="dc_remove" 	oninput="SetDCRemove()"> <span class="checkboxtext">DC Rmove</span>
+	<div style="display: inline-block;">
+		<button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
+		<button id="HD_afc" 		onclick="SetAFC()"      > AFC </button>
+		<button id="HD_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
+	</div>
+
 	<p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
 </div>
 
 <div>
 	<div><label>Server Address</label></div>
-	<input id="server_address" value="127.0.0.1:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
+	<input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
 	<button  onclick="OpenConnection()" >Connect</button>
 </div>
 

@@ -19,7 +19,8 @@ button {
     text-align: center;
     display: inline-block;
     font-size: 20px;
-    height: 4.0rem;
+    height: 7.0rem;
+    width: 8.0rem;
 
     border: 0.1rem solid  hsl(210, 15%, 20%);
     border-radius: .4rem;
@@ -94,8 +95,8 @@ input[type=checkbox]
     text-align: center;
     display: inline-block;
     font-size: 20px;
-    width: 21.4rem;
-    height: 4.0rem;
+    width: 23.5rem;
+    height: 7.0rem;
 
     border: 0.1rem solid  hsl(210, 15%, 20%);
     border-radius: .4rem;
@@ -122,8 +123,8 @@ input[type=checkbox]
     padding: 16px 16px;
     text-decoration: none;
     font-size: 16px;
-    width: 21.4rem;
-    height: 4.0rem;
+    width: 23.5rem;
+    height: 7.0rem;
 }
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
