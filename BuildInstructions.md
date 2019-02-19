@@ -21,7 +21,7 @@ Just download and install binaries from https://cmake.org/download/
     cd cmake-3.12.3
     ./configure --prefix=`pwd`/install
     make -j4
-    sudo make install
+    make install
     export PATH=$PATH:`pwd`/install
 
 
