@@ -65,6 +65,8 @@ void PrintDevicesList(const SoapySDR::KwargsList& device_list)
 		for(auto sr : sampling_rates)
 			cout<<"\t\t"<<C_MAGENTA<<sr<<C_OFF<<endl;
 		cout<<endl;
+
+		SoapySDR::Device::unmake(p_device);
 	}
 }
 
