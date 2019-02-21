@@ -23,6 +23,7 @@ def RequestRttyStream():
 	global WS
 	while WS and not EXIT:
 		WS.send("cmd::liveprint")
+		WS.send("cmd::sentence")
 		# WS.send("*") # or just send anything to be notified with cmd::info:sentence
 		time.sleep(.25)
 

@@ -225,6 +225,7 @@ def RedrawDemod():
 
 def RefreshRttyStream():
 	hdc.SendCommand('liveprint')
+	hdc.SendCommand('sentence')
 	GUI.after( 250, RefreshRttyStream )
 
 

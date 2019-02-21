@@ -461,6 +461,17 @@ void WS_CLIENT_SESSION_THREAD(tcp::socket& i_socket)
 					ws.write( boost::asio::buffer(res_stream.str()) );
 				}
 			}
+			// cmd::sentence
+			else if( regex_match(command, match, regex(R"_(cmd\:\:sentence)_")) && match.size() > 0 )
+			{
+				auto& sen_map = GLOBALS::get().sentences_map_;
+				string sentence("");
+				if( sen_map.crbegin() != sen_map.crend() )
+					sentence = sen_map.crbegin()->second;
+				string o_command = "cmd::info:sentence=" + sentence;
+				ws.text(true);
+				ws.write( boost::asio::buffer( o_command.c_str(), o_command.size()) );
+			}
 			// cmd::liveprint
 			else if( regex_match(command, match, regex(R"_(cmd\:\:liveprint)_")) && match.size() > 0 )
 			{

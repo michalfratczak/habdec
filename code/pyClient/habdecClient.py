@@ -137,6 +137,7 @@ def SendCommand(i_cmd):
 		power:res=512,zoom=0.5
 		demod:res=256
 		liveprint
+		sentence
 
 	For others, see websocket server implementation
 
