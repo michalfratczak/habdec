@@ -29,6 +29,7 @@
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
+#include <SoapySDR/Version.hpp>
 
 
 #include "IQSource/IQSource_SoapySDR.h"
@@ -320,6 +321,7 @@ int main(int argc, char** argv)
 	}
 
 	cout<<"git version: "<<g_GIT_SHA1<<endl;
+	cout<<"SOAPY_SDR_API_VERSION: "<<SoapySDR::getAPIVersion()<<endl;
 
 	// setup GLOBALS
 	prog_opts(argc, argv);
