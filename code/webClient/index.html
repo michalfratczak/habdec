@@ -88,6 +88,9 @@
 
 <script language="javascript" type="text/javascript">
 
+var G_POWER_FPS = 40;
+var G_DEMOD_FPS = 4;
+
 function habdec_init()
 {
 	OpenConnection();
@@ -98,6 +101,9 @@ function habdec_init()
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
 	LoadFlightsData();
+
+	AnimatePowerSpectrum(0);
+	AnimateDemod(0);
 }
 
 window.addEventListener("load", habdec_init, false);

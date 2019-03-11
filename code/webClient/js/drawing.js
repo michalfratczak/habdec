@@ -82,6 +82,9 @@ function AccumulateSpectrumArray(i_arr)
 
 function DrawPowerSpectrum(i_canvas, i_spectrum)
 {
+	if(i_spectrum == undefined)
+		return;
+
 	var ctx = i_canvas.getContext("2d");
 
 	// CLEAR THE CANVAS
@@ -219,6 +222,9 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
 function DrawDemod(i_canvas, i_demod)
 {
+	if(i_demod == undefined)
+		return;
+
 	var ctx = i_canvas.getContext("2d");
 
 	// Clear the canvas
@@ -282,4 +288,43 @@ function ResizeCanvas(canvas_id)
 	canvasNode.style.height = '100%';
 	canvasNode.width = canvasDiv.clientWidth;
 	canvasNode.height = canvasDiv.clientHeight;
+}
+
+
+var AnimatePowerSpectrum_last = 0;
+var G_PowerCanvas;
+function AnimatePowerSpectrum(timestamp)
+{
+	if(G_PowerCanvas == undefined)
+		G_PowerCanvas = document.getElementById("powerSpectrumCanvas");
+
+	if(!AnimatePowerSpectrum_last)
+		AnimatePowerSpectrum_last = timestamp;
+
+	if( (timestamp - AnimatePowerSpectrum_last) > (1000/G_POWER_FPS) )
+	{
+		AnimatePowerSpectrum_last = timestamp;
+		DrawPowerSpectrum(G_PowerCanvas, G_SPECTRUM_DATA);
+	}
+
+	window.requestAnimationFrame(AnimatePowerSpectrum);
+}
+
+var AnimateDemod_last = 0;
+var G_DemodCanvas;
+function AnimateDemod(timestamp)
+{
+	if(G_DemodCanvas == undefined)
+		G_DemodCanvas = document.getElementById("demodCanvas");
+
+	if(!AnimateDemod_last)
+		AnimateDemod_last = timestamp;
+
+	if( (timestamp - AnimateDemod_last) > (1000/G_DEMOD_FPS) )
+	{
+		AnimateDemod_last = timestamp;
+		DrawDemod(G_DemodCanvas, G_DEMOD_DATA);
+	}
+
+	window.requestAnimationFrame(AnimateDemod);
 }

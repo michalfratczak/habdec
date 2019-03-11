@@ -1,8 +1,10 @@
 
-var websocket;
-var connected = 0;
+var G_HD_WEBSOCKET;
+var G_HD_CONNECTED = 0;
 var LastHabSentences = [];
+var G_SPECTRUM_DATA;
 var G_SPECTRUM_ZOOM = 0;
+var G_DEMOD_DATA;
 var G_SENTECES_OK_COUNT = 0;
 
 var GLOBALS =
@@ -36,24 +38,24 @@ function debug_print()
 
 function OpenConnection()
 {
-	if(connected)
+	if(G_HD_CONNECTED)
 		return;
 
 	var server = document.getElementById("server_address").value;
 	console.debug("Connecting to ", server, " ...");
-	websocket = new WebSocket("ws://" + server);
-	websocket.binaryType = 'arraybuffer'; // or 'blob'
+	G_HD_WEBSOCKET = new WebSocket("ws://" + server);
+	G_HD_WEBSOCKET.binaryType = 'arraybuffer'; // or 'blob'
 
-	websocket.onopen =    function(evt) { ws_onOpen(evt) };
-	websocket.onclose =   function(evt) { ws_onClose(evt) };
-	websocket.onmessage = function(evt) { ws_onMessage(evt) };
-	websocket.onerror =   function(evt) { ws_onError(evt) };
+	G_HD_WEBSOCKET.onopen =    function(evt) { ws_onOpen(evt) };
+	G_HD_WEBSOCKET.onclose =   function(evt) { ws_onClose(evt) };
+	G_HD_WEBSOCKET.onmessage = function(evt) { ws_onMessage(evt) };
+	G_HD_WEBSOCKET.onerror =   function(evt) { ws_onError(evt) };
 }
 
 
 function ws_onClose(evt)
 {
-	connected = 0;
+	G_HD_CONNECTED = 0;
 	debug_print("DISCONNECTED");
 	setTimeout(function () { OpenConnection(); }, 5000);
 }
@@ -67,10 +69,10 @@ function ws_onError(evt)
 
 function ws_onOpen(evt)
 {
-	connected = 1;
+	G_HD_CONNECTED = 1;
 	debug_print("ws_onOpen: ", "Connected.");
 
-	websocket.send("hi");
+	G_HD_WEBSOCKET.send("hi");
 	for(var param in GLOBALS)
 		SendCommand("get:" + param);
 
@@ -83,7 +85,7 @@ function ws_onOpen(evt)
 
 function ws_onMessage(evt)
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 	{
 		debug_print("ws_onMessage: not connected.");
 		return;
@@ -100,17 +102,15 @@ function ws_onMessage(evt)
 		var what = String.fromCharCode.apply( null, new Uint8Array(evt.data,0,4) );
 		if(what == "PWR_")
 		{
-			var spectrum = DecodeSpectrum(evt.data, 4);
+			G_SPECTRUM_DATA = DecodeSpectrum(evt.data, 4);
 			var widget = document.getElementById("frequency");
-			widget.setAttribute("step_big", spectrum.sampling_rate_ / 1e6 / 30);
-			widget.setAttribute("step_small", spectrum.sampling_rate_ / 1e6 / 500);
-			DrawPowerSpectrum(document.getElementById("powerSpectrumCanvas"), spectrum);
+			widget.setAttribute("step_big", G_SPECTRUM_DATA.sampling_rate_ / 1e6 / 30);
+			widget.setAttribute("step_small", G_SPECTRUM_DATA.sampling_rate_ / 1e6 / 500);
 			RefreshPowerSpectrum_lastReq = 0;
 		}
 		else if(what == "DEM_")
 		{
-			var demod = DecodeDemod(evt.data, 4);
-			DrawDemod(document.getElementById("demodCanvas"), demod);
+			G_DEMOD_DATA = DecodeDemod(evt.data, 4);
 			RefreshDemod_lastReq = 0;
 		}
 	}
@@ -124,20 +124,20 @@ function ws_onMessage(evt)
 
 function SendCommand(i_cmd)
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 	{
 		debug_print("SendCommand: not connected.");
 		return;
 	}
 	var msg = "cmd::" + i_cmd;
 	// debug_print("SendCommand: ", msg);
-	websocket.send(msg);
+	G_HD_WEBSOCKET.send(msg);
 }
 
 
 function HandleMessage(i_data)
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 	{
 		debug_print("HandleMessage: not connected.");
 		return;
@@ -247,10 +247,8 @@ function HandleMessage(i_data)
 var RefreshPowerSpectrum_lastReq = 0; // limits number of requests to server
 function RefreshPowerSpectrum()
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 		return;
-
-	var FPS = 40; // frames per second refresh
 
 	// wait 250ms for last request to be realized
 	var d = new Date();
@@ -260,7 +258,7 @@ function RefreshPowerSpectrum()
 		)
 	{
 		// console.debug("waiting ... ", (now - RefreshPowerSpectrum_lastReq), now);
-		setTimeout(function () {RefreshPowerSpectrum();}, 1000 / FPS);
+		setTimeout(function () {RefreshPowerSpectrum();}, 1000 / G_POWER_FPS);
 		return;
 	}
 
@@ -271,17 +269,15 @@ function RefreshPowerSpectrum()
 	SendCommand("power:res=" + canvas.width + ",zoom=" + zoom);
 	RefreshPowerSpectrum_lastReq = d.getTime();
 
-	setTimeout(function () {RefreshPowerSpectrum();}, 1000 / FPS);
+	setTimeout(function () {RefreshPowerSpectrum();}, 1000 / G_POWER_FPS);
 }
 
 
 var RefreshDemod_lastReq = 0; // limits number of requests to server
 function RefreshDemod()
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 		return;
-
-	var FPS = 4; // frames per second refresh
 
 	// wait 250ms for last request to be realized
 	var d = new Date();
@@ -291,7 +287,7 @@ function RefreshDemod()
 		)
 	{
 		// console.debug("waiting ... ", (now - RefreshDemod_lastReq), now);
-		setTimeout(function () {RefreshDemod();}, 1000 / FPS);
+		setTimeout(function () {RefreshDemod();}, 1000 / G_DEMOD_FPS);
 		return;
 	}
 
@@ -300,13 +296,13 @@ function RefreshDemod()
 	SendCommand("demod:res=" + canvas.width);
 	RefreshDemod_lastReq = d.getTime();
 
-	setTimeout(function () {RefreshDemod();}, 1000 / FPS);
+	setTimeout(function () {RefreshDemod();}, 1000 / G_DEMOD_FPS);
 }
 
 
 function RefreshLivePrint()
 {
-	if(!connected)
+	if(!G_HD_CONNECTED)
 		return;
 	SendCommand("liveprint");
 	setTimeout(function () {RefreshLivePrint();}, 1000 / 4);
