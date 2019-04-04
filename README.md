@@ -31,7 +31,7 @@ There's also raspberryPi 3 image with ready to use binary and build env. Go to [
 To build habdec you need a C++11 compiler and CMake version 3.8.2
 You also need to build or install some dependencies:
 - basic decoder: [FFTW](http://www.fftw.org/)
-- websocket server: [SoapySDR](https://github.com/pothosware/SoapySDR), [boost 1.68](https://www.boost.org/)
+- websocket server: [SoapySDR](https://github.com/pothosware/SoapySDR), [boost 1.68](https://www.boost.org/) (any version with boost-beast)
 
 Instructions how to build habdec and it's dependencies are described in [BuildInstructions.md](./BuildInstructions.md)
 
