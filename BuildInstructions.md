@@ -2,8 +2,8 @@
 
 To build habdec from source code, you need to build it's dependecies first:
 - FFTW
-- boost 1.68
-- CMake version 3.8.2
+- boost (any version with boost-beast 1.66+)
+- CMake version 3.8.2 (make sure CMake version supports your boost version, otherwise CMake could fail finding stuff)
 - optionally: FLTK
 
 Below are instructions how to obtain and compile each package. Keep in mind, these are WIP and some adjustment to your build env may be needed.
@@ -25,7 +25,7 @@ Just download and install binaries from https://cmake.org/download/
     export PATH=$PATH:`pwd`/install
 
 
-## boost 1.68
+## boost
 
 #### Linux
     wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
