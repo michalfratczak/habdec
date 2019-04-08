@@ -48,6 +48,7 @@ set ( websocketServer_src
 					${CMAKE_SOURCE_DIR}/habitat/habitat_upload.cpp
 					${CMAKE_SOURCE_DIR}/habitat/habitat_list_flights.cpp
 					${CMAKE_SOURCE_DIR}/common/http_request.cpp
+					${CMAKE_SOURCE_DIR}/common/GpsDistance.cpp
 					main.cpp
 			)
 

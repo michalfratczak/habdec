@@ -39,11 +39,36 @@
 #include "GLOBALS.h"
 #include "server.h"
 #include "common/git_repo_sha1.h"
+#include "common/GpsDistance.h"
 
 
 bool G_DO_EXIT = false;
 
 using namespace std;
+
+
+std::vector<std::string> split_string(const std::string& text, char sep)
+{
+    std::vector<std::string> tokens;
+    std::size_t start = 0, end = 0;
+    while ((end = text.find(sep, start)) != std::string::npos)
+    {
+        tokens.push_back(text.substr(start, end - start));
+        start = end + 1;
+    }
+    tokens.push_back(text.substr(start));
+    return tokens;
+}
+
+
+void SentenceToPosition(std::string i_snt, float &lat, float &lon, float &alt)
+{
+    // "CALLSIGN,123,15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9"
+    std::vector<std::string> tokens = split_string(i_snt, ',');
+    lat = std::stof(tokens[3]);
+    lon = std::stof(tokens[4]);
+    alt = std::stof(tokens[5]);
+}
 
 
 void PrintDevicesList(const SoapySDR::KwargsList& device_list)
@@ -289,6 +314,26 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc)
 	}
 
 
+	// print distance and elevation
+	if( GLOBALS::get().par_.station_lat_ )
+	{
+		float lat, lon, alt;
+		SentenceToPosition(sentence, lat, lon, alt);
+		habdec::GpsDistance _D = habdec::CalcGpsDistance(
+				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_, 0, // station
+				lat, lon, alt );  // payload
+		static thread_local double distance_max = 0;
+		distance_max =  max(distance_max, _D.dist_circle_);
+		static thread_local double elevation_min = 0;
+		elevation_min = min(elevation_min, _D.elevation_);
+
+		cout<<std::fixed<<std::setprecision(0)<<"Distance: "<<_D.dist_circle_<<" ["<<distance_max<<"] "
+			<<std::fixed<<std::setprecision(2)<<"\tElevation: "<<_D.elevation_<<  " ["<<elevation_min<<"] "<<endl;
+		cout<<scientific;
+	}
+
+
+	// user callback
 	if( GLOBALS::get().par_.sentence_cmd_ != "" )
 	{
 		int res = system( (GLOBALS::get().par_.sentence_cmd_ + " " + sentence).c_str() );
