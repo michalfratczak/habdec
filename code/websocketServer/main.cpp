@@ -322,13 +322,13 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc)
 		habdec::GpsDistance _D = habdec::CalcGpsDistance(
 				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_, GLOBALS::get().par_.station_alt_, // station
 				lat, lon, alt );  // payload
-		static thread_local double distance_max = 0;
-		distance_max =  max(distance_max, _D.dist_circle_);
-		static thread_local double elevation_min = 0;
+		static double distance_max = 0;
+		distance_max =  max(distance_max, _D.dist_line_);
+		static double elevation_min = numeric_limits<double>::max();
 		elevation_min = min(elevation_min, _D.elevation_);
 
-		cout<<std::fixed<<std::setprecision(0)<<"Distance: "<<_D.dist_circle_<<" ["<<distance_max<<"] "
-			<<std::fixed<<std::setprecision(2)<<"\tElevation: "<<_D.elevation_<<  " ["<<elevation_min<<"] "<<endl;
+		cout<<fixed<<setprecision(0)<<"Distance: "<<_D.dist_line_<<" ["<<distance_max<<"] (great circle: "<<_D.dist_circle_<<")"
+			<<fixed<<setprecision(2)<<"\tElevation: "<<_D.elevation_<<  " ["<<elevation_min<<"] "<<endl;
 		cout<<scientific;
 	}
 
@@ -367,7 +367,7 @@ int main(int argc, char** argv)
 
 	cout<<"git version: "<<g_GIT_SHA1<<endl;
 	cout<<"SOAPY_SDR_API_VERSION: "<<SoapySDR::getAPIVersion()<<endl;
-	
+
 	// setup GLOBALS
 	prog_opts(argc, argv);
 
