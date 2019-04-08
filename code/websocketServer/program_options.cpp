@@ -84,6 +84,7 @@ void prog_opts(int ac, char* av[])
 
 			("station",	po::value<string>(),	"HABHUB station callsign")
 			("latlon",	po::value< std::vector<float> >()->multitoken(), "station GPS location (decimal)")
+			("alt",		po::value<float>(), "station altitude in meters")
 
 			("freq",	po::value<float>(), "frequency in MHz")
 			("ppm",		po::value<float>(), "frequency correction in PPM")
@@ -274,6 +275,10 @@ void prog_opts(int ac, char* av[])
 			}
 			GLOBALS::get().par_.station_lat_ = latlon_vec[0];
 			GLOBALS::get().par_.station_lon_ = latlon_vec[1];
+		}
+		if (vm.count("alt"))
+		{
+			GLOBALS::get().par_.station_alt_ = vm["alt"].as<float>();
 		}
 	}
 	catch(exception& e)

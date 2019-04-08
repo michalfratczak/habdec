@@ -70,6 +70,7 @@ public:
 		std::string 	station_callsign_ = ""; // habitat upload
 		float 	station_lat_ = 0;
 		float 	station_lon_ = 0;
+		float 	station_alt_ = 0;
 		double	sampling_rate_ = 0;
 		int 	decimation_ = 6;
 		double 	frequency_ = 434349500.0f;
@@ -115,6 +116,7 @@ public:
 				&& station_callsign_ == rhs.station_callsign_
 				&& station_lat_ == rhs.station_lat_
 				&& station_lon_ == rhs.station_lon_
+				&& station_alt_ == rhs.station_alt_
 				&& sampling_rate_ == rhs.sampling_rate_
 				&& sentence_cmd_ == rhs.sentence_cmd_
 				&& habitat_payload_ == rhs.habitat_payload_
@@ -136,6 +138,7 @@ public:
 			oFile<<"station = "<<GLOBALS::get().par_.station_callsign_<<endl;
 			oFile<<"latlon = "<<GLOBALS::get().par_.station_lat_<<endl;
 			oFile<<"latlon = "<<GLOBALS::get().par_.station_lon_<<endl;
+			oFile<<"alt = "<<GLOBALS::get().par_.station_alt_<<endl;
 
 			oFile<<"freq = "<<setprecision(9)<<GLOBALS::get().par_.frequency_/1e6<<endl;
 			oFile<<"dec = "<<GLOBALS::get().par_.decimation_<<endl;
@@ -174,6 +177,7 @@ public:
 		cout<<"\tpayload: "<<GLOBALS::get().par_.habitat_payload_<<endl;
 		cout<<"\tstation: "<<GLOBALS::get().par_.station_callsign_<<endl;
 		cout<<"\tlatlon: "<<GLOBALS::get().par_.station_lat_<<" "<<GLOBALS::get().par_.station_lon_<<endl;
+		cout<<"\talt: "<<GLOBALS::get().par_.station_alt_<<endl;
 		cout<<"\tfreq: "<<GLOBALS::get().par_.frequency_<<endl;
 		cout<<"\tppm: "<<GLOBALS::get().par_.ppm_<<endl;
 		cout<<"\tgain: "<<GLOBALS::get().par_.gain_<<endl;
