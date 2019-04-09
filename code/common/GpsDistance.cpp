@@ -1,10 +1,5 @@
 #include "GpsDistance.h"
-
-#include<cmath>
-
-// #include <iostream>
-// #include <algorithm>
-// #include <iterator>
+#include <cmath>
 
 namespace habdec
 {

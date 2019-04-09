@@ -391,7 +391,7 @@ int main(int argc, char** argv)
 					habdec::habitat::UploadStationTelemetry(
 						GLOBALS::get().par_.station_callsign_,
 						GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
-						0, 0, false
+						GLOBALS::get().par_.station_alt_, 0, false
 					);
 	}
 
