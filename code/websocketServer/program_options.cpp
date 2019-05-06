@@ -112,7 +112,7 @@ void prog_opts(int ac, char* av[])
 
 		string config_file;
 		cli_options.add_options()
-            ("config", po::value<string>(&config_file), "Last run config file. Autosaved on every successfull decode.");
+            ("config", po::value<string>(&config_file), "Last run config file. Autosaved on every successful decode.");
             // ("config", po::value<string>(&config_file)->default_value("./habdecWebsocketServer.opts"), "Last run config file. Autosaved on every successfull decode.");
 
 		po::options_description file_options;
