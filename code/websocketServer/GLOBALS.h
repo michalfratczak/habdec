@@ -25,10 +25,12 @@
 #include <fstream>
 #include <vector>
 #include <mutex>
+#include <limits>
 
 
 #include "IQSource/IQSource.h"
 #include "Decoder/Decoder.h"
+#include "common/GpsDistance.h"
 
 
 typedef float TReal; // we operate on float IQ samples
@@ -57,9 +59,18 @@ public:
 	std::vector<TDecoder::TValue>	demod_accumulated_; // acuumulated demod samples, used for GUI display
 	std::mutex demod_accumulated_mtx_;
 
-	// decoded sentences, key is sentende id
+	// decoded sentences, key is sentence id
 	std::map<int, std::string>			sentences_map_;
 	std::timed_mutex					sentences_map_mtx_;
+
+	struct STATS
+	{
+		unsigned int num_ok_ = 0; // num of decoded packets
+		habdec::GpsDistance D_;
+		double dist_max_ = 0;
+		double elev_min_ = std::numeric_limits<double>::max();
+	};
+	STATS stats_;
 
 	// options
 	struct PARAMS

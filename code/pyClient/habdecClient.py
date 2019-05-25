@@ -138,6 +138,7 @@ def SendCommand(i_cmd):
 		demod:res=256
 		liveprint
 		sentence
+		stats
 
 	For others, see websocket server implementation
 
@@ -186,8 +187,11 @@ def HandleResponse_Info(i_cmd):
 		if i_cmd.startswith('cmd::info:liveprint'):
 			global RTTY_STREAM
 			RTTY_STREAM = value
-		if i_cmd.startswith('cmd::info:sentence'):
+	 	if i_cmd.startswith('cmd::info:sentence'):
 			SENTENCES.append(value)
+			SendCommand("stats")
+		if i_cmd.startswith('cmd::info:stats'):
+			print(value)
 
 
 def HandleResponse_PowerSpectrum(_data):

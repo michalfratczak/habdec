@@ -39,7 +39,6 @@
 #include "GLOBALS.h"
 #include "server.h"
 #include "common/git_repo_sha1.h"
-#include "common/GpsDistance.h"
 
 
 bool G_DO_EXIT = false;
@@ -287,6 +286,7 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc)
 	if( GLOBALS::get().sentences_map_mtx_.try_lock_for(Ms(1000)) )
 	{
 		GLOBALS::get().sentences_map_[sentence_number] = sentence;
+		GLOBALS::get().stats_.num_ok_ = GLOBALS::get().sentences_map_.size();
 		GLOBALS::get().sentences_map_mtx_.unlock();
 	}
 
@@ -319,21 +319,25 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc)
 	{
 		float lat, lon, alt;
 		SentenceToPosition(sentence, lat, lon, alt);
-		habdec::GpsDistance _D = habdec::CalcGpsDistance(
-				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_, GLOBALS::get().par_.station_alt_, // station
-				lat, lon, alt );  // payload
-		static double distance_max = 0;
-		distance_max =  max(distance_max, _D.dist_line_);
-		static double elevation_min = numeric_limits<double>::max();
-		elevation_min = min(elevation_min, _D.elevation_);
 
-		cout<<fixed<<setprecision(0)<<"Distance: "<<_D.dist_line_<<" ["<<distance_max<<"] (great circle: "<<_D.dist_circle_<<")"
-			<<fixed<<setprecision(2)<<"\tElevation: "<<_D.elevation_<<  " ["<<elevation_min<<"] "<<endl;
+		auto& stats = GLOBALS::get().stats_;
+		stats.D_ = habdec::CalcGpsDistance(
+				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
+				GLOBALS::get().par_.station_alt_,
+				lat, lon, alt );
+
+		stats.dist_max_ = max(stats.dist_max_, stats.D_.dist_line_);
+		stats.elev_min_ = min(stats.elev_min_, stats.D_.elevation_);
+
+		cout<<fixed<<setprecision(0)<<"Distance: "<<stats.D_.dist_line_<<" ["<<stats.dist_max_
+									<<"] (great circle: "<<stats.D_.dist_circle_<<")"
+			<<fixed<<setprecision(2)<<"\tElevation: "<<stats.D_.elevation_
+									<<  " ["<<stats.elev_min_<<"] "<<endl;
 		cout<<scientific;
 	}
 
 
-	// user callback
+	// CLI callback
 	if( GLOBALS::get().par_.sentence_cmd_ != "" )
 	{
 		int res = system( (GLOBALS::get().par_.sentence_cmd_ + " " + sentence).c_str() );

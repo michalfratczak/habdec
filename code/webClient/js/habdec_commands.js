@@ -5,7 +5,6 @@ var LastHabSentences = [];
 var G_SPECTRUM_DATA;
 var G_SPECTRUM_ZOOM = 0;
 var G_DEMOD_DATA;
-var G_SENTECES_OK_COUNT = 0;
 
 var GLOBALS =
 {
@@ -211,9 +210,6 @@ function HandleMessage(i_data)
 	{
 		if(info_match[1] == "sentence")
 		{
-			G_SENTECES_OK_COUNT += 1;
-			document.getElementById("cnt_habsentence_count").innerHTML = "OK: " + G_SENTECES_OK_COUNT;
-
 			var sntnc = info_match[2];
 
 			var cnt_habsentence_list = document.getElementById("cnt_habsentence_list")
@@ -227,6 +223,8 @@ function HandleMessage(i_data)
 			);
 
 			LastHabSentences.unshift( info_match[2] );
+
+			SendCommand("stats");
 		}
 		else if(info_match[1] == "liveprint")
 		{
@@ -235,11 +233,55 @@ function HandleMessage(i_data)
 				livestream = livestream.substr(livestream.length-100, livestream.length);
 			document.getElementById("cnt_liveprint").innerHTML = livestream;
 		}
+		else if(info_match[1] == "stats")
+		{
+			DisplayStats(info_match[2]);
+		}
 
 		return true;
 	}
 
 	return false;
+
+}
+
+
+function DisplayStats(i_str)
+{
+	var stats = {
+		'ok': 0,
+		'dist_line': 0,
+		'dist_circ': 0,
+		'max_dist': 0,
+		'min_elev': 90,
+	};
+
+	var stats_arr = i_str.split(",");
+
+	for(i in stats_arr)
+	{
+		var tokens = stats_arr[i].split(":");
+		var k = tokens[0];
+		var v = tokens[1];
+
+		if(k == 'ok')
+			stats.ok = parseInt(v);
+		if(k == 'dist_line')
+			stats.dist_line = parseFloat(v);
+		if(k == 'dist_circ')
+			stats.dist_circ = parseFloat(v);
+		if(k == 'max_dist')
+			stats.max_dist = parseFloat(v);
+		if(k == 'min_elev')
+			stats.min_elev = parseFloat(v);
+	}
+
+	document.getElementById("cnt_stats").innerHTML =
+		"OK: " + stats.ok
+		+ " Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
+		+ " Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
+		+ " MaxDistL: " + (stats.max_dist / 1000).toFixed(1) + "km "
+		+ " MinElev: " + (stats.min_elev).toFixed(1);
 
 }
 

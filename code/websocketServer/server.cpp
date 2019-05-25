@@ -479,6 +479,22 @@ void WS_CLIENT_SESSION_THREAD(tcp::socket& i_socket)
 				ws.text(true);
 				ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
 			}
+			// statistics
+			else if( regex_match(command, match, regex(R"_(cmd\:\:stats)_")) && match.size() > 0 )
+			{
+				auto& stats = GLOBALS::get().stats_;
+				string o_command = "cmd::info:stats=";
+				o_command += "ok:" + to_string(stats.num_ok_);
+				o_command += ",dist_line:" + to_string(stats.D_.dist_line_);
+				o_command += ",dist_circ:" + to_string(stats.D_.dist_circle_);
+				o_command += ",max_dist:" + to_string(stats.dist_max_);
+				o_command += ",min_elev:" + to_string(stats.elev_min_);
+				o_command += ",lat:" + to_string(GLOBALS::get().par_.station_lat_);
+				o_command += ",lon:" + to_string(GLOBALS::get().par_.station_lon_);
+				o_command += ",alt:" + to_string(GLOBALS::get().par_.station_alt_);
+				ws.text(true);
+				ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+			}
 			// cmd::****
 			else if(command.size()>5 && command.substr(0,5) == "cmd::")
 			{

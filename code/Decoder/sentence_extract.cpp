@@ -40,11 +40,13 @@ std::map<std::string,std::string> extractSentence_testing(std::string stream)
 	{
 		static thread_local int index = 0;
 		index++;
-		string res = "CALLSIGN," + to_string(index) + ",15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9";
 
 		result["success"] = string("OK");
 		result["callsign"] = "CALLSIGN";
-		result["data"] = to_string(index) + ",15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9";
+		result["data"] =  to_string(index) + ",15:41:24,"
+						+ to_string(52.0 + .01 * index) + "," + to_string(21.0 + .01 * index) + ","
+						+ to_string(100 * index)
+						+",0,0,12,30.7,0.0,0.001,20.2,958*6BC9";
 		result["crc"] = CRC(result["callsign"] + "," + result["data"]);
 		result["stream"] = stream.substr(stream.size()/3);
 		return result;
