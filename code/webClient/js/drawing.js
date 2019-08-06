@@ -106,8 +106,8 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
     // LOWPASS FILTER DRAW
 	//
-	var _lowpass_bw_relative = GLOBALS.lowpass_bw / i_spectrum.sampling_rate_ / (1.0 - .999*zoom);
-    var _lowpass_trans = GLOBALS.lowpass_trans / (1.0 - .999*zoom);
+	var _lowpass_bw_relative = HD_GLOBALS.lowpass_bw / i_spectrum.sampling_rate_ / (1.0 - .999*zoom);
+    var _lowpass_trans = HD_GLOBALS.lowpass_trans / (1.0 - .999*zoom);
 	var grd_lowpass = ctx.createLinearGradient(0, 0, i_canvas.width-1, 0);
 	var _l  = Math.max(0, .5 - .5 * _lowpass_bw_relative);
 	var _ll = Math.max(0, .5 - .5 * (_lowpass_bw_relative + _lowpass_trans));

@@ -1,14 +1,14 @@
 
 var G_HD_WEBSOCKET;
 var G_HD_CONNECTED = 0;
-var LastHabSentences = [];
+var G_HD_LastHabSentences = [];
 var G_SPECTRUM_DATA;
 var G_SPECTRUM_ZOOM = 0;
 var G_DEMOD_DATA;
 var G_POWER_FPS = 40;
 var G_DEMOD_FPS = 1;
 
-var GLOBALS =
+var HD_GLOBALS =
 {
 	frequency: 0,
 	sampling_rate: 0,
@@ -74,7 +74,7 @@ function ws_onOpen(evt)
 	debug_print("ws_onOpen: ", "Connected.");
 
 	G_HD_WEBSOCKET.send("hi");
-	for(var param in GLOBALS)
+	for(var param in HD_GLOBALS)
 		SendCommand("get:" + param);
 
 	console.debug("ws_onOpen: init refresh.");
@@ -155,48 +155,48 @@ function HandleMessage(i_data)
 	if(set_match != null && set_match.length == 3)
 	{
 		if(set_match[1] == "frequency")
-			GLOBALS.frequency = parseFloat(set_match[2]);
+			HD_GLOBALS.frequency = parseFloat(set_match[2]);
 		if(set_match[1] == "decimation")
-			GLOBALS.decimation = parseInt(set_match[2]);
+			HD_GLOBALS.decimation = parseInt(set_match[2]);
 		else if(set_match[1] == "gain")
-			GLOBALS.gain = parseFloat(set_match[2]);
+			HD_GLOBALS.gain = parseFloat(set_match[2]);
 		else if(set_match[1] == "baud")
-			GLOBALS.baud = parseInt(set_match[2]);
+			HD_GLOBALS.baud = parseInt(set_match[2]);
 		else if(set_match[1] == "lowpass_bw")
-			GLOBALS.lowpass_bw = parseFloat(set_match[2]);
+			HD_GLOBALS.lowpass_bw = parseFloat(set_match[2]);
 		else if(set_match[1] == "lowpass_trans")
-			GLOBALS.lowpass_trans = parseFloat(set_match[2]);
+			HD_GLOBALS.lowpass_trans = parseFloat(set_match[2]);
 		else if(set_match[1] == "rtty_bits")
-			GLOBALS.rtty_bits = parseFloat(set_match[2]);
+			HD_GLOBALS.rtty_bits = parseFloat(set_match[2]);
 		else if(set_match[1] == "rtty_stops")
-			GLOBALS.rtty_stops = parseFloat(set_match[2]);
+			HD_GLOBALS.rtty_stops = parseFloat(set_match[2]);
 		else if(set_match[1] == "lowPass")
 		{
-			GLOBALS.lowpass_bw = parseFloat(set_match[2].split(',')[0]);
-			GLOBALS.lowpass_trans = parseFloat(set_match[2].split(',')[1]);
+			HD_GLOBALS.lowpass_bw = parseFloat(set_match[2].split(',')[0]);
+			HD_GLOBALS.lowpass_trans = parseFloat(set_match[2].split(',')[1]);
 		}
 		else if(set_match[1] == "biastee")
 		{
-			GLOBALS.biastee = parseFloat(set_match[2]);
+			HD_GLOBALS.biastee = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "afc")
 		{
-			GLOBALS.afc = parseFloat(set_match[2]);
+			HD_GLOBALS.afc = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "dc_remove")
 		{
-			GLOBALS.dc_remove = parseFloat(set_match[2]);
+			HD_GLOBALS.dc_remove = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "datasize")
 		{
-			GLOBALS.datasize = parseFloat(set_match[2]);
+			HD_GLOBALS.datasize = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 
-		SetGuiToGlobals(GLOBALS);
+		SetGuiToGlobals(HD_GLOBALS);
 
 		return true;
 	}
@@ -217,14 +217,14 @@ function HandleMessage(i_data)
 			var cnt_habsentence_list = document.getElementById("cnt_habsentence_list")
 			cnt_habsentence_list.innerHTML = '<text style=\"color: rgb(0,200,0);\">' + sntnc + '</text>';;
 
-			while(LastHabSentences.length > 12)
-				LastHabSentences.pop();
-			LastHabSentences.forEach( function(i_snt){
+			while(G_HD_LastHabSentences.length > 12)
+				G_HD_LastHabSentences.pop();
+			G_HD_LastHabSentences.forEach( function(i_snt){
 				cnt_habsentence_list.innerHTML += '<br><text>' + i_snt + '</text>';
 				}
 			);
 
-			LastHabSentences.unshift( info_match[2] );
+			G_HD_LastHabSentences.unshift( info_match[2] );
 
 			SendCommand("stats");
 		}
@@ -355,7 +355,7 @@ function RefreshLivePrint()
 
 function SetBiasT()
 {
-	var value = GLOBALS.biastee;
+	var value = HD_GLOBALS.biastee;
 	if(value)
 	{
 		SendCommand("set:biastee=0");
@@ -375,7 +375,7 @@ function SetBiasT()
 
 function SetAFC()
 {
-	var value = GLOBALS.afc
+	var value = HD_GLOBALS.afc
 	if(value)
 	{
 		SendCommand("set:afc=0");
@@ -394,7 +394,7 @@ function SetAFC()
 
 function SetDCRemove()
 {
-	var value = GLOBALS.dc_remove;
+	var value = HD_GLOBALS.dc_remove;
 	if(value)
 	{
 		SendCommand("set:dc_remove=0");

@@ -100,7 +100,7 @@ function SetGuiToGlobals(i_globals)
 	}
 
 	// buttons
-	var biastee_value = GLOBALS.biastee;
+	var biastee_value = HD_GLOBALS.biastee;
 	if(biastee_value)
 	{
 		var button = document.getElementById("HD_biastee");
@@ -115,7 +115,7 @@ function SetGuiToGlobals(i_globals)
 	}
 
 
-	var afc_value = GLOBALS.afc
+	var afc_value = HD_GLOBALS.afc
 	if(afc_value)
 	{
 		var button = document.getElementById("HD_afc");
@@ -129,7 +129,7 @@ function SetGuiToGlobals(i_globals)
 		button.style.color = "#AAA";
 	}
 
-	var dcremove_value = GLOBALS.dc_remove;
+	var dcremove_value = HD_GLOBALS.dc_remove;
 	if(dcremove_value)
 	{
 		var button = document.getElementById("HD_dc_remove");
