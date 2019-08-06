@@ -5,6 +5,8 @@ var LastHabSentences = [];
 var G_SPECTRUM_DATA;
 var G_SPECTRUM_ZOOM = 0;
 var G_DEMOD_DATA;
+var G_POWER_FPS = 40;
+var G_DEMOD_FPS = 1;
 
 var GLOBALS =
 {
@@ -387,7 +389,7 @@ function SetAFC()
 		var button = document.getElementById("HD_afc");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
-	}s
+	}
 }
 
 function SetDCRemove()

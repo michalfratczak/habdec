@@ -23,8 +23,12 @@
 
 <body>
 
+<div id="HABDEC_UI_DIV"> </div>
+
+
+<!-- <div id="HABDEC_POWER_SPECTRUM_DIV"> </div> -->
 <!-- Power Spectrum -->
-<div style="display: grid; grid-template-columns: auto 80px; width: 100%; height: 150px;" >
+<!-- <div style="display: grid; grid-template-columns: auto 80px; width: 100%; height: 150px;" >
 	<div id="cnt_powerSpectrumCanvas" style="display: flex;">
 		<canvas id="powerSpectrumCanvas" ></canvas>
 	</div>
@@ -32,24 +36,26 @@
 		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM += .1})()" > + </button><br>
 		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM -= .1})()" > - </button><br>
 	</div>
-</div>
+</div> -->
 
+
+<!-- <div id="HABDEC_DEMOD_AND_CONTROLS_DIV"></div> -->
+<!--
 <div style="display: grid; grid-template-columns: minmax(0, 1fr) 540px;">
-	<!-- Demod Graph -->
+
 	<div>
 		<div id="cnt_demodCanvas" style="display: flex; height: 128px;">
 			<canvas id="demodCanvas" height="128px"></canvas>
 		</div>
 		<div>
 			<div id="cnt_debug" style="font-size: 12px;"></div>
-			<!-- <div id="cnt_habsentence" class="habsentence">SENTENCE</div> -->
 			<br>
 			<div id="cnt_liveprint" class="habsentence_text" style="color: cadetblue; word-wrap: break-word;"></div>
 			<div id="cnt_stats" class="habsentence_text"  style="color: rgb(250, 0, 0)"></div>
 			<div id="cnt_habsentence_list" class="habsentence_text"></div>
 		</div>
 	</div>
-	<!-- Control Buttons -->
+
 	<div>
 		<div id="cnt_spectrum_zoom"	class="ctrl_container"> </div>
 		<div id="cnt_frequency"		class="ctrl_container">	</div>
@@ -62,8 +68,9 @@
 		<div id="cnt_rtty_stops"	class="ctrl_container"> </div>
 		<div id="cnt_datasize"		class="ctrl_container"> </div>
 	</div>
-</div>
+</div> -->
 
+<!--
 <div>
 	<div style="display: inline-block;">
 		<button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
@@ -72,27 +79,26 @@
 	</div>
 
 	<p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
-</div>
-
+</div> -->
+<!--
 <div>
 	<div><label>Server Address</label></div>
 	<input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
 	<button  onclick="OpenConnection()" >Connect</button>
-</div>
+</div> -->
 
 <!-- Payloads Dropwown Menu -->
-<div id="PayloadsWrapperDiv"></div>
+<!-- <div id="PayloadsWrapperDiv"></div> -->
 
 </body>
 
 
 <script language="javascript" type="text/javascript">
 
-var G_POWER_FPS = 40;
-var G_DEMOD_FPS = 4;
-
 function habdec_init()
 {
+	HABDEC_BUILD_UI( document.getElementById("HABDEC_UI_DIV") );
+
 	OpenConnection();
 	CreateControls();
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
@@ -105,6 +111,8 @@ function habdec_init()
 	AnimatePowerSpectrum(0);
 	AnimateDemod(0);
 }
+
+
 
 window.addEventListener("load", habdec_init, false);
 

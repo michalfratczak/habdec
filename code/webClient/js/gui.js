@@ -1,4 +1,5 @@
 
+
 function CreateFloatBoxWithArrows(	i_cnt, i_parameter, i_callback,
 									i_min, i_max, i_default, step_small = 0, step_big = 0, step_box = 0)
 {
@@ -316,3 +317,255 @@ function PayloadButtonClickCB()
 {
 	document.getElementById("PayloadsDropMenuDiv").classList.toggle("show");
 }
+
+// ============================================================================
+// ============================================================================
+// ============================================================================
+
+function HABDEC_BUILD_UI_PowerSpectrum(HABDEC_POWER_SPECTRUM_DIV)
+{
+	// <!-- Power Spectrum -->
+
+	// <div style="display: grid; grid-template-columns: auto 80px; width: 100%; height: 150px;" >
+	var div_top = document.createElement("div");
+	div_top.style.display = "grid";
+	div_top.style.gridTemplateColumns = "auto 80px";
+	div_top.style.width = "100%";
+	div_top.style.height = "150px";
+
+	// <div id="cnt_powerSpectrumCanvas" style="display: flex;">
+	var div_cnt_powerSpectrumCanvas = document.createElement("div");
+	div_cnt_powerSpectrumCanvas.id = "cnt_powerSpectrumCanvas";
+	div_cnt_powerSpectrumCanvas.style.display = "flex";
+
+	// spectrum canvas
+	var spectrum_canvas = document.createElement("canvas");
+	spectrum_canvas.id = "powerSpectrumCanvas";
+	div_cnt_powerSpectrumCanvas.appendChild(spectrum_canvas);
+
+	// +/- buttons
+	// <button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM += .1})()" > + </button><br>
+
+	var b_plus = document.createElement("button");
+	b_plus.innerHTML = "+";
+	b_plus.style.height = "50%";
+	b_plus.style.width = "100%";
+	b_plus.style.overflow = "auto";
+	b_plus.style.fontSize = "30px";
+	b_plus.onclick = function(){ G_SPECTRUM_ZOOM += .1 };
+
+	var b_minus = document.createElement("button");
+	b_minus.innerHTML = "-";
+	b_minus.style.height = "50%";
+	b_minus.style.width = "100%";
+	b_minus.style.overflow = "auto";
+	b_minus.style.fontSize = "30px";
+	b_minus.onclick = function(){ G_SPECTRUM_ZOOM -= .1 };
+
+	var buttons_div = document.createElement("div");
+
+	div_cnt_powerSpectrumCanvas.appendChild(spectrum_canvas);
+	buttons_div.appendChild(b_plus);
+	buttons_div.appendChild(b_minus);
+	div_top.appendChild(div_cnt_powerSpectrumCanvas);
+	div_top.appendChild(buttons_div);
+
+	return div_top;
+}
+
+
+function HABDEC_BUILD_UI_DemodAndInfo()
+{
+	var div_top = document.createElement("div");
+
+	// <div id="cnt_demodCanvas" style="display: flex; height: 128px;">
+	var div_cnt_demodCanvas = document.createElement("div");
+	div_cnt_demodCanvas.id = "cnt_demodCanvas";
+	div_cnt_demodCanvas.style.display= "flex";
+	div_cnt_demodCanvas.style.height= "128px";
+
+	// demod canvas
+	var demod_canvas = document.createElement("canvas");
+	demod_canvas.id = "demodCanvas";
+	div_cnt_demodCanvas.appendChild(demod_canvas);
+
+	// info printout div
+	var div_info = document.createElement("div");
+
+	// <div id="cnt_debug" style="font-size: 12px;"></div>
+	var div_debug = document.createElement("div");
+	div_debug.id = "cnt_debug";
+
+	// <div id="cnt_liveprint" class="habsentence_text" style="color: cadetblue; word-wrap: break-word;"></div>
+	var div_cnt_liveprint = document.createElement("div");
+	div_cnt_liveprint.id = "cnt_liveprint";
+	div_cnt_liveprint.classList.add("habsentence_text");
+	div_cnt_liveprint.style.color = "cadetblue";
+	div_cnt_liveprint.style.wordWrap = "break-word";
+
+	//<div id="cnt_stats" class="habsentence_text"  style="color: rgb(250, 0, 0)"></div>
+	var div_cnt_stats = document.createElement("div");
+	div_cnt_stats.id = "cnt_stats";
+	div_cnt_stats.classList.add("habsentence_text");
+	div_cnt_stats.style.color = "rgb(250, 0, 0)";
+
+	// <div id="cnt_habsentence_list" class="habsentence_text"></div>
+	var divcnt_habsentence_list = document.createElement("div");
+	divcnt_habsentence_list.id = "cnt_habsentence_list";
+	divcnt_habsentence_list.classList.add("habsentence_text");
+
+
+	div_info.appendChild(div_debug);
+	div_info.appendChild( document.createElement("br") );
+	div_info.appendChild(div_cnt_liveprint);
+	div_info.appendChild(div_cnt_stats);
+	div_info.appendChild(divcnt_habsentence_list);
+
+	div_top.appendChild(div_cnt_demodCanvas);
+	div_top.appendChild(div_info);
+
+	return div_top;
+
+}
+
+
+function HABDEC_BUILD_UI_Controls()
+{
+	var buttons = [
+		"cnt_spectrum_zoom",
+		"cnt_frequency",
+		"cnt_decimation",
+		"cnt_gain",
+		"cnt_lowpass_bw",
+		"cnt_lowpass_trans",
+		"cnt_baud",
+		"cnt_rtty_bits",
+		"cnt_rtty_stops",
+		"cnt_datasize" ];
+
+	var div_top = document.createElement("div");
+
+	for(i in buttons)
+	{
+		// <div id="cnt_spectrum_zoom"	class="ctrl_container"> </div>
+		var div_buton = document.createElement("div");
+		div_buton.classList.add( "ctrl_container" );
+		div_buton.id = buttons[i];
+		div_top.appendChild(div_buton);
+	}
+
+	return div_top;
+}
+
+
+function HABDEC_BUILD_UI_DemodAndControls()
+{
+	var div_demodAndInfo = 	HABDEC_BUILD_UI_DemodAndInfo();
+	var div_controls = 		HABDEC_BUILD_UI_Controls();
+
+	// <div style="display: grid; grid-template-columns: minmax(0, 1fr) 540px;">
+	var div_top = document.createElement("div");
+	div_top.style.display = "grid";
+	div_top.style.gridTemplateColumns = "minmax(0, 1fr) 540px";
+	div_top.appendChild(div_demodAndInfo);
+	div_top.appendChild(div_controls);
+
+	return div_top;
+
+}
+
+
+function HABDEC_BUILD_UI_ExtraRadioButton()
+{
+	var div_top = document.createElement("div");
+
+	// <button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
+	var b_biasTee = document.createElement("button");
+	b_biasTee.id = "HD_biastee";
+	b_biasTee.innerHTML = "BiasTee";
+	b_biasTee.onclick = SetBiasT;
+
+	// <button id="HD_afc" 		onclick="SetAFC()"      > AFC </button>
+	var b_afc = document.createElement("button");
+	b_afc.id = "HD_afc";
+	b_afc.innerHTML = "AFC";
+	b_afc.onclick = SetAFC;
+
+	// <button id="HD_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
+	var b_dc_remove = document.createElement("button");
+	b_dc_remove.id = "HD_dc_remove";
+	b_dc_remove.innerHTML = "DC Remove";
+	b_dc_remove.onclick = SetDCRemove;
+
+	var div_three_buttons = document.createElement("div");
+	// div_three_buttons.display.style = "inline-block";
+	div_three_buttons.appendChild(b_biasTee);
+	div_three_buttons.appendChild(b_afc);
+	div_three_buttons.appendChild(b_dc_remove);
+
+	// <p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
+	var btnFullscreen = document.createElement("button");
+	btnFullscreen.innerHTML = "Fullscreen";
+	btnFullscreen.onclick = toggleFullscreen;
+	var paragraph = document.createElement("p");
+	paragraph.appendChild(btnFullscreen);
+
+	div_top.appendChild(div_three_buttons);
+	div_top.appendChild(paragraph);
+
+	return div_top;
+}
+
+
+function HABDEC_BUILD_UI_Server()
+{
+	var div_top = document.createElement("div");
+
+	// <div><label>Server Address</label></div>
+	var server_label = document.createElement("label");
+	server_label.innerHTML = "Server Address";
+	var div_label = document.createElement("div").appendChild(server_label);
+
+	// <input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
+	var input_srv = document.createElement("input");
+	input_srv.id = "server_address";
+	input_srv.value = "localhost:5555";
+	input_srv.onchange = () => {
+		localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);
+	};
+
+	// <button  onclick="OpenConnection()" >Connect</button>
+	var b = document.createElement("button");
+	b.innerHTML = "Connect";
+	b.onclick = OpenConnection;
+
+
+	div_top.appendChild(div_label);
+	div_top.appendChild(input_srv);
+	div_top.appendChild(b);
+
+	return div_top;
+}
+
+
+
+function HABDEC_BUILD_UI(parent_div)
+{
+	var div_power = HABDEC_BUILD_UI_PowerSpectrum();
+	var div_demod_and_ctrls = HABDEC_BUILD_UI_DemodAndControls();
+	var div_extra_radio_buttons = HABDEC_BUILD_UI_ExtraRadioButton();
+	var div_server = HABDEC_BUILD_UI_Server();
+	//<!-- <div id="PayloadsWrapperDiv"></div> -->
+	var div_payloads_wrapper = document.createElement("div");
+	div_payloads_wrapper.id = "PayloadsWrapperDiv";
+
+
+	// parent_div.display.height = "1000px";
+	parent_div.appendChild(div_power);
+	parent_div.appendChild(div_demod_and_ctrls);
+	parent_div.appendChild(div_extra_radio_buttons);
+	parent_div.appendChild(div_server);
+	parent_div.appendChild(div_payloads_wrapper);
+}
+
+
