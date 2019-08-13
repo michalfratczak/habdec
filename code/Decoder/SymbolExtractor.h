@@ -113,9 +113,9 @@ void SymbolExtractor<TReal>::pushSamples(const TRVector& v)
 		return;
 
 	// safety vent
-	if(samples_.size() > 1e6)
+	if(samples_.size() > 3e4)
 	{
-		cout<<"SymbolExtractor::pushSamples overflow. Delete samples."<<endl;
+		// cout<<"SymbolExtractor::pushSamples overflow. Delete samples."<<endl;
 		samples_.clear();
 	}
 
