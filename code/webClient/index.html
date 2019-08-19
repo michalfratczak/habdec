@@ -95,15 +95,18 @@
 
 <script language="javascript" type="text/javascript">
 
-function habdec_init()
+function habdec_init(habdec_srv_url)
 {
 	HABDEC_BUILD_UI( document.getElementById("HABDEC_UI_DIV") );
+
+	if(habdec_srv_url)
+		document.getElementById("server_address").value = habdec_srv_url;
 
 	OpenConnection();
 	CreateControls();
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	if(document.getElementById("server_address").value == "")
-	document.getElementById("server_address").value = "192.168.1.104:5555"
+		document.getElementById("server_address").value = "localhost:5555"
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
 	LoadFlightsData();
@@ -114,7 +117,7 @@ function habdec_init()
 
 
 
-window.addEventListener("load", habdec_init, false);
+window.addEventListener("load", () => {habdec_init("192.168.100.20:5555")}, false);
 
 </script>
 
