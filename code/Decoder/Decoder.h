@@ -26,6 +26,7 @@
 #include <complex>
 #include <chrono>
 #include <mutex>
+#include <functional>
 
 #include "IQVector.h"
 #include "Decimator.h"
@@ -125,7 +126,7 @@ public:
 
 	bool livePrint() const { return live_print_; }
 	void livePrint(bool i_live) { live_print_ = i_live; }
-	void (*success_callback_)(std::string, std::string, std::string) {0}; // callback on successfull sentence decode
+	std::function<void(std::string, std::string, std::string)> success_callback_; // callback on each successfull sentence decode
 
 private:
 	// IQ buffers

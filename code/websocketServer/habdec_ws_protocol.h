@@ -20,7 +20,19 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
-#include <thread>
+#include <sstream>
+#include <vector>
 
-void RunCommandServer(const std::string command_host, const int command_port);
+// internal message passing structure
+// this is not part of protocol
+struct HabdecMessage
+{
+	bool is_binary_ = false;
+	bool to_all_clients_ = false;
+	std::stringstream data_stream_;
+};
+
+// handles request and returns list of reponses
+std::vector< std::shared_ptr<HabdecMessage> >  HandleRequest(std::string request);
