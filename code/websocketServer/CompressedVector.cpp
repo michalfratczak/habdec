@@ -32,7 +32,7 @@ namespace habdec
 // specialization:  float --> double
 template<>
 template<>
-void CompressedVector<double>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+inline void CompressedVector<double>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
 {
 	if(!rhs.size())
 	{
@@ -48,7 +48,7 @@ void CompressedVector<double>::copyValues(const std::vector<float>& rhs, double 
 // specialization:  double --> float
 template<>
 template<>
-void CompressedVector<float>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
+inline void CompressedVector<float>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  double --> float"<<std::endl;
 	if(!rhs.size())
@@ -65,7 +65,7 @@ void CompressedVector<float>::copyValues(const std::vector<double>& rhs, double 
 // specialization:  float --> unsigned char
 template<>
 template<>
-void CompressedVector<unsigned char>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+inline void CompressedVector<unsigned char>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  float --> unsigned char"<<std::endl;
 	values_.clear();
@@ -88,7 +88,7 @@ void CompressedVector<unsigned char>::copyValues(const std::vector<float>& rhs, 
 // specialization:  float --> uint16_t
 template<>
 template<>
-void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+inline void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  float --> uint16_t"<<std::endl;
 	values_.clear();
@@ -111,7 +111,7 @@ void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs, doubl
 // specialization:  double --> unsigned char
 template<>
 template<>
-void CompressedVector<unsigned char>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
+inline void CompressedVector<unsigned char>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  double --> unsigned char"<<std::endl;
 	values_.clear();
@@ -134,7 +134,7 @@ void CompressedVector<unsigned char>::copyValues(const std::vector<double>& rhs,
 // specialization:  double --> uint16_t
 template<>
 template<>
-void CompressedVector<uint16_t>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
+inline void CompressedVector<uint16_t>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  double --> uint16_t"<<std::endl;
 	values_.clear();
@@ -157,7 +157,7 @@ void CompressedVector<uint16_t>::copyValues(const std::vector<double>& rhs, doub
 // specialization:  unsigned char --> float
 template<>
 template<>
-void CompressedVector<float>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
+inline void CompressedVector<float>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  unsigned char --> float"<<std::endl;
 	values_.clear();
@@ -178,7 +178,7 @@ void CompressedVector<float>::copyValues(const std::vector<unsigned char>& rhs, 
 // specialization:  uint16_t --> float
 template<>
 template<>
-void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
+inline void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  uint16_t --> float"<<std::endl;
 	values_.clear();
@@ -199,7 +199,7 @@ void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs, doubl
 // specialization:  unsigned char --> double
 template<>
 template<>
-void CompressedVector<double>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
+inline void CompressedVector<double>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  unsigned char --> double"<<std::endl;
 	values_.clear();
@@ -220,7 +220,7 @@ void CompressedVector<double>::copyValues(const std::vector<unsigned char>& rhs,
 // specialization:  uint16_t --> double
 template<>
 template<>
-void CompressedVector<double>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
+inline void CompressedVector<double>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  uint16_t --> double"<<std::endl;
 	values_.clear();

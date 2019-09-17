@@ -85,7 +85,7 @@ public:
 
 private:
 	template<typename U>
-	void copyValues(const std::vector<U>& rhs, double i_min, double i_max)
+	inline void copyValues(const std::vector<U>& rhs, double i_min, double i_max)
 	{
 		if(!rhs.size())
 		{
