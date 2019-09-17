@@ -186,7 +186,7 @@ def HandleResponse_Info(i_cmd):
 			STATE['sampling_rate'] = float(value)
 		if i_cmd.startswith('cmd::info:liveprint'):
 			global RTTY_STREAM
-			RTTY_STREAM = value
+			RTTY_STREAM += value
 	 	if i_cmd.startswith('cmd::info:sentence'):
 			SENTENCES.append(value)
 			SendCommand("stats")

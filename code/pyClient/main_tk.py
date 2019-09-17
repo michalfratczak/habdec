@@ -223,17 +223,19 @@ def RedrawDemod():
 	GUI.after(500, RedrawDemod)
 
 
+'''
 def RefreshRttyStream():
 	hdc.SendCommand('liveprint')
 	GUI.after( 250, RefreshRttyStream )
-
+'''
 
 def UpdateRtty():
 	if RTTY_STREAM_WIDGET:
-		RTTY_STREAM_WIDGET.delete('1.0', 'end')
-		new_text = string.replace(hdc.RTTY_STREAM, '\n', ' ')
+		new_text = hdc.RTTY_STREAM
 		if len(new_text) > 80:
 			new_text = new_text[-80:]
+		new_text = string.replace(new_text, '\n', ' ')
+		RTTY_STREAM_WIDGET.delete('1.0', 'end')
 		RTTY_STREAM_WIDGET.insert('end', new_text)
 
 	if RTTY_LAST_SENTENCE and len(hdc.SENTENCES):
@@ -353,7 +355,7 @@ def main():
 	BuildMainWindow()
 	GUI.after( 500, RedrawSpectrum )
 	GUI.after( 500, RedrawDemod )
-	GUI.after( 250, RefreshRttyStream )
+	# GUI.after( 250, RefreshRttyStream ) # no need to explicitly poll for data
 
 
 	GUI.mainloop()

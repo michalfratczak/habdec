@@ -126,7 +126,8 @@ public:
 
 	bool livePrint() const { return live_print_; }
 	void livePrint(bool i_live) { live_print_ = i_live; }
-	std::function<void(std::string, std::string, std::string)> success_callback_; // callback on each successfull sentence decode
+	std::function<void(std::string, std::string, std::string)> sentence_callback_; // callback on each successfull sentence decode
+	std::function<void(std::string)> character_callback_; // callback on each decoded character
 
 private:
 	// IQ buffers
@@ -181,6 +182,9 @@ private:
 	mutable std::mutex	process_mutex_;		// mutex for main processing
 
 	bool live_print_ = true; // live print decoded characters
+
+	std::string 	chr_callback_stream_; // for character_callback_
+
 };
 
 
@@ -553,6 +557,8 @@ void habdec::Decoder<TReal>::process()
 
 	auto decoded_chars = rtty_.get();
 	rtty_char_stream_.insert( rtty_char_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
+	chr_callback_stream_.insert( chr_callback_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
+
 
 	if(live_print_)
 	{
@@ -561,9 +567,6 @@ void habdec::Decoder<TReal>::process()
 		cout.flush();
 	}
 
-	// overflow protection
-	if(rtty_char_stream_.size() > 1000)
-		rtty_char_stream_.erase( 0, rtty_char_stream_.rfind('$') );
 
 	// scan for sentence from time to time
 	if( rtty_char_stream_.size() > 20 /*last_sentence_.size()/2*/ )
@@ -579,9 +582,9 @@ void habdec::Decoder<TReal>::process()
 				printHabhubSentence( result["callsign"], result["data"], result["crc"] );
 				cout<<endl;
 
-				if( success_callback_ &&
+				if( sentence_callback_ &&
 					result["crc"] == CRC(result["callsign"] + "," + result["data"]) )
-						success_callback_( result["callsign"], result["data"], result["crc"] );
+						sentence_callback_( result["callsign"], result["data"], result["crc"] );
 			}
 			else
 			{
@@ -589,6 +592,28 @@ void habdec::Decoder<TReal>::process()
 			}
 		}
 	}
+
+
+	// character_callback_ - every 250ms
+	static thread_local auto character_callback_time = std::chrono::high_resolution_clock::now();
+	std::chrono::milliseconds character_callback_age =
+		std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::high_resolution_clock::now() - character_callback_time );
+
+	if( 	chr_callback_stream_.size()
+		&&	character_callback_age > std::chrono::milliseconds(250)
+	 )
+	{
+		if(character_callback_)
+			character_callback_( chr_callback_stream_ );
+		chr_callback_stream_.clear();
+		character_callback_time = std::chrono::high_resolution_clock::now();
+	}
+
+
+	// overflow protection
+	if(rtty_char_stream_.size() > 1000)
+		rtty_char_stream_.erase( 0, rtty_char_stream_.rfind('$') );
+
 } // process()
 
 

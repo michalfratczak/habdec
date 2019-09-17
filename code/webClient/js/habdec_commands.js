@@ -78,7 +78,7 @@ function ws_onOpen(evt)
 	console.debug("ws_onOpen: init refresh.");
 	RefreshPowerSpectrum();
 	RefreshDemod();
-	RefreshLivePrint();
+	// RefreshLivePrint();
 }
 
 
@@ -228,10 +228,12 @@ function HandleMessage(i_data)
 		}
 		else if(info_match[1] == "liveprint")
 		{
-			var livestream = info_match[2];
-			if(livestream.length > 100)
-				livestream = livestream.substr(livestream.length-100, livestream.length);
-			document.getElementById("cnt_liveprint").innerHTML = livestream;
+			var _new = info_match[2];
+			var _current = document.getElementById("cnt_liveprint").innerHTML;
+			if(_current.length > 200)
+				document.getElementById("cnt_liveprint").innerHTML = _new;
+			else
+				document.getElementById("cnt_liveprint").innerHTML = _current + _new;
 		}
 		else if(info_match[1] == "stats")
 		{
@@ -342,6 +344,7 @@ function RefreshDemod()
 }
 
 
+/*
 function RefreshLivePrint()
 {
 	if(!G_HD_CONNECTED)
@@ -349,6 +352,7 @@ function RefreshLivePrint()
 	SendCommand("liveprint");
 	setTimeout(function () {RefreshLivePrint();}, 1000 / 4);
 }
+*/
 
 
 function SetBiasT()

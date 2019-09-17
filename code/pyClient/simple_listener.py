@@ -25,7 +25,7 @@ def RequestRttyStream():
 		WS.send("cmd::liveprint")
 		WS.send("cmd::sentence")
 		# WS.send("*") # or just send anything to be notified with cmd::info:sentence
-		time.sleep(.25)
+		time.sleep(.5)
 
 
 def main(i_srv = 'ws://localhost:5555'):
@@ -34,7 +34,9 @@ def main(i_srv = 'ws://localhost:5555'):
 	WS.connect()
 
 	threading.Thread( target = lambda: WS.run_forever() ).start()
-	threading.Thread( target = RequestRttyStream ).start()
+
+	# you don't need to explicitly poll for data - server will push it to you
+	# threading.Thread( target = RequestRttyStream ).start()
 
 	# exit on Ctrl-C
 	while 1:

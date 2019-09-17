@@ -434,50 +434,40 @@ int main(int argc, char** argv)
 	GLOBALS::Print();
 
 
-
 	// websocket server
-	/*
-	WebsocketServer ws_server(GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_);
-	threads.emplace( new std::thread(
-		[&ws_server]() { ws_server(); }
-	) );
-	*/
 	shared_ptr<WebsocketServer> p_ws_server = make_shared<WebsocketServer>(
 		GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_);
 
-	DECODER.success_callback_ =
+	DECODER.sentence_callback_ =
 		[p_ws_server](string callsign, string data, string crc)
 		{
 			async(launch::async, SentenceCallback, callsign, data, crc, p_ws_server);
-			// SentenceCallback(callsign, data, crc, ws_server);
 		};
+
+	DECODER.character_callback_ =
+		[p_ws_server](string rtty_characters)
+		{
+			shared_ptr<HabdecMessage> p_msg = make_shared<HabdecMessage>();
+			p_msg->data_stream_<<"cmd::info:liveprint="<<rtty_characters;
+			p_ws_server->sessions_send(p_msg);
+		};
+
 
 	// START THREADS
 	//
 	unordered_set<thread*> threads;
 
+	// start websocket
 	threads.emplace( new thread(
 		[p_ws_server]() { (*p_ws_server)(); }
 	) );
 
-	// Decoder
+	// start decoder
 	threads.emplace( new thread(
 		DECODER_THREAD
 	) );
 
 
-
-	/*
-	// message broker
-	MessageBroker msg_broker(ws_server);
-	threads.emplace( new std::thread(
-		[&msg_broker]() { msg_broker(); }
-	) );
-	*/
-
-	// while(1);
-
-	// G_DO_EXIT = true;
 	for(auto t : threads)
 		t->join();
 
