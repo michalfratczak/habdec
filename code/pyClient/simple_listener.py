@@ -28,7 +28,7 @@ def RequestRttyStream():
 		time.sleep(.5)
 
 
-def main(i_srv = 'ws://localhost:5555'):
+def main(i_srv = 'ws://127.0.0.1:5555'):
 	global WS
 	WS = HabDecClient( i_srv )
 	WS.connect()

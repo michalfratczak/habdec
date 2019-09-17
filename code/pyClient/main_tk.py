@@ -348,7 +348,7 @@ def BuildMainWindow():
 
 
 def main():
-	hdc.InitConnection("ws://localhost:5555/", UpdateControls, UpdateRtty)
+	hdc.InitConnection("ws://127.0.0.1:5555/", UpdateControls, UpdateRtty)
 	hdc.UpdateState()
 
 	BuildMainWindow()
