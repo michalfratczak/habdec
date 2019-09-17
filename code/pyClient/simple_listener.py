@@ -12,11 +12,11 @@ EXIT = False
 
 class HabDecClient(WebSocketClient):
 	def received_message(self, m):
-		print m.data
+		print(m.data)
 	def opened(self):
-		print "Opened Connection"
+		print("Opened Connection")
 	def closed(self, code, reason=None):
-		print "Closed down", code, reason
+		print("Closed down", code, reason)
 
 
 def RequestRttyStream():

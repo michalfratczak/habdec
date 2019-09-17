@@ -4,10 +4,7 @@ import sys
 import string
 import traceback
 from functools import partial
-try:
-	import Tkinter as tk
-except:
-	import tkinter as tk
+import tkinter as tk
 
 import habdecClient as hdc
 
@@ -74,22 +71,23 @@ def AccumulateSpectrumArray(i_arr):
 		return AccSpectrumArray['arr_']
 
 	if AccSpectrumArray['count_'] < AccSpectrumArray['maxCount_']:
-		for i in xrange(len(AccSpectrumArray['arr_'])):
+		for i in range(len(AccSpectrumArray['arr_'])):
 			AccSpectrumArray['arr_'][i] += i_arr[i]
 		AccSpectrumArray['count_'] += 1
 	else:
-		for i in xrange(len(AccSpectrumArray['arr_'])):
+		for i in range(len(AccSpectrumArray['arr_'])):
 			AccSpectrumArray['arr_'][i] = (AccSpectrumArray['arr_'][i] / AccSpectrumArray['count_']) * (AccSpectrumArray['maxCount_']-1) + i_arr[i]
 
 	# return value
 	spectr_result = [None] * len(AccSpectrumArray['arr_'])
-	for i in xrange(len(AccSpectrumArray['arr_'])):
+	for i in range(len(AccSpectrumArray['arr_'])):
 		spectr_result[i] = AccSpectrumArray['arr_'][i] / AccSpectrumArray['count_']
 	return spectr_result
 
 
 def RedrawSpectrum():
 	try:
+		# hdc.SendCommand( bytearray("power:res=" + str(SPECTRUM_CANVAS_RES_X) + ",zoom=" +  str(ZOOM), 'utf-8') )
 		hdc.SendCommand( "power:res=" + str(SPECTRUM_CANVAS_RES_X) + ",zoom=" +  str(ZOOM) )
 
 		if not len(hdc.SPECTRUM.values_):
@@ -119,7 +117,7 @@ def RedrawSpectrum():
 
 		# resize vector to SPECTRUM_CANVAS_RES_X
 		spectrum_values_resX = [None] * SPECTRUM_CANVAS_RES_X
-		for x in xrange(SPECTRUM_CANVAS_RES_X):
+		for x in range(SPECTRUM_CANVAS_RES_X):
 			x_0_1 = float(x)/(SPECTRUM_CANVAS_RES_X-1)
 			spectrum_values_resX[x] = spectrum_values_[ int( round(x_0_1 * (len(spectrum_values_)-1)) ) ]
 
@@ -138,7 +136,7 @@ def RedrawSpectrum():
 		spectrum_max_avg = SpectrumMaxAvg.get_avg()
 
 		# draw
-		for x in xrange(SPECTRUM_CANVAS_RES_X):
+		for x in range(SPECTRUM_CANVAS_RES_X):
 			val_0_1 = 1.0 - abs(spectrum_values_resX[x] / spectrum_min_avg)
 			val_0_1 = max(val_0_1, 0)
 			val_pixel = (1.0-val_0_1) * (SPECTRUM_CANVAS_RES_Y-1)
@@ -180,13 +178,14 @@ def RedrawSpectrum():
 									peak_right_0_1 * SPECTRUM_CANVAS_RES_X, SPECTRUM_CANVAS_RES_Y - 1,
 									fill=colour )
 	except:
-		print traceback.format_exc()
+		print(traceback.format_exc())
 
 	GUI.after(50, RedrawSpectrum)
 
 
 def RedrawDemod():
 	try:
+		# hdc.SendCommand( bytearray("demod:res=" + str(DEMOD_CANVAS_RES_X), 'utf-8') )
 		hdc.SendCommand( "demod:res=" + str(DEMOD_CANVAS_RES_X) )
 
 		if not len(hdc.DEMOD.values_):
@@ -201,14 +200,14 @@ def RedrawDemod():
 
 		# resize vector to SPECTRUM_CANVAS_RES_X
 		demod_values_resX = [None] * DEMOD_CANVAS_RES_X
-		for x in xrange(DEMOD_CANVAS_RES_X):
+		for x in range(DEMOD_CANVAS_RES_X):
 			x_0_1 = float(x)/(DEMOD_CANVAS_RES_X-1)
 			demod_values_resX[x] = demod_values_[ int( round(x_0_1 * (len(demod_values_)-1)) ) ]
 
 		# draw
 		prev_x = 0
 		prev_y = 0
-		for x in xrange(DEMOD_CANVAS_RES_X):
+		for x in range(DEMOD_CANVAS_RES_X):
 			val_ = demod_values_resX[x]
 			val_ *= .75 # scale down a little bit
 			val_ = .5 + .5 * val_ / max( abs( hdc.DEMOD.min_ ), abs( hdc.DEMOD.max_ ) )
@@ -218,7 +217,7 @@ def RedrawDemod():
 			prev_x = x
 			prev_y = val_pixel
 	except:
-		print traceback.format_exc()
+		print(traceback.format_exc())
 
 	GUI.after(500, RedrawDemod)
 
@@ -234,7 +233,7 @@ def UpdateRtty():
 		new_text = hdc.RTTY_STREAM
 		if len(new_text) > 80:
 			new_text = new_text[-80:]
-		new_text = string.replace(new_text, '\n', ' ')
+		new_text = new_text.replace('\n', ' ')
 		RTTY_STREAM_WIDGET.delete('1.0', 'end')
 		RTTY_STREAM_WIDGET.insert('end', new_text)
 
@@ -254,7 +253,7 @@ def ControlCallback(param_name, tk_var, i_type, *args):
 
 def UpdateControls():
 	#sync GUI with server state
-	for param in CONTROLS.keys():
+	for param in list(CONTROLS.keys()):
 		CONTROLS[param][1].set( hdc.STATE[param] )
 
 
