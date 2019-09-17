@@ -30,6 +30,7 @@ namespace habdec
 template<typename T>
 class CompressedVector
 {
+
 public:
 
 	typedef T TValue;
@@ -82,19 +83,11 @@ public:
 		max_ = *std::max_element(values_.begin(), values_.end());
 		return max_;
 	}
-
+	
 private:
+
 	template<typename U>
-	inline void copyValues(const std::vector<U>& rhs, double i_min, double i_max)
-	{
-		if(!rhs.size())
-		{
-			values_.clear();
-			return;
-		}
-		values_.resize(rhs.size());
-		std::copy(rhs.begin(), rhs.end(), values_.begin());
-	}
+	void copyValues(const std::vector<U>& rhs, double i_min, double i_max);
 
 };
 

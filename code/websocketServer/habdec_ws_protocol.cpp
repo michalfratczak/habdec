@@ -39,7 +39,6 @@ namespace websocket = 	boost::beast::websocket;
 
 
 #include "common/console_colors.h"
-#include "CompressedVector.h"
 #include "GLOBALS.h"
 #include "NetTransport.h"
 #include "habitat/habitat_interface.h"

@@ -29,34 +29,43 @@ namespace habdec
 {
 
 
-// specialization:  float --> double
 template<>
 template<>
-inline void CompressedVector<double>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+void CompressedVector<unsigned char>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
 {
 	if(!rhs.size())
 	{
 		values_.clear();
 		return;
 	}
-
 	values_.resize(rhs.size());
 	std::copy(rhs.begin(), rhs.end(), values_.begin());
 }
 
 
-// specialization:  double --> float
 template<>
 template<>
-inline void CompressedVector<float>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
+void CompressedVector<uint16_t>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
 {
-	// std::cout<<"specialization:  double --> float"<<std::endl;
 	if(!rhs.size())
 	{
 		values_.clear();
 		return;
 	}
+	values_.resize(rhs.size());
+	std::copy(rhs.begin(), rhs.end(), values_.begin());
+}
 
+
+template<>
+template<>
+void CompressedVector<float>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+{
+	if(!rhs.size())
+	{
+		values_.clear();
+		return;
+	}
 	values_.resize(rhs.size());
 	std::copy(rhs.begin(), rhs.end(), values_.begin());
 }
@@ -65,7 +74,7 @@ inline void CompressedVector<float>::copyValues(const std::vector<double>& rhs, 
 // specialization:  float --> unsigned char
 template<>
 template<>
-inline void CompressedVector<unsigned char>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+void CompressedVector<unsigned char>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  float --> unsigned char"<<std::endl;
 	values_.clear();
@@ -88,7 +97,7 @@ inline void CompressedVector<unsigned char>::copyValues(const std::vector<float>
 // specialization:  float --> uint16_t
 template<>
 template<>
-inline void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
+void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  float --> uint16_t"<<std::endl;
 	values_.clear();
@@ -108,56 +117,11 @@ inline void CompressedVector<uint16_t>::copyValues(const std::vector<float>& rhs
 }
 
 
-// specialization:  double --> unsigned char
-template<>
-template<>
-inline void CompressedVector<unsigned char>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
-{
-	// std::cout<<"specialization:  double --> unsigned char"<<std::endl;
-	values_.clear();
-	// normalized_ = true; // ALWAYS NORMALIZED FOR NON-FLOAT TYPES
-
-	if(!rhs.size())
-		return;
-
-	values_.reserve(rhs.size());
-	for(auto rhs_v : rhs)
-	{
-		// if(!rhs.normalized_)
-			rhs_v = double(rhs_v - i_min) / (i_max - i_min);
-		unsigned char v_out = rhs_v * std::numeric_limits<unsigned char>::max();
-		values_.push_back(v_out);
-	}
-}
-
-
-// specialization:  double --> uint16_t
-template<>
-template<>
-inline void CompressedVector<uint16_t>::copyValues(const std::vector<double>& rhs, double i_min, double i_max)
-{
-	// std::cout<<"specialization:  double --> uint16_t"<<std::endl;
-	values_.clear();
-	// normalized_ = true; // ALWAYS NORMALIZED FOR NON-FLOAT TYPES
-
-	if(!rhs.size())
-		return;
-
-	values_.reserve(rhs.size());
-	for(auto rhs_v : rhs)
-	{
-		// if(!rhs.normalized_)
-			rhs_v = double(rhs_v - i_min) / (i_max - i_min);
-		uint16_t v_out = rhs_v * std::numeric_limits<uint16_t>::max();
-		values_.push_back(v_out);
-	}
-}
-
 
 // specialization:  unsigned char --> float
 template<>
 template<>
-inline void CompressedVector<float>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
+void CompressedVector<float>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  unsigned char --> float"<<std::endl;
 	values_.clear();
@@ -178,7 +142,7 @@ inline void CompressedVector<float>::copyValues(const std::vector<unsigned char>
 // specialization:  uint16_t --> float
 template<>
 template<>
-inline void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
+void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
 {
 	// std::cout<<"specialization:  uint16_t --> float"<<std::endl;
 	values_.clear();
@@ -191,48 +155,6 @@ inline void CompressedVector<float>::copyValues(const std::vector<uint16_t>& rhs
 	for(auto rhs_v : rhs)
 	{
 		float rhs_v_0_1 = float(rhs_v) / std::numeric_limits<uint16_t>::max();
-		values_.push_back(rhs_v_0_1);
-	}
-}
-
-
-// specialization:  unsigned char --> double
-template<>
-template<>
-inline void CompressedVector<double>::copyValues(const std::vector<unsigned char>& rhs, double i_min, double i_max)
-{
-	// std::cout<<"specialization:  unsigned char --> double"<<std::endl;
-	values_.clear();
-	// normalized_ = true; // ALWAYS NORMALIZED FOR NON-FLOAT TYPES
-
-	if(!rhs.size())
-		return;
-
-	values_.reserve(rhs.size());
-	for(auto rhs_v : rhs)
-	{
-		double rhs_v_0_1 = double(rhs_v) / std::numeric_limits<unsigned char>::max();
-		values_.push_back(rhs_v_0_1);
-	}
-}
-
-
-// specialization:  uint16_t --> double
-template<>
-template<>
-inline void CompressedVector<double>::copyValues(const std::vector<uint16_t>& rhs, double i_min, double i_max)
-{
-	// std::cout<<"specialization:  uint16_t --> double"<<std::endl;
-	values_.clear();
-	// normalized_ = true; // ALWAYS NORMALIZED FOR NON-FLOAT TYPES
-
-	if(!rhs.size())
-		return;
-
-	values_.reserve(rhs.size());
-	for(auto rhs_v : rhs)
-	{
-		double rhs_v_0_1 = double(rhs_v) / std::numeric_limits<uint16_t>::max();
 		values_.push_back(rhs_v_0_1);
 	}
 }
