@@ -548,8 +548,6 @@ std::vector< std::shared_ptr<HabdecMessage> >  HandleRequest(std::string command
 		p_msg->data_stream_<<",alt:"<<GLOBALS::get().par_.station_alt_;
 
 		result.push_back(p_msg);
-
-		cout<<"STATS: "<<p_msg->data_stream_.str()<<endl;
 	}
 	// cmd::****
 	else if(command.size()>5 && command.substr(0,5) == "cmd::")
@@ -558,17 +556,6 @@ std::vector< std::shared_ptr<HabdecMessage> >  HandleRequest(std::string command
 		auto responses = HandleCommand(command.substr(5));
 		result.insert( result.end(), responses.begin(), responses.end() );
 	}
-
-	/*
-	// give last sentence
-	static thread_local int last_sentence_id = -1;
-	auto& sen_map = GLOBALS::get().sentences_map_;
-	if( sen_map.crbegin() != sen_map.crend() && sen_map.crbegin()->first != last_sentence_id )
-	{
-		// msg.data_stream_<<"cmd::info:sentence="<<sen_map.crbegin()->second;
-		last_sentence_id = sen_map.crbegin()->first;
-	}
-	*/
 
 
 	// send parameters if they changed

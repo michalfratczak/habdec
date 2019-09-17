@@ -91,19 +91,23 @@ void websocket_session::on_read(error_code ec, std::size_t)
 
 void websocket_session::send(std::shared_ptr<HabdecMessage const> const& i_msg)
 {
-    queue_.push_back(i_msg);
+    {
+		std::lock_guard<std::mutex> _lock(mtx_);
 
-    if(queue_.size() > 1)
-        return;
+        queue_.push_back(i_msg);
 
-    ws_.binary(i_msg->is_binary_);
+        if(queue_.size() > 1)
+            return;
 
-    ws_.async_write(
-        net::buffer(queue_.front()->data_stream_.str()),
-        [sp = shared_from_this()](error_code ec, std::size_t bytes)
-        {
-            sp->on_write(ec, bytes);
-        });
+        ws_.binary(i_msg->is_binary_);
+
+        ws_.async_write(
+            net::buffer(queue_.front()->data_stream_.str()),
+            [sp = shared_from_this()](error_code ec, std::size_t bytes)
+            {
+                sp->on_write(ec, bytes);
+            });
+    }
 }
 
 
@@ -112,15 +116,20 @@ void websocket_session::on_write(error_code ec, std::size_t)
     if(ec)
         return fail(ec, "write");
 
-    queue_.erase(queue_.begin());
+    {
+		std::lock_guard<std::mutex> _lock(mtx_);
 
-    ws_.binary(queue_.front()->is_binary_);
+        queue_.erase(queue_.begin());
 
-    if(!queue_.empty())
-        ws_.async_write(
-            net::buffer(queue_.front()->data_stream_.str()),
-            [sp = shared_from_this()](error_code ec, std::size_t bytes)
-            {
-                sp->on_write(ec, bytes);
-            });
+        if(!queue_.empty())
+        {
+            ws_.binary(queue_.front()->is_binary_);
+            ws_.async_write(
+                net::buffer(queue_.front()->data_stream_.str()),
+                [sp = shared_from_this()](error_code ec, std::size_t bytes)
+                {
+                    sp->on_write(ec, bytes);
+                });
+        }
+    }
 }

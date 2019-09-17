@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
@@ -41,7 +42,6 @@ class websocket_session : public std::enable_shared_from_this<websocket_session>
 {
     boost::beast::flat_buffer buffer_;
     boost::beast::websocket::stream<tcp::socket> ws_;
-    // std::vector<std::shared_ptr<std::string const>> queue_;
 
     std::vector<std::shared_ptr<HabdecMessage const>> queue_;
 
@@ -52,6 +52,8 @@ class websocket_session : public std::enable_shared_from_this<websocket_session>
     void on_read(error_code ec, std::size_t bytes_transferred);
     void on_write(error_code ec, std::size_t bytes_transferred);
 
+    std::mutex	mtx_;
+
 public:
     websocket_session(tcp::socket socket, std::shared_ptr<WebsocketServer> p_ws_server);
     ~websocket_session();
@@ -59,7 +61,6 @@ public:
     template<class Body, class Allocator>
     void run(boost::beast::http::request<Body, boost::beast::http::basic_fields<Allocator>> req);
 
-    // void send(std::shared_ptr<std::string const> const& i_msg);
     void send(std::shared_ptr<HabdecMessage const> const& i_msg);
 };
 
