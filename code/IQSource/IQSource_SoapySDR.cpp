@@ -175,7 +175,7 @@ bool IQSource_SoapySDR::init()
 		try {
 			if(property == "device_id")
 			{
-				hwinfo_device_id_ = std::stof(it.second);
+				hwinfo_device_id_ = std::stoi(it.second);
 			}
 		}
 		catch(std::invalid_argument& e) {
