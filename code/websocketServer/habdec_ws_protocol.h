@@ -32,6 +32,7 @@ struct HabdecMessage
 	bool is_binary_ = false;
 	bool to_all_clients_ = false;
 	std::stringstream data_stream_;
+    HabdecMessage() { data_stream_.precision(12); }
 };
 
 // handles request and returns list of reponses
