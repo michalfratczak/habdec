@@ -21,7 +21,7 @@
 
 #include "websocket_session.h"
 #include "habdec_ws_protocol.h"
-
+#include <iostream>
 
 websocket_session::websocket_session(
     tcp::socket socket,
