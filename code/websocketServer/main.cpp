@@ -26,6 +26,7 @@
 #include <iostream>
 #include <future>
 #include <cstdlib>
+#include <unordered_set>
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
@@ -37,11 +38,9 @@
 #include "common/console_colors.h"
 #include "habitat/habitat_interface.h"
 #include "GLOBALS.h"
-#include "server.h"
+#include "ws_server.h"
 #include "common/git_repo_sha1.h"
 
-
-bool G_DO_EXIT = false;
 
 using namespace std;
 
@@ -223,7 +222,7 @@ void DECODER_THREAD()
 	samples.resize(256*256);
 	samples.samplingRate( p_iq_src->samplingRate() );
 
-	while(!G_DO_EXIT)
+	while(1)
 	{
 		auto _start = std::chrono::high_resolution_clock::now();
 
@@ -274,13 +273,24 @@ void DECODER_THREAD()
 }
 
 
-void SentenceCallback(std::string callsign, std::string data, std::string crc)
+void SentenceCallback(std::string callsign, std::string data, std::string crc, std::shared_ptr<WebsocketServer> p_ws)
 {
 	using namespace std;
 	using Ms = std::chrono::milliseconds;
 
-	string sentence = callsign + "," + data + "*" + crc;
-	int sentence_number = stoi( data.substr(0, data.find(',')) );
+	const string sentence = callsign + "," + data + "*" + crc;
+	const int sentence_number = stoi( data.substr(0, data.find(',')) );
+
+
+	// notify all websocket clients
+	if(p_ws)
+	{
+		auto p_sentence_msg = std::make_shared<HabdecMessage>();
+		p_sentence_msg->to_all_clients_ = true;
+		p_sentence_msg->data_stream_<<"cmd::info:sentence="<<sentence;
+		p_ws->sessions_send(p_sentence_msg);
+	}
+
 
 	// register in globals
 	if( GLOBALS::get().sentences_map_mtx_.try_lock_for(Ms(1000)) )
@@ -349,6 +359,8 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc)
 
 int main(int argc, char** argv)
 {
+	using namespace std;
+
 	signal( SIGINT, 	[](int){exit(1);} );
 	signal( SIGILL, 	[](int){exit(1);} );
 	signal( SIGFPE, 	[](int){exit(1);} );
@@ -357,13 +369,13 @@ int main(int argc, char** argv)
 	signal( SIGABRT, 	[](int){exit(1);} );
 
 	// thousands separator
-	struct thousand_separators : std::numpunct<char>
+	struct thousand_separators : numpunct<char>
 	{
 		char do_thousands_sep() const { return ','; }
 		string do_grouping() const { return "\3"; }
 	};
 	try{
-		std::cout.imbue( std::locale(locale(""), new thousand_separators) );
+		cout.imbue( locale(locale(""), new thousand_separators) );
 	}
 	catch(exception& e)	{
 
@@ -421,20 +433,43 @@ int main(int argc, char** argv)
 	cout<<"Current Options: "<<endl;
 	GLOBALS::Print();
 
-	DECODER.success_callback_ =
-		[](std::string callsign, std::string data, std::string crc)
+
+	// websocket server
+	shared_ptr<WebsocketServer> p_ws_server = make_shared<WebsocketServer>(
+		GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_);
+
+	DECODER.sentence_callback_ =
+		[p_ws_server](string callsign, string data, string crc)
 		{
-			std::async(std::launch::async, SentenceCallback, callsign, data, crc);
+			async(launch::async, SentenceCallback, callsign, data, crc, p_ws_server);
 		};
 
-	// feed decoder with IQ samples and decode
-	std::thread* decoder_thread = new std::thread(DECODER_THREAD);
+	DECODER.character_callback_ =
+		[p_ws_server](string rtty_characters)
+		{
+			shared_ptr<HabdecMessage> p_msg = make_shared<HabdecMessage>();
+			p_msg->data_stream_<<"cmd::info:liveprint="<<rtty_characters;
+			p_ws_server->sessions_send(p_msg);
+		};
 
-	// websocket server thread. this call is blocking
-	RunCommandServer( GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_ );
 
-	G_DO_EXIT = true;
-	decoder_thread->join();
+	// START THREADS
+	//
+	unordered_set<thread*> threads;
+
+	// start websocket
+	threads.emplace( new thread(
+		[p_ws_server]() { (*p_ws_server)(); }
+	) );
+
+	// start decoder
+	threads.emplace( new thread(
+		DECODER_THREAD
+	) );
+
+
+	for(auto t : threads)
+		t->join();
 
 	return 0;
 }

@@ -31,6 +31,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-class-memaccess" )
 	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-unused-variable" )
 	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-unused-parameter" )
+	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized" )
 	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Werror=return-type" )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	SET(CMAKE_CXX_FLAGS "/EHsc")
@@ -44,7 +45,12 @@ endif()
 
 set ( websocketServer_src
 					program_options.h 	program_options.cpp
-					server.h 	server.cpp
+					habdec_ws_protocol.h habdec_ws_protocol.cpp
+					http_session.h http_session.cpp
+					listener.h listener.cpp
+					websocket_session.h websocket_session.cpp
+					ws_server.h ws_server.cpp
+					CompressedVector.h CompressedVector.cpp
 					${CMAKE_SOURCE_DIR}/habitat/habitat_upload.cpp
 					${CMAKE_SOURCE_DIR}/habitat/habitat_list_flights.cpp
 					${CMAKE_SOURCE_DIR}/common/http_request.cpp

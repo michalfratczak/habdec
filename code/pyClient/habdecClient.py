@@ -12,10 +12,11 @@ import time
 import math
 import threading
 import random
-try:
-	import Tkinter as tk
-except:
-	import tkinter as tk
+import tkinter as tk
+
+byte_to_str = str
+if sys.version_info[0] > 2:
+	byte_to_str = lambda x: str(x, 'utf-8')
 
 
 # power spectrum as received from server
@@ -78,28 +79,31 @@ class HabDecClient(WebSocketClient):
 	info_callback = None
 
 	def received_message(self, m):
+		# python2: i_data is str
+		# python3: i_data is bytes
 		i_data = m.data
+
 		if not i_data:
 			return
 
-		if i_data.startswith('PWR_'): # power spectrum graph data
+		if i_data.startswith(b'PWR_'): # power spectrum graph data
 			HandleResponse_PowerSpectrum(i_data[len('PWR_'):])
-		elif i_data.startswith('DEM_'): # demodulated graph data
+		elif i_data.startswith(b'DEM_'): # demodulated graph data
 			HandleResponse_Demod(i_data[len('DEM_'):])
-		elif i_data.startswith('cmd::set:'):
+		elif i_data.startswith(b'cmd::set:'):
 			HandleResponse_Set(i_data)
 			if self.set_callback:
 				self.set_callback()
-		elif i_data.startswith('cmd::info:'):
+		elif i_data.startswith(b'cmd::info:'):
 			HandleResponse_Info(i_data)
 			if self.info_callback:
 				self.info_callback()
 
 	def opened(self):
-		print "Opened Connection"
+		print("Opened Connection")
 
 	def closed(self, code, reason=None):
-		print "Closed down", code, reason
+		print("Closed down", code, reason)
 
 
 def InitConnection(i_srv, set_callback, info_callback):
@@ -114,9 +118,9 @@ def InitConnection(i_srv, set_callback, info_callback):
 
 
 def CloseConnection():
-	print 'Closing connection...'
+	print('Closing connection...')
 	WS.close()
-	print 'Closed connection...'
+	print('Closed connection...')
 
 
 def SendCommand(i_cmd):
@@ -142,55 +146,54 @@ def SendCommand(i_cmd):
 
 	For others, see websocket server implementation
 
-	When sending a "set:*' command, server echoes back a value that was actually set.
+	When sending a "set:' command, server echoes back a value that was actually set.
 	Use it to synchronize your GUI
 	'''
 	if WS:
-		WS.send('cmd::' + i_cmd)
+		WS.send( str('cmd::' + i_cmd) )
 
 
 def HandleResponse_Set(i_cmd):
 	global STATE
-	if i_cmd.startswith('cmd::set:'):
-		value = string.split(i_cmd, '=')[-1]
-		if i_cmd.startswith('cmd::set:frequency'):
+	if i_cmd.startswith(b'cmd::set:'):
+		value = byte_to_str(i_cmd.split(b'=',1)[-1])
+		if i_cmd.startswith(b'cmd::set:frequency'):
 			STATE['frequency'] = float(value)
-		elif i_cmd.startswith('cmd::set:gain'):
+		elif i_cmd.startswith(b'cmd::set:gain'):
 			STATE['gain'] = int(float(value))
-		elif i_cmd.startswith('cmd::set:baud'):
+		elif i_cmd.startswith(b'cmd::set:baud'):
 			STATE['baud'] = float(value)
-		elif i_cmd.startswith('cmd::set:rtty_bits'):
+		elif i_cmd.startswith(b'cmd::set:rtty_bits'):
 			STATE['rtty_bits'] = int(float(value))
-		elif i_cmd.startswith('cmd::set:rtty_stops'):
+		elif i_cmd.startswith(b'cmd::set:rtty_stops'):
 			STATE['rtty_stops'] = int(float(value))
-		elif i_cmd.startswith('cmd::set:lowpass_bw'):
+		elif i_cmd.startswith(b'cmd::set:lowpass_bw'):
 			STATE['lowpass_bw'] = float(value)
-		elif i_cmd.startswith('cmd::set:lowpass_trans'):
+		elif i_cmd.startswith(b'cmd::set:lowpass_trans'):
 			STATE['lowpass_trans'] = float(value)
-		elif i_cmd.startswith('cmd::set:biastee'):
+		elif i_cmd.startswith(b'cmd::set:biastee'):
 			STATE['biastee'] = bool( float(value) )
-		elif i_cmd.startswith('cmd::set:decimation'):
+		elif i_cmd.startswith(b'cmd::set:decimation'):
 			STATE['decimation'] = int(float(value))
-		elif i_cmd.startswith('cmd::set:afc'):
+		elif i_cmd.startswith(b'cmd::set:afc'):
 			STATE['afc'] = bool( float(value) )
-		elif i_cmd.startswith('cmd::set:dc_remove'):
+		elif i_cmd.startswith(b'cmd::set:dc_remove'):
 			STATE['dc_remove'] = bool( float(value) )
 
 
 def HandleResponse_Info(i_cmd):
 	global STATE
-	if i_cmd.startswith('cmd::info:'):
-		tokens = string.split(i_cmd, '=')
-		value = string.join(tokens[1:], '=')
-		if i_cmd.startswith('cmd::info:sampling_rate'):
+	if i_cmd.startswith(b'cmd::info:'):
+		value = byte_to_str(i_cmd.split(b'=',1)[-1])
+		if i_cmd.startswith(b'cmd::info:sampling_rate'):
 			STATE['sampling_rate'] = float(value)
-		if i_cmd.startswith('cmd::info:liveprint'):
+		if i_cmd.startswith(b'cmd::info:liveprint'):
 			global RTTY_STREAM
-			RTTY_STREAM = value
-	 	if i_cmd.startswith('cmd::info:sentence'):
+			RTTY_STREAM += str(value)
+		if i_cmd.startswith(b'cmd::info:sentence'):
 			SENTENCES.append(value)
 			SendCommand("stats")
-		if i_cmd.startswith('cmd::info:stats'):
+		if i_cmd.startswith(b'cmd::info:stats'):
 			print(value)
 
 
@@ -246,7 +249,7 @@ def DecodeValues(i_data):
 	convert values from 8/16/32 bits to 32 float
 	'''
 	true_values = [None] * len(i_data.values_)
-	for i in xrange(len(i_data.values_)):
+	for i in range(len(i_data.values_)):
 		value_encoded = i_data.values_[i]
 		true_value = 0
 		if(i_data.type_size_ == 1): # 8 bit char

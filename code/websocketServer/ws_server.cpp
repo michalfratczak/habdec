@@ -18,9 +18,35 @@
     along with habdec.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
 
-#include <string>
-#include <thread>
+#include "ws_server.h"
+#include "listener.h"
+#include "websocket_session.h"
 
-void RunCommandServer(const std::string command_host, const int command_port);
+
+void WebsocketServer::operator()()
+{
+	using namespace std;
+	using tcp = boost::asio::ip::tcp;
+
+	auto const address = boost::asio::ip::make_address( host_ );
+	auto const port = static_cast<unsigned short>( port_ );
+
+	make_shared<listener>(
+			ioc_,
+			tcp::endpoint{address, port},
+			*this
+		)->run();
+
+	ioc_.run();
+}
+
+
+void WebsocketServer::sessions_send(std::shared_ptr<HabdecMessage const> p_msg)
+{
+	{
+		std::lock_guard<std::mutex> lock(sessions_mtx_);
+		for(auto session : ws_sessions_)
+			session->send(p_msg);
+	}
+}

@@ -1,3 +1,4 @@
+
 /*
 
 	Copyright 2018 Michal Fratczak
@@ -18,6 +19,8 @@
     along with habdec.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "habdec_ws_protocol.h"
+
 #include <cstdlib>
 
 #include <memory>
@@ -36,102 +39,140 @@ namespace websocket = 	boost::beast::websocket;
 
 
 #include "common/console_colors.h"
-#include "CompressedVector.h"
 #include "GLOBALS.h"
 #include "NetTransport.h"
 #include "habitat/habitat_interface.h"
 
-extern bool G_DO_EXIT;
-
 
 // i_param == "" --> sends all parameters
-void EchoParameter(const std::string i_param, websocket::stream<tcp::socket>& ws)
+std::vector<std::shared_ptr<HabdecMessage> > EchoParameter(const std::string i_param)
 {
 	using namespace std;
+
+	std::vector<std::shared_ptr<HabdecMessage> >	result; // response messages
+
 	smatch match;
-	ws.text(true);
+
 
 	if(i_param == "frequency" || i_param == "")
 	{
 		double frequency = 0;
 		GLOBALS::get().p_iq_source_->getOption("frequency_double", &frequency);
 		frequency /= 1e6;
-		string o_command = "cmd::set:frequency=" + to_string(frequency);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:frequency="<<frequency;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "ppm" || i_param == "")
 	{
 		double ppm = 0;
 		GLOBALS::get().p_iq_source_->getOption("ppm_double", &ppm);
-		string o_command = "cmd::set:ppm=" + to_string(ppm);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:ppm="<<ppm;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "gain" || i_param == "")
 	{
 		double gain = 0;
 		GLOBALS::get().p_iq_source_->getOption("gain_double", &gain);
-		string o_command = "cmd::set:gain=" + to_string(gain);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:gain="<<gain;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "baud" || i_param == "")
 	{
 		size_t baud = GLOBALS::get().decoder_.baud();
-		string o_command = "cmd::set:baud=" + to_string(baud);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:baud="<<baud;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "rtty_bits" || i_param == "")
 	{
 		size_t rtty_bits = GLOBALS::get().decoder_.rtty_bits();
-		string o_command = "cmd::set:rtty_bits=" + to_string(rtty_bits);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:rtty_bits="<<rtty_bits;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "rtty_stops" || i_param == "")
 	{
 		float rtty_stops = GLOBALS::get().decoder_.rtty_stops();
-		string o_command = "cmd::set:rtty_stops=" + to_string(rtty_stops);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:rtty_stops="<<rtty_stops;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "lowpass_bw" || i_param == "")
 	{
-		string o_command = "cmd::set:lowpass_bw=" + to_string(GLOBALS::get().decoder_.lowpass_bw());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:lowpass_bw="<<GLOBALS::get().decoder_.lowpass_bw();
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "lowpass_trans" || i_param == "")
 	{
-		string o_command = "cmd::set:lowpass_trans=" + to_string(GLOBALS::get().decoder_.lowpass_trans());
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:lowpass_trans="<<GLOBALS::get().decoder_.lowpass_trans();
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "biastee" || i_param == "")
 	{
 		double biastee = 0;
 		GLOBALS::get().p_iq_source_->getOption("biastee_double", &biastee);
-		string o_command = "cmd::set:biastee=" + to_string(biastee);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:biastee="<<biastee;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "afc" || i_param == "")
 	{
-		string o_command = "cmd::set:afc=" + to_string(GLOBALS::get().par_.afc_);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:afc="<<GLOBALS::get().par_.afc_;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "decimation" || i_param == "")
 	{
 		int decim_factor_log = std::log2( GLOBALS::get().decoder_.getDecimationFactor() );
-		string o_command = "cmd::set:decimation=" + to_string(decim_factor_log);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:decimation="<<decim_factor_log;
+		result.push_back(p_msg);
 	}
-	if(i_param == "sampling_rate" || i_param == "")
-	{
-		double sr = 0;
-		GLOBALS::get().p_iq_source_->getOption("sampling_rate_double", &sr);
-		string o_command = "cmd::info:sampling_rate=" + to_string(sr);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-	}
+
 	if(i_param == "dc_remove" || i_param == "")
 	{
 		double dc_rem = GLOBALS::get().decoder_.dc_remove();
-		string o_command = "cmd::set:dc_remove=" + to_string(dc_rem);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:dc_remove="<<dc_rem;
+		result.push_back(p_msg);
 	}
+
 	if(i_param == "datasize" || i_param == "")
 	{
 		int datasize = 1;
@@ -142,88 +183,107 @@ void EchoParameter(const std::string i_param, websocket::stream<tcp::socket>& ws
 		if( GLOBALS::get().par_.transport_data_type_ == GLOBALS::TransportDataType::kFloat )
 			datasize = 4;
 
-		string o_command = "cmd::set:datasize=" + to_string(datasize);
-		ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::set:datasize="<<datasize;
+		result.push_back(p_msg);
 	}
+
+	if(i_param == "sampling_rate" || i_param == "")
+	{
+		double sr = 0;
+		GLOBALS::get().p_iq_source_->getOption("sampling_rate_double", &sr);
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->to_all_clients_ = true;
+		p_msg->data_stream_<<"cmd::info:sampling_rate="<<sr;
+		result.push_back(p_msg);
+	}
+
+	return result;
 }
 
 
-bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& ws)
+std::vector< std::shared_ptr<HabdecMessage> >  HandleCommand(const std::string i_command)
 {
+	std::vector< std::shared_ptr<HabdecMessage> >  result; // response messages
+
 	if(!GLOBALS::get().p_iq_source_)
-		return false;
+		return result;
 
 	using namespace std;
+
 	smatch match;
 
-	// GET
+	// GET:
 	if( i_command.size() > 4 && i_command.substr(0,4) == "get:" )
-		EchoParameter( i_command.substr(4), ws );
-
-	// SET
+	{
+		result = EchoParameter( i_command.substr(4) );
+	}
+	// SET:
 	else if( regex_match(i_command, match, regex(R"_(set\:frequency=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double frequency = stod(match[1]);
 		frequency *= 1e6;
 		GLOBALS::get().p_iq_source_->setOption("frequency_double", &frequency);
 		GLOBALS::get().par_.frequency_ = frequency;
-		EchoParameter("frequency", ws);
+		result = EchoParameter("frequency");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:decimation=(\d+))_")) && match.size() > 1 )
 	{
 		int decim_factor_log = stoi(match[1]);
 		GLOBALS::get().decoder_.setupDecimationStagesFactor( pow(2,decim_factor_log) );
 		GLOBALS::get().par_.decimation_ = decim_factor_log;
-		EchoParameter("decimation", ws);
+		result = EchoParameter("decimation");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:ppm=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double ppm = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("ppm_double", &ppm);
 		GLOBALS::get().par_.ppm_ = ppm;
-		EchoParameter("ppm", ws);
+		result = EchoParameter("ppm");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:gain=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		double gain = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("gain_double", &gain);
 		GLOBALS::get().par_.gain_ = gain;
-		EchoParameter("gain", ws);
+		result = EchoParameter("gain");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:lowpass_bw=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		float lpbw = stof(match[1]);
 		GLOBALS::get().decoder_.lowpass_bw(lpbw);
 		GLOBALS::get().par_.lowpass_bw_Hz_ = lpbw;
-		EchoParameter("lowpass_bw", ws);
+		result = EchoParameter("lowpass_bw");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:lowpass_trans=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		float lptr = stof(match[1]);
 		GLOBALS::get().decoder_.lowpass_trans(lptr);
 		GLOBALS::get().par_.lowpass_tr_ = lptr;
-		EchoParameter("lowpass_trans", ws);
+		result = EchoParameter("lowpass_trans");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:baud=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		float baud = stof(match[1]);
 		GLOBALS::get().decoder_.baud( baud );
 		GLOBALS::get().par_.baud_ = baud;
-		EchoParameter("baud", ws);
+		result = EchoParameter("baud");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:rtty_bits=(\d+))_")) && match.size() > 1 )
 	{
 		int rtty_bits = stoi(match[1]);
 		GLOBALS::get().decoder_.rtty_bits(rtty_bits);
 		GLOBALS::get().par_.rtty_ascii_bits_ = rtty_bits;
-		EchoParameter("rtty_bits", ws);
+		result = EchoParameter("rtty_bits");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:rtty_stops=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 1 )
 	{
 		int rtty_stops = stoi(match[1]);
 		GLOBALS::get().decoder_.rtty_stops(rtty_stops);
 		GLOBALS::get().par_.rtty_ascii_stops_ = rtty_stops;
-		EchoParameter("rtty_stops", ws);
+		result = EchoParameter("rtty_stops");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:datasize=(\d+))_")) && match.size() > 1 )
 	{
@@ -244,27 +304,27 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		if(datasize == 1)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kChar; // 8bit
 		if(datasize == 2)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kShort;// 16 bit
 		if(datasize == 4)	GLOBALS::get().par_.transport_data_type_ = GLOBALS::TransportDataType::kFloat;// 32bit
-		EchoParameter("datasize", ws);
+		result = EchoParameter("datasize");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:biastee=([0-9])+)_")) && match.size() > 1 )
 	{
 		double value = stod(match[1]);
 		GLOBALS::get().p_iq_source_->setOption("biastee_double", &value);
 		GLOBALS::get().par_.biast_ = value;
-		EchoParameter("biastee", ws);
+		result = EchoParameter("biastee");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:afc=([0-9])+)_")) && match.size() > 1 )
 	{
 		int value = stoi(match[1]);
 		GLOBALS::get().par_.afc_ = value;
-		EchoParameter("afc", ws);
+		result = EchoParameter("afc");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:dc_remove=([0-9])+)_")) && match.size() > 1 )
 	{
 		int value = stoi(match[1]);
 		GLOBALS::get().decoder_.dc_remove(value);
 		GLOBALS::get().par_.dc_remove_ = value;
-		EchoParameter("dc_remove", ws);
+		result = EchoParameter("dc_remove");
 	}
 	else if( regex_match(i_command, match, regex(R"_(set\:payload=(\w+))_")) && match.size() > 1 )
 	{
@@ -277,7 +337,7 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 		}
 		catch(const exception& e) {
 			cout<<"Failed loading flights list: "<<e.what()<<endl;
-			return false;
+			return result;
 		}
 
 		auto& DEC = GLOBALS::get().decoder_;
@@ -309,17 +369,21 @@ bool HandleCommand(const std::string i_command, websocket::stream<tcp::socket>& 
 			}
 		}
 
-		EchoParameter("frequency", ws);
-		EchoParameter("baud", ws);
-		EchoParameter("rtty_bits", ws);
-		EchoParameter("rtty_stops", ws);
+		auto res_fr = EchoParameter("frequency");
+		auto res_bd = EchoParameter("baud");
+		auto res_rb = EchoParameter("rtty_bits");
+		auto res_rs = EchoParameter("rtty_stops");
+		result.insert( result.end(), res_fr.begin(), res_fr.end() );
+		result.insert( result.end(), res_bd.begin(), res_bd.end() );
+		result.insert( result.end(), res_rb.begin(), res_rb.end() );
+		result.insert( result.end(), res_rs.begin(), res_rs.end() );
 	}
 	else
 	{
 		cout<<C_RED<<"Unknown command: "<<i_command<<C_OFF<<endl;
 	}
 
-	return true;
+	return result;
 
 }
 
@@ -394,7 +458,7 @@ size_t SpectrumToStream(std::stringstream& res_stream, float zoom, int resolutio
 }
 
 
-// serialize demod
+// serialize demodulation
 size_t DemodToStream(std::stringstream& res_stream, int resolution)
 {
 	std::vector<TDecoder::TValue> demod_acc;
@@ -417,164 +481,93 @@ size_t DemodToStream(std::stringstream& res_stream, int resolution)
 	return demod_acc.size();
 }
 
-void WS_CLIENT_SESSION_THREAD(tcp::socket& i_socket)
+std::vector< std::shared_ptr<HabdecMessage> >  HandleRequest(std::string command)
 {
 	using namespace std;
 
-	try {
-		websocket::stream<tcp::socket> ws{std::move(i_socket)};
-		ws.accept();
-		// this line does not work
-		// ws.accept_ex([](websocket::response_type &m) { m.insert(beast::http::field::server, "habdec_server"); });
+	// cout<<"HandleRequest: "<<command<<endl;
 
-		ws.auto_fragment(false);
+	std::vector< std::shared_ptr<HabdecMessage> >  result; // response messages
+	// result.emplace_back( std::make_shared<HabdecMessage>() );
+	// auto& msg = *result[0];
 
-		while(!G_DO_EXIT)
-		{
-			beast::multi_buffer buffer;
-			ws.read(buffer);
+	smatch match;
 
-			string command = beast::buffers_to_string(buffer.data());
-			buffer.consume(buffer.size());
-
-			smatch match;
-
-			// power,res=resolution_value,zoom=zoom_value
-			if( regex_match(command, match, regex(R"_(cmd\:\:power\:res=(\d+),zoom=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 2 )
-			{
-				stringstream res_stream;
-				res_stream<<"PWR_";
-				if(SpectrumToStream( res_stream, stof(match[2]), stoi(match[1]) ))
-				{
-					ws.binary(true);
-					ws.write( boost::asio::buffer(res_stream.str()) );
-				}
-			}
-			// demod=resolution
-			else if( regex_match(command, match, regex(R"_(cmd\:\:demod\:res=(\d+))_")) && match.size() > 1 )
-			{
-				stringstream res_stream;
-				res_stream<<"DEM_";
-				if( DemodToStream( res_stream, stoi(match[1]) ) )
-				{
-					ws.binary(true);
-					ws.write( boost::asio::buffer(res_stream.str()) );
-				}
-			}
-			// cmd::sentence
-			else if( regex_match(command, match, regex(R"_(cmd\:\:sentence)_")) && match.size() > 0 )
-			{
-				auto& sen_map = GLOBALS::get().sentences_map_;
-				string sentence("");
-				if( sen_map.crbegin() != sen_map.crend() )
-					sentence = sen_map.crbegin()->second;
-				string o_command = "cmd::info:sentence=" + sentence;
-				ws.text(true);
-				ws.write( boost::asio::buffer( o_command.c_str(), o_command.size()) );
-			}
-			// cmd::liveprint
-			else if( regex_match(command, match, regex(R"_(cmd\:\:liveprint)_")) && match.size() > 0 )
-			{
-				string o_command = "cmd::info:liveprint=" + GLOBALS::get().decoder_.getRTTY();
-				ws.text(true);
-				ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-			}
-			// statistics
-			else if( regex_match(command, match, regex(R"_(cmd\:\:stats)_")) && match.size() > 0 )
-			{
-				auto& stats = GLOBALS::get().stats_;
-				string o_command = "cmd::info:stats=";
-				o_command += "ok:" + to_string(stats.num_ok_);
-				o_command += ",dist_line:" + to_string(stats.D_.dist_line_);
-				o_command += ",dist_circ:" + to_string(stats.D_.dist_circle_);
-				o_command += ",max_dist:" + to_string(stats.dist_max_);
-				o_command += ",min_elev:" + to_string(stats.elev_min_);
-				o_command += ",lat:" + to_string(GLOBALS::get().par_.station_lat_);
-				o_command += ",lon:" + to_string(GLOBALS::get().par_.station_lon_);
-				o_command += ",alt:" + to_string(GLOBALS::get().par_.station_alt_);
-				ws.text(true);
-				ws.write( boost::asio::buffer(o_command.c_str(), o_command.size()) );
-			}
-			// cmd::****
-			else if(command.size()>5 && command.substr(0,5) == "cmd::")
-			{
-				cout<<C_MAGENTA<<"Command "<<command<<C_OFF<<endl;
-				ws.text(true);
-				HandleCommand(command.substr(5), ws);
-			}
-
-			// give last sentence
-			static thread_local int last_sentence_id = -1;
-			auto& sen_map = GLOBALS::get().sentences_map_;
-			if( sen_map.crbegin() != sen_map.crend() && sen_map.crbegin()->first != last_sentence_id )
-			{
-				string o_command = "cmd::info:sentence=" + sen_map.crbegin()->second;
-				ws.text(true);
-				ws.write( boost::asio::buffer( o_command.c_str(), o_command.size()) );
-				last_sentence_id = sen_map.crbegin()->first;
-			}
-
-			// send parameters if they changed
-			static thread_local typename 	GLOBALS::PARAMS params;
-			if(params != GLOBALS::get().par_)
-			{
-				// cout<<"need to update parametes "<<std::this_thread::get_id()<<endl;
-				EchoParameter("", ws);
-				params = GLOBALS::get().par_;
-			}
-		}
+	// power:res=resolution_value,zoom=zoom_value
+	if( regex_match(command, match, regex(R"_(cmd\:\:power\:res=(\d+),zoom=([+-]?([0-9]*[.])?[0-9]+))_")) && match.size() > 2 )
+	{
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->is_binary_ = true;
+		p_msg->data_stream_<<"PWR_";
+		if(SpectrumToStream( p_msg->data_stream_, stof(match[2]), stoi(match[1]) ))
+			result.push_back(p_msg);
 	}
-	catch(const boost::system::system_error& se) {
-		if(se.code() != websocket::error::closed)
-			cout << "Error: boost::system::system_error: " << se.code().message() << endl;
-		else
-			cout << "Session Closed. " << se.code().message() << endl;
-
+	// demod:res=resolution_value
+	else if( regex_match(command, match, regex(R"_(cmd\:\:demod\:res=(\d+))_")) && match.size() > 1 )
+	{
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->is_binary_ = true;
+		p_msg->data_stream_<<"DEM_";
+		if( DemodToStream( p_msg->data_stream_, stoi(match[1]) ) )
+			result.push_back(p_msg);
 	}
-	catch(const exception& e)  {
-		cout << "Session Error: " << e.what() << endl;
+	// cmd::sentence
+	else if( regex_match(command, match, regex(R"_(cmd\:\:sentence)_")) && match.size() > 0 )
+	{
+		auto& sen_map = GLOBALS::get().sentences_map_;
+		string sentence("");
+		if( sen_map.crbegin() != sen_map.crend() )
+			sentence = sen_map.crbegin()->second;
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->data_stream_<<"cmd::info:sentence="<<sentence;
+		result.push_back(p_msg);
+	}
+	// cmd::liveprint
+	else if( regex_match(command, match, regex(R"_(cmd\:\:liveprint)_")) && match.size() > 0 )
+	{
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->data_stream_<<"cmd::info:liveprint="<<GLOBALS::get().decoder_.getRTTY();
+		result.push_back(p_msg);
+	}
+	// cmd::stats
+	else if( regex_match(command, match, regex(R"_(cmd\:\:stats)_")) && match.size() > 0 )
+	{
+		auto& stats = GLOBALS::get().stats_;
+
+		auto p_msg = std::make_shared<HabdecMessage>();
+		p_msg->data_stream_<<"cmd::info:stats=";
+		p_msg->data_stream_<<"ok:"<<stats.num_ok_;
+		p_msg->data_stream_<<",dist_line:"<<stats.D_.dist_line_;
+		p_msg->data_stream_<<",dist_circ:"<<stats.D_.dist_circle_;
+		p_msg->data_stream_<<",max_dist:"<<stats.dist_max_;
+		p_msg->data_stream_<<",min_elev:"<<stats.elev_min_;
+		p_msg->data_stream_<<",lat:"<<GLOBALS::get().par_.station_lat_;
+		p_msg->data_stream_<<",lon:"<<GLOBALS::get().par_.station_lon_;
+		p_msg->data_stream_<<",alt:"<<GLOBALS::get().par_.station_alt_;
+
+		result.push_back(p_msg);
+	}
+	// cmd::****
+	else if(command.size()>5 && command.substr(0,5) == "cmd::")
+	{
+		cout<<C_MAGENTA<<"Command "<<command<<C_OFF<<endl;
+		auto responses = HandleCommand(command.substr(5));
+		result.insert( result.end(), responses.begin(), responses.end() );
 	}
 
-	cout << "Session END."<<endl;
+
+	// send parameters if they changed
+	static thread_local typename 	GLOBALS::PARAMS params;
+	if(params != GLOBALS::get().par_)
+	{
+		auto responses = EchoParameter( "" );
+		result.insert( result.end(), responses.begin(), responses.end() );
+
+		params = GLOBALS::get().par_;
+	}
+
+	return result;
+
 }
 
-
-void RunCommandServer(const std::string command_host, const int command_port)
-{
-	using namespace std;
-	using tcp = boost::asio::ip::tcp;
-
-	if(!command_port || command_host == "")
-	{
-		cout<<C_RED<<"No Command host or port."<<C_OFF<<endl;
-		return;
-	}
-
-	while(!G_DO_EXIT)
-	{
-		if (!GLOBALS::get().p_iq_source_)
-			continue;
-
-		try {
-			auto const address = boost::asio::ip::make_address( command_host );
-			auto const port = static_cast<unsigned short>( command_port );
-
-			boost::asio::io_context ioc{1};
-			tcp::acceptor acceptor{ioc, {address, port}};
-
-			while(!G_DO_EXIT)
-			{
-
-				tcp::socket socket{ioc};
-				acceptor.accept(socket); // Block until we get a connection
-				cout<<C_MAGENTA<<"\nNew Client"<<C_OFF<<endl;
-
-				std::thread{std::bind(&WS_CLIENT_SESSION_THREAD, std::move(socket))}.detach();
-			}
-		}
-		catch(const exception& e) {
-			cout<<C_RED<<"Failed starting Command Server\n"<<e.what()<<C_OFF<<endl;
-			std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(1000) ));
-		}
-	}
-}
