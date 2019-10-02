@@ -104,14 +104,14 @@ function SetGuiToGlobals(i_globals)
 	if(biastee_value)
 	{
 		var button = document.getElementById("HD_biastee");
-		button.style.backgroundColor = "#bb0";
-		button.style.color = "#000";
+		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
+		button.style.color = HD_COLOR_SCHEME["BG"];
 	}
 	else
 	{
 		var button = document.getElementById("HD_biastee");
-		button.style.backgroundColor = "hsl(210, 15%, 34%)";
-		button.style.color = "#AAA";
+		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
+		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
 	}
 
 
@@ -119,28 +119,28 @@ function SetGuiToGlobals(i_globals)
 	if(afc_value)
 	{
 		var button = document.getElementById("HD_afc");
-		button.style.backgroundColor = "#bb0";
-		button.style.color = "#000";
+		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
+		button.style.color = HD_COLOR_SCHEME["BG"];
 	}
 	else
 	{
 		var button = document.getElementById("HD_afc");
-		button.style.backgroundColor = "hsl(210, 15%, 34%)";
-		button.style.color = "#AAA";
+		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
+		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
 	}
 
 	var dcremove_value = HD_GLOBALS.dc_remove;
 	if(dcremove_value)
 	{
 		var button = document.getElementById("HD_dc_remove");
-		button.style.backgroundColor = "#bb0";
-		button.style.color = "#000";
+		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
+		button.style.color = HD_COLOR_SCHEME["BG"];
 	}
 	else
 	{
 		var button = document.getElementById("HD_dc_remove");
-		button.style.backgroundColor = "hsl(210, 15%, 34%)";
-		button.style.color = "#AAA";
+		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
+		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
 	}
 }
 
@@ -271,13 +271,11 @@ function LoadFlightsData_CB(i_data)
 		}
 	}
 
-	CreatePayloadsButton(FLIGHTS)
+	UpdatePayloadsButton(FLIGHTS)
 }
 
-function CreatePayloadsButton(i_Flights)
+function CreatePayloadsButton()
 {
-	console.debug(i_Flights);
-
 	var PayloadsWrapperDiv = document.getElementById("PayloadsWrapperDiv");
 	PayloadsWrapperDiv.classList.add("PayloadsDropdownWrapper")
 
@@ -291,6 +289,11 @@ function CreatePayloadsButton(i_Flights)
 	DropMenuDiv.id = "PayloadsDropMenuDiv";
 	DropMenuDiv.classList.add("PayloadsDropMenu");
 	PayloadsWrapperDiv.appendChild(DropMenuDiv);
+}
+
+function UpdatePayloadsButton(i_Flights)
+{
+	var DropMenuDiv = document.getElementById("PayloadsDropMenuDiv");
 
 	for(f_id in i_Flights)
 	{
@@ -300,7 +303,6 @@ function CreatePayloadsButton(i_Flights)
 			{
 				var payload = i_Flights[f_id]["payloads"][p_id];
 				var label = payload["name"] + ": " + payload["baud"] + "Bd " + payload["encoding"] + "/" + payload["stop"] + " " + (parseInt(payload["frequency"])/1000000) + "MHz";
-				console.debug(label, p_id);
 
 				var pl_button = document.createElement("button");
 				pl_button.innerHTML = label;
@@ -400,13 +402,13 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 	var div_cnt_liveprint = document.createElement("div");
 	div_cnt_liveprint.id = "cnt_liveprint";
 	div_cnt_liveprint.classList.add("habsentence_text");
-	div_cnt_liveprint.style.color = "cadetblue";
+	// div_cnt_liveprint.style.color = "cadetblue";
 	div_cnt_liveprint.style.wordWrap = "break-word";
 
 	//<div id="cnt_stats" class="habsentence_text"  style="color: rgb(250, 0, 0)"></div>
 	var div_cnt_stats = document.createElement("div");
 	div_cnt_stats.id = "cnt_stats";
-	div_cnt_stats.classList.add("habsentence_text");
+	// div_cnt_stats.classList.add("habsentence_text");
 	div_cnt_stats.style.color = "rgb(250, 0, 0)";
 
 	// <div id="cnt_habsentence_list" class="habsentence_text"></div>
@@ -556,6 +558,7 @@ function HABDEC_BUILD_UI(parent_div)
 	var div_extra_radio_buttons = HABDEC_BUILD_UI_ExtraRadioButton();
 	var div_server = HABDEC_BUILD_UI_Server();
 	//<!-- <div id="PayloadsWrapperDiv"></div> -->
+
 	var div_payloads_wrapper = document.createElement("div");
 	div_payloads_wrapper.id = "PayloadsWrapperDiv";
 
@@ -566,6 +569,11 @@ function HABDEC_BUILD_UI(parent_div)
 	parent_div.appendChild(div_extra_radio_buttons);
 	parent_div.appendChild(div_server);
 	parent_div.appendChild(div_payloads_wrapper);
+
+	CreateControls();
+	CreatePayloadsButton();
+	HD_ApplyColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
+	LoadFlightsData();
 }
 
 

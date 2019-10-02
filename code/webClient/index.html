@@ -6,6 +6,7 @@
 <script src="js/habdec_commands.js"></script>
 <script src="js/drawing.js"></script>
 <script src="js/gui.js"></script>
+<script src="js/color_schemes.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <head>
@@ -90,6 +91,11 @@
 <!-- Payloads Dropwown Menu -->
 <!-- <div id="PayloadsWrapperDiv"></div> -->
 
+	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['DEFAULT'] );" >DEFAULT</button>
+	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['RED'] );" >RED</button>
+	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['GREEN'] );" >GREEN</button>
+	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['BLUE'] );" >BLUE</button>
+
 </body>
 
 
@@ -103,13 +109,12 @@ function habdec_init(habdec_srv_url)
 		document.getElementById("server_address").value = habdec_srv_url;
 
 	OpenConnection();
-	CreateControls();
+	// CreateControls();
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	if(document.getElementById("server_address").value == "")
 		document.getElementById("server_address").value = "localhost:5555"
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
-	LoadFlightsData();
 
 	AnimatePowerSpectrum(0);
 	AnimateDemod(0);
