@@ -1,14 +1,19 @@
 
+var HD_COLOR_SCHEME;
 var HD_COLOR_SCHEMES = {};
 
 HD_COLOR_SCHEMES["DEFAULT"] = {
-    BG: "hsl(210, 15%, 15%)",
-    FG: "hsl(210, 15%, 25%)",
-    BUTTON_TEXT: "hsl(0, 0%, 65%)",
-    ENABLED: "hsl(50, 100%, 40%)",
-    LABEL: "hsl(32, 93%, 45%)",
-    FOCUS: "hsl(10, 15%, 64%)",
-    SENTENCE: "hsl(210, 50%, 80%)",
+    CSS: {
+        HD_bg: 	            "hsl(210, 15%,  15%)",
+        HD_fg: 	            "hsl(210, 15%,  25%)",
+        HD_button: 	        "hsl(210, 15%,  25%)",
+        HD_button_border:   "hsl(210, 15%,  15%)",
+        HD_button_text: 	"hsl(0,   0%,   55%)",
+        HD_label:      	    "hsl(32,  93%,  45%)",
+        HD_highlight:    	"hsl(210, 80%,  45%)",
+        HD_enabled:    	    "hsl(50, 100%, 40%)",
+        HD_sentence:     	"hsl(0,   100%, 33%)"
+    },
     SPECTRUM: {
         HIGH: "hsl(30, 30%, 100%)",
         MID: "hsl(30, 80%, 75%)",
@@ -18,113 +23,92 @@ HD_COLOR_SCHEMES["DEFAULT"] = {
 };
 
 HD_COLOR_SCHEMES["RED"] = {
-    BG: "hsl(0, 0%, 0%)",
-    FG: "hsl(0, 100%, 12%)",
-    ENABLED: "hsl(10, 100%, 30%)",
-    LABEL: "hsl(0, 100%, 40%)",
-    BUTTON_TEXT: "hsl(0, 100%, 30%)",
-    FOCUS: "hsl(260, 15%, 64%)",
-    SENTENCE: "hsl(0, 100%, 50%)",
+    CSS: {
+        HD_bg: 	            "hsl(0, 0%,   0%)",
+        HD_fg: 	            "hsl(0, 50%,  10%)",
+        HD_button: 	        "hsl(0, 100%, 5%)",
+        HD_button_border:   "hsl(0, 100%, 20%)",
+        HD_button_text: 	"hsl(0, 100%, 60%)",
+        HD_label:      	    "hsl(0, 100%, 45%)",
+        HD_highlight:    	"hsl(0, 80%,  45%)",
+        HD_enabled:    	    "hsl(0, 100%, 30%)",
+        HD_sentence:     	"hsl(0, 100%, 33%)"
+    },
     SPECTRUM: {
-        HIGH: "hsl(0, 50%, 100%)",
-        MID: "hsl(0, 80%, 50%)",
+        HIGH: "hsl(0, 30%, 100%)",
+        MID: "hsl(0, 80%, 55%)",
         LOW: "hsl(0, 100%, 10%)",
-        FILTER: "hsla(0, 15%, 30%, .5)"
+        FILTER: "hsla(0, 50%, 30%, .5)"
     }
-}
+};
 
 HD_COLOR_SCHEMES["GREEN"] = {
-    BG: "hsl(120, 0%, 0%)",
-    FG: "hsl(120, 100%, 12%)",
-    ENABLED: "hsl(150, 100%, 30%)",
-    LABEL: "hsl(120, 100%, 40%)",
-    BUTTON_TEXT: "hsl(120, 100%, 30%)",
-    FOCUS: "hsl(300, 15%, 64%)",
-    SENTENCE: "hsl(120, 100%, 50%)",
+    CSS: {
+        HD_bg: 	            "hsl(120, 0%,   0%)",
+        HD_fg: 	            "hsl(120, 50%,  10%)",
+        HD_button: 	        "hsl(120, 100%, 2%)",
+        HD_button_border:   "hsl(120, 100%, 15%)",
+        HD_button_text: 	"hsl(120, 100%, 30%)",
+        HD_label:      	    "hsl(120, 100%, 30%)",
+        HD_highlight:    	"hsl(120, 80%,  35%)",
+        HD_enabled:    	    "hsl(120, 100%, 20%)",
+        HD_sentence:     	"hsl(120, 100%, 33%)"
+    },
     SPECTRUM: {
-        HIGH: "hsl(120, 50%, 100%)",
-        MID: "hsl(120, 80%, 50%)",
+        HIGH: "hsl(120, 30%, 100%)",
+        MID: "hsl(120, 80%, 55%)",
         LOW: "hsl(120, 100%, 10%)",
-        FILTER: "hsla(120, 15%, 30%, .5)"
+        FILTER: "hsla(120, 50%, 30%, .5)"
     }
-}
+};
 
 HD_COLOR_SCHEMES["BLUE"] = {
-    BG: "hsl(190, 0%, 0%)",
-    FG: "hsl(190, 100%, 16%)",
-    ENABLED: "hsl(150, 100%, 40%)",
-    LABEL: "hsl(190, 100%, 40%)",
-    BUTTON_TEXT: "hsl(190, 100%, 40%)",
-    FOCUS: "hsl(300, 15%, 75%)",
-    SENTENCE: "hsl(190, 100%, 60%)",
+    CSS: {
+        HD_bg: 	            "hsl(210, 0%,   0%)",
+        HD_fg: 	            "hsl(210, 50%,  20%)",
+        HD_button: 	        "hsl(210, 100%, 4%)",
+        HD_button_border:   "hsl(210, 100%, 30%)",
+        HD_button_text: 	"hsl(210, 100%, 60%)",
+        HD_label:      	    "hsl(210, 100%, 60%)",
+        HD_highlight:    	"hsl(210, 80%,  30%)",
+        HD_enabled:    	    "hsl(210, 100%, 40%)",
+        HD_sentence:     	"hsl(210, 100%, 75%)"
+    },
     SPECTRUM: {
-        HIGH: "hsl(190, 50%, 100%)",
-        MID: "hsl(190, 80%, 50%)",
-        LOW: "hsl(190, 100%, 15%)",
-        FILTER: "hsla(120, 15%, 40%, .5)"
+        HIGH: "hsl(210, 30%, 100%)",
+        MID: "hsl(210, 80%, 75%)",
+        LOW: "hsl(210, 100%, 20%)",
+        FILTER: "hsla(210, 50%, 30%, .5)"
     }
-}
+};
 
-var HD_COLOR_SCHEME = HD_COLOR_SCHEMES["DEFAULT"];
+HD_COLOR_SCHEMES["GOLD"] = {
+    CSS: {
+        HD_bg: 	            "hsl(40, 0%,   0%)",
+        HD_fg: 	            "hsl(40, 50%,  20%)",
+        HD_button: 	        "hsl(40, 100%, 4%)",
+        HD_button_border:   "hsl(40, 100%, 30%)",
+        HD_button_text: 	"hsl(40, 100%, 60%)",
+        HD_label:      	    "hsl(40, 100%, 60%)",
+        HD_highlight:    	"hsl(40, 80%,  30%)",
+        HD_enabled:    	    "hsl(40, 100%, 40%)",
+        HD_sentence:     	"hsl(40, 100%, 75%)"
+    },
+    SPECTRUM: {
+        HIGH: "hsl(40, 30%, 100%)",
+        MID: "hsl(40, 80%, 75%)",
+        LOW: "hsl(40, 100%, 20%)",
+        FILTER: "hsla(40, 50%, 30%, .5)"
+    }
+};
 
 function HD_ApplyColorScheme(i_color_scheme) {
-    console.debug("HD_ApplyColorScheme");
-
     HD_COLOR_SCHEME = i_color_scheme;
+    let root = document.documentElement;
+    for(prop in i_color_scheme['CSS'])
+        // document.documentElement.style.setProperty('--' + prop, i_color_scheme['CSS'][prop]);
+        root.style.setProperty('--' + prop, i_color_scheme['CSS'][prop]);
 
-    var elems;
-    var color_str = "";
+    SetGuiToGlobals(HD_GLOBALS);
 
-    //BG
-    color_str = HD_COLOR_SCHEME['BG'];
-    document.getElementsByTagName('body')[0].style.backgroundColor = color_str;
-    document.getElementsByTagName('html')[0].style.backgroundColor = color_str;
-
-    //FG - mostly buttons
-    color_str = HD_COLOR_SCHEME['FG'];
-    elems = document.getElementsByTagName('button');
-    for(var i in elems) 
-        if(elems[i].style)
-            elems[i].style.backgroundColor = color_str;
-    elems = document.getElementsByClassName('increment_button PayloadsDropButton');
-    for(var i in elems) 
-        if(elems[i].style)
-            elems[i].style.backgroundColor = color_str;
-    
-    //LABEL
-    color_str = HD_COLOR_SCHEME['LABEL'];
-    elems = document.getElementsByTagName('label')
-    for(var i in elems) 
-        if(elems[i].style)
-            elems[i].style.color = color_str;
-    elems = document.getElementsByClassName('ctrl_box');
-    for(var i in elems)
-        if(elems[i].style)
-            elems[i].style.color = color_str;
-        
-    //BUTTON_TEXT
-    color_str = HD_COLOR_SCHEME['BUTTON_TEXT'];
-    elems = document.getElementsByTagName('button');
-    for(var i in elems) 
-        if(elems[i].style)
-            elems[i].style.color = color_str;
-    
-    //FOCUS
-    color_str = HD_COLOR_SCHEME['FOCUS'];
-    elems = document.getElementsByTagName('button');
-    for(var i in elems) 
-        if(elems[i].style)
-         {
-            elems[i].style.hover = color_str;
-            elems[i].style.focus = color_str;
-        }
-    
-    //SENTENCE
-    color_str = HD_COLOR_SCHEME['SENTENCE'];
-    elems = document.getElementsByClassName('habsentence_text');
-    for(var i in elems) 
-        if(elems[i].style)
-            elems[i].style.color = color_str;
-    
-    SetGuiToGlobals();
 }

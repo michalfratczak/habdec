@@ -95,6 +95,7 @@
 	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['RED'] );" >RED</button>
 	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['GREEN'] );" >GREEN</button>
 	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['BLUE'] );" >BLUE</button>
+	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['GOLD'] );" >GOLD</button>
 
 </body>
 
@@ -115,6 +116,8 @@ function habdec_init(habdec_srv_url)
 		document.getElementById("server_address").value = "localhost:5555"
 	ResizeCanvas("powerSpectrumCanvas");
 	ResizeCanvas("demodCanvas");
+
+	HD_ApplyColorScheme(HD_COLOR_SCHEMES["DEFAULT"]);
 
 	AnimatePowerSpectrum(0);
 	AnimateDemod(0);

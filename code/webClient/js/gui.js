@@ -100,18 +100,26 @@ function SetGuiToGlobals(i_globals)
 	}
 
 	// buttons
+
+	let root = document.documentElement;
+	var rootStyles = getComputedStyle(root);
+	var HD_bg = rootStyles.getPropertyValue('--HD_bg');
+	var HD_button = rootStyles.getPropertyValue('--HD_button');
+	var HD_button_text = rootStyles.getPropertyValue('--HD_button_text');
+	var HD_enabled = rootStyles.getPropertyValue('--HD_enabled');
+
 	var biastee_value = HD_GLOBALS.biastee;
 	if(biastee_value)
 	{
 		var button = document.getElementById("HD_biastee");
-		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
-		button.style.color = HD_COLOR_SCHEME["BG"];
+		button.style.backgroundColor = HD_enabled;
+		button.style.color = HD_bg;
 	}
 	else
 	{
 		var button = document.getElementById("HD_biastee");
-		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
-		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
+		button.style.backgroundColor = HD_button;
+		button.style.color = HD_button_text;
 	}
 
 
@@ -119,28 +127,28 @@ function SetGuiToGlobals(i_globals)
 	if(afc_value)
 	{
 		var button = document.getElementById("HD_afc");
-		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
-		button.style.color = HD_COLOR_SCHEME["BG"];
+		button.style.backgroundColor = HD_enabled;
+		button.style.color = HD_bg;
 	}
 	else
 	{
 		var button = document.getElementById("HD_afc");
-		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
-		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
+		button.style.backgroundColor = HD_button;
+		button.style.color = HD_button_text;
 	}
 
 	var dcremove_value = HD_GLOBALS.dc_remove;
 	if(dcremove_value)
 	{
 		var button = document.getElementById("HD_dc_remove");
-		button.style.backgroundColor = HD_COLOR_SCHEME["ENABLED"];
-		button.style.color = HD_COLOR_SCHEME["BG"];
+		button.style.backgroundColor = HD_enabled;
+		button.style.color = HD_bg;
 	}
 	else
 	{
 		var button = document.getElementById("HD_dc_remove");
-		button.style.backgroundColor = HD_COLOR_SCHEME["FG"];
-		button.style.color = HD_COLOR_SCHEME["BUTTON_TEXT"];;
+		button.style.backgroundColor = HD_button;
+		button.style.color = HD_button_text;
 	}
 }
 
@@ -572,7 +580,7 @@ function HABDEC_BUILD_UI(parent_div)
 
 	CreateControls();
 	CreatePayloadsButton();
-	HD_ApplyColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
+	// HD_ApplyeColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
 	LoadFlightsData();
 }
 

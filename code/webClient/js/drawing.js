@@ -94,9 +94,9 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
     // BG
     //
     var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	grd_bg.addColorStop(0, HD_COLOR_SCHEME['BG']);
-	grd_bg.addColorStop(.5, HD_COLOR_SCHEME['FG']);
-	grd_bg.addColorStop(1, HD_COLOR_SCHEME['BG']);
+	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_bg.addColorStop(.5, HD_COLOR_SCHEME['CSS']['HD_fg']);
+	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
 	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
 
@@ -114,12 +114,12 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	var _r  = Math.min(1, .5 + .5 * _lowpass_bw_relative);
 	var _rr = Math.min(1, .5 + .5 * (_lowpass_bw_relative + _lowpass_trans));
 
-	grd_lowpass.addColorStop(0, HD_COLOR_SCHEME["BG"]);
-	grd_lowpass.addColorStop(_ll, HD_COLOR_SCHEME["BG"]);
+	grd_lowpass.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_lowpass.addColorStop(_ll, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_lowpass.addColorStop(_l, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
 	grd_lowpass.addColorStop(_r, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
-	grd_lowpass.addColorStop(_rr, HD_COLOR_SCHEME["BG"]);
-	grd_lowpass.addColorStop(1, HD_COLOR_SCHEME["BG"]);
+	grd_lowpass.addColorStop(_rr, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_lowpass.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_lowpass;
 	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
 
@@ -234,9 +234,9 @@ function DrawDemod(i_canvas, i_demod)
     // BG
     //
     var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	grd_bg.addColorStop(0, HD_COLOR_SCHEME['BG']);
-	grd_bg.addColorStop(.5,HD_COLOR_SCHEME['FG']);
-	grd_bg.addColorStop(1, HD_COLOR_SCHEME['BG']);
+	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_bg.addColorStop(.5,HD_COLOR_SCHEME['CSS']['HD_fg']);
+	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
 	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
 
