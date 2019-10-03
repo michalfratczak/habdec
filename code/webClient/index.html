@@ -26,77 +26,6 @@
 
 <div id="HABDEC_UI_DIV"> </div>
 
-
-<!-- <div id="HABDEC_POWER_SPECTRUM_DIV"> </div> -->
-<!-- Power Spectrum -->
-<!-- <div style="display: grid; grid-template-columns: auto 80px; width: 100%; height: 150px;" >
-	<div id="cnt_powerSpectrumCanvas" style="display: flex;">
-		<canvas id="powerSpectrumCanvas" ></canvas>
-	</div>
-	<div>
-		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM += .1})()" > + </button><br>
-		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM -= .1})()" > - </button><br>
-	</div>
-</div> -->
-
-
-<!-- <div id="HABDEC_DEMOD_AND_CONTROLS_DIV"></div> -->
-<!--
-<div style="display: grid; grid-template-columns: minmax(0, 1fr) 540px;">
-
-	<div>
-		<div id="cnt_demodCanvas" style="display: flex; height: 128px;">
-			<canvas id="demodCanvas" height="128px"></canvas>
-		</div>
-		<div>
-			<div id="cnt_debug" style="font-size: 12px;"></div>
-			<br>
-			<div id="cnt_liveprint" class="habsentence_text" style="color: cadetblue; word-wrap: break-word;"></div>
-			<div id="cnt_stats" class="habsentence_text"  style="color: rgb(250, 0, 0)"></div>
-			<div id="cnt_habsentence_list" class="habsentence_text"></div>
-		</div>
-	</div>
-
-	<div>
-		<div id="cnt_spectrum_zoom"	class="ctrl_container"> </div>
-		<div id="cnt_frequency"		class="ctrl_container">	</div>
-		<div id="cnt_decimation"	class="ctrl_container">	</div>
-		<div id="cnt_gain"			class="ctrl_container">	</div>
-		<div id="cnt_lowpass_bw"	class="ctrl_container">	</div>
-		<div id="cnt_lowpass_trans"	class="ctrl_container"> </div>
-		<div id="cnt_baud"			class="ctrl_container">	</div>
-		<div id="cnt_rtty_bits"		class="ctrl_container">	</div>
-		<div id="cnt_rtty_stops"	class="ctrl_container"> </div>
-		<div id="cnt_datasize"		class="ctrl_container"> </div>
-	</div>
-</div> -->
-
-<!--
-<div>
-	<div style="display: inline-block;">
-		<button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
-		<button id="HD_afc" 		onclick="SetAFC()"      > AFC </button>
-		<button id="HD_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
-	</div>
-
-	<p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
-</div> -->
-<!--
-<div>
-	<div><label>Server Address</label></div>
-	<input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
-	<button  onclick="OpenConnection()" >Connect</button>
-</div> -->
-
-<!-- Payloads Dropwown Menu -->
-<!-- <div id="PayloadsWrapperDiv"></div> -->
-
-	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['DEFAULT'] );" >DEFAULT</button>
-	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['RED'] );" >RED</button>
-	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['GREEN'] );" >GREEN</button>
-	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['BLUE'] );" >BLUE</button>
-	<button  onclick="HD_ApplyColorScheme( HD_COLOR_SCHEMES['GOLD'] );" >GOLD</button>
-
 </body>
 
 
@@ -110,7 +39,6 @@ function habdec_init(habdec_srv_url)
 		document.getElementById("server_address").value = habdec_srv_url;
 
 	OpenConnection();
-	// CreateControls();
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	if(document.getElementById("server_address").value == "")
 		document.getElementById("server_address").value = "localhost:5555"
