@@ -181,7 +181,7 @@ function toggleFullscreen(elem)
 {
 	elem = elem || document.documentElement;
 	if (!document.fullscreenElement && !document.mozFullScreenElement &&
-	!document.webkitFullscreenElement && !document.msFullscreenElement)
+		!document.webkitFullscreenElement && !document.msFullscreenElement)
 	{
 		if (elem.requestFullscreen) {
 			elem.requestFullscreen();
@@ -561,7 +561,7 @@ function HABDEC_BUILD_UI_ExtraRadioButtons()
 	// <p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
 	var btnFullscreen = document.createElement("button");
 	btnFullscreen.innerHTML = "Fullscreen";
-	btnFullscreen.onclick = toggleFullscreen;
+	btnFullscreen.onclick = () => { toggleFullscreen() };
 	var paragraph = document.createElement("p");
 	paragraph.appendChild(btnFullscreen);
 
