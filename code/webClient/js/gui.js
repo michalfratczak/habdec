@@ -279,24 +279,27 @@ function LoadFlightsData_CB(i_data)
 		}
 	}
 
-	UpdatePayloadsButton(FLIGHTS)
+	UpdatePayloadsButton( FLIGHTS );
 }
 
 function CreatePayloadsButton()
 {
 	var PayloadsWrapperDiv = document.getElementById("PayloadsWrapperDiv");
-	PayloadsWrapperDiv.classList.add("PayloadsDropdownWrapper")
+	PayloadsWrapperDiv.classList.add("MenuDropdownWrapper")
 
 	var PayloadsButton = document.createElement("button");
-	PayloadsButton.classList.add("PayloadsDropButton");
+	PayloadsButton.classList.add("MenuDropButton");
+	PayloadsButton.id = "HD_PayloadsButton";
 	PayloadsButton.onclick = function() { document.getElementById("PayloadsDropMenuDiv").classList.toggle("show") };
 	PayloadsButton.innerHTML = "HabHub Flights";
 	PayloadsWrapperDiv.appendChild(PayloadsButton);
 
 	var DropMenuDiv = document.createElement("div");
 	DropMenuDiv.id = "PayloadsDropMenuDiv";
-	DropMenuDiv.classList.add("PayloadsDropMenu");
+	DropMenuDiv.classList.add("MenuDropMenu");
 	PayloadsWrapperDiv.appendChild(DropMenuDiv);
+
+	LoadFlightsData();
 }
 
 function UpdatePayloadsButton(i_Flights)
@@ -314,23 +317,65 @@ function UpdatePayloadsButton(i_Flights)
 
 				var pl_button = document.createElement("button");
 				pl_button.innerHTML = label;
-				pl_button.onclick = function(){ SetPayload(p_id) };
+				pl_button.onclick = function(){
+					SetPayload(p_id);
+					document.getElementById('HD_PayloadsButton').click();
+				};
 
 				DropMenuDiv.appendChild(pl_button);
 			}
 		)(p_id)
 	}
-
 }
 
-function PayloadButtonClickCB()
+////////////////////////////////////////
+///////////// Color Schemes ////////////
+////////////////////////////////////////
+
+function CreateColorSchemesButton()
 {
-	document.getElementById("PayloadsDropMenuDiv").classList.toggle("show");
+	var ColorSchemesWrapperDiv = document.getElementById("ColorSchemesWrapperDiv");
+	ColorSchemesWrapperDiv.classList.add("MenuDropdownWrapper")
+
+	var ColorSchemesButton = document.createElement("button");
+	ColorSchemesButton.classList.add("MenuDropButton");
+	ColorSchemesButton.id = "HD_ColorSchemesButton";
+	ColorSchemesButton.onclick = function() { document.getElementById("ColorSchemesDropMenuDiv").classList.toggle("show") };
+	ColorSchemesButton.innerHTML = "Colors";
+	ColorSchemesWrapperDiv.appendChild(ColorSchemesButton);
+
+	var DropMenuDiv = document.createElement("div");
+	DropMenuDiv.id = "ColorSchemesDropMenuDiv";
+	DropMenuDiv.classList.add("MenuDropMenu");
+	ColorSchemesWrapperDiv.appendChild(DropMenuDiv);
+	UpdateColorSchemesButton(HD_COLOR_SCHEMES);
 }
+
+function UpdateColorSchemesButton(i_color_schemes)
+{
+	var DropMenuDiv = document.getElementById("ColorSchemesDropMenuDiv");
+
+	for(color in i_color_schemes)
+	(
+		function(i_color)
+		{
+			var pl_button = document.createElement("button");
+			pl_button.innerHTML = i_color;
+			pl_button.onclick = function(){
+				HD_ApplyColorScheme(i_color_schemes[i_color]);
+				document.getElementById('HD_ColorSchemesButton').click();
+			};
+
+			DropMenuDiv.appendChild(pl_button);
+		}
+	)(color)
+}
+
 
 // ============================================================================
 // ============================================================================
 // ============================================================================
+
 
 function HABDEC_BUILD_UI_PowerSpectrum(HABDEC_POWER_SPECTRUM_DIV)
 {
@@ -485,7 +530,7 @@ function HABDEC_BUILD_UI_DemodAndControls()
 }
 
 
-function HABDEC_BUILD_UI_ExtraRadioButton()
+function HABDEC_BUILD_UI_ExtraRadioButtons()
 {
 	var div_top = document.createElement("div");
 
@@ -563,25 +608,39 @@ function HABDEC_BUILD_UI(parent_div)
 {
 	var div_power = HABDEC_BUILD_UI_PowerSpectrum();
 	var div_demod_and_ctrls = HABDEC_BUILD_UI_DemodAndControls();
-	var div_extra_radio_buttons = HABDEC_BUILD_UI_ExtraRadioButton();
+	var div_extra_radio_buttons = HABDEC_BUILD_UI_ExtraRadioButtons();
 	var div_server = HABDEC_BUILD_UI_Server();
 	//<!-- <div id="PayloadsWrapperDiv"></div> -->
 
+
+	// flights list
 	var div_payloads_wrapper = document.createElement("div");
 	div_payloads_wrapper.id = "PayloadsWrapperDiv";
 
+	// color schemes list
+	var div_colors_wrapper = document.createElement("div");
+	div_colors_wrapper.id = "ColorSchemesWrapperDiv";
+
+	// div for flights and colors - in row
+	var extra_options = document.createElement("div");
+	extra_options.style.display = 'flex';
+	extra_options.appendChild(div_payloads_wrapper);
+	extra_options.appendChild(div_colors_wrapper);
 
 	// parent_div.display.height = "1000px";
 	parent_div.appendChild(div_power);
 	parent_div.appendChild(div_demod_and_ctrls);
 	parent_div.appendChild(div_extra_radio_buttons);
 	parent_div.appendChild(div_server);
-	parent_div.appendChild(div_payloads_wrapper);
+	// parent_div.appendChild(div_payloads_wrapper);
+	// parent_div.appendChild(div_colors_wrapper);
+	parent_div.appendChild(extra_options);
 
 	CreateControls();
 	CreatePayloadsButton();
+	CreateColorSchemesButton();
+
 	// HD_ApplyeColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
-	LoadFlightsData();
 }
 
 

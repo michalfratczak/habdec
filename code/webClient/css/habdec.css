@@ -93,17 +93,17 @@ input[type=checkbox]
 }
 
 
-/* Payloads DropDown Menu */
+/* DropDown Menu */
 
 /* wrapper */
-.PayloadsWrapperDiv {
+.MenuWrapperDiv {
     position: relative;
     display: inline-block;
 }
-.PayloadsWrapperDiv a:hover {background-color: rgb(75, 231, 14)}
+.MenuWrapperDiv a:hover {background-color: rgb(75, 231, 14)}
 
 
-.PayloadsDropButton {
+.MenuDropButton {
     background-color:var(--HD_button);
     border: none;
     color: var(--HD_button_text);
@@ -116,13 +116,13 @@ input[type=checkbox]
     border: 0.1rem solid  var(--HD_button_border);
     border-radius: .4rem;
 }
-.PayloadsDropButton:hover, .PayloadsDropButton:focus {
+.MenuDropButton:hover, .MenuDropButton:focus {
     background-color: var(--HD_highlight);
 }
 
 
 /* Dropdown Content (Hidden by Default) */
-.PayloadsDropMenu {
+.MenuDropMenu {
     display: none;
     position: absolute;
     background-color: #46d41b;
@@ -132,7 +132,7 @@ input[type=checkbox]
 }
 
 /* Payload Button */
-.PayloadsDropMenu button {
+.MenuDropMenu button {
     display: block;
     /* color: black; */
     padding: 16px 16px;
