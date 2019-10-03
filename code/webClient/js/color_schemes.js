@@ -106,8 +106,10 @@ function HD_ApplyColorScheme(i_color_scheme) {
     HD_COLOR_SCHEME = i_color_scheme;
     let root = document.documentElement;
     for(prop in i_color_scheme['CSS'])
+    {
         // document.documentElement.style.setProperty('--' + prop, i_color_scheme['CSS'][prop]);
         root.style.setProperty('--' + prop, i_color_scheme['CSS'][prop]);
+    }
 
     SetGuiToGlobals(HD_GLOBALS);
 

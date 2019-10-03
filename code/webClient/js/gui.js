@@ -602,7 +602,56 @@ function HABDEC_BUILD_UI_Server()
 	return div_top;
 }
 
+function HB_WinMsgHandler(i_msg)
+{
+	// console.debug('HB_WinMsgHandler', i_msg);
 
+	var i_data = i_msg.data;
+
+	// color scheme - with config provided
+	//
+	var set_rex = String.raw`cmd\:\:setColorScheme\:name=(.+)\:config=(.+)`;
+	var set_re = new RegExp(set_rex);
+	var set_match = set_re.exec(i_data);
+	if(set_match != null)
+	{
+		var color_scheme = set_match[1];
+		var color_config = JSON.parse( set_match[2] );
+		HD_COLOR_SCHEMES[color_scheme] = color_config;
+		HD_ApplyColorScheme( HD_COLOR_SCHEMES[color_scheme] );
+		console.debug("HABDEC Config ColorScheme ", color_scheme);
+		// console.debug(HD_COLOR_SCHEMES);
+	}
+	else
+	{
+		// color scheme - predefined
+		//
+		set_rex = String.raw`cmd\:\:setColorScheme\:name=(.+)`;
+		set_re = new RegExp(set_rex);
+		set_match = set_re.exec(i_data);
+		if(set_match != null)
+		{
+			var color_scheme = set_match[1];
+			if( color_scheme in HD_COLOR_SCHEMES)
+			{
+				console.debug("HABDEC Predefined ColorScheme ", color_scheme);
+				HD_ApplyColorScheme( HD_COLOR_SCHEMES[color_scheme] );
+			}
+		}
+	}
+
+	// server address
+	//
+	set_rex = String.raw`cmd\:\:setServer\:addr=(.+)`;
+	set_re = new RegExp(set_rex);
+	set_match = set_re.exec(i_data);
+	if(set_match != null)
+	{
+		console.debug('HB_WinMsgHandler ', set_match);
+		var addr = set_match[1];
+		document.getElementById("server_address").value = addr;
+	}
+}
 
 function HABDEC_BUILD_UI(parent_div)
 {
@@ -639,6 +688,9 @@ function HABDEC_BUILD_UI(parent_div)
 	CreateControls();
 	CreatePayloadsButton();
 	CreateColorSchemesButton();
+
+	window.addEventListener('message', HB_WinMsgHandler);
+
 
 	// HD_ApplyeColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
 }
