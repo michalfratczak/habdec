@@ -28,6 +28,7 @@ http_session::http_session(
         :   socket_(std::move(socket)),
             p_ws_server_(p_ws_server)
 {
+    std::cout<<"\n\nNew Client "<<socket_.remote_endpoint().address().to_string()<<std::endl<<std::endl;
 }
 
 void http_session::run()
