@@ -43,8 +43,12 @@ function OpenConnection()
 		return;
 
 	var server = document.getElementById("server_address").value;
+	if( server.toLowerCase().startsWith('ws://') )
+		server = server.substr(5, server.length);
+	server = 'ws://' + server;
 	console.debug("Connecting to ", server, " ...");
-	G_HD_WEBSOCKET = new WebSocket("ws://" + server);
+
+	G_HD_WEBSOCKET = new WebSocket(server);
 	G_HD_WEBSOCKET.binaryType = 'arraybuffer'; // or 'blob'
 
 	G_HD_WEBSOCKET.onopen =    function(evt) { ws_onOpen(evt) };
