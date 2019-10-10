@@ -38,7 +38,6 @@ function habdec_init(habdec_srv_url)
 	if(habdec_srv_url)
 		document.getElementById("server_address").value = habdec_srv_url;
 
-	OpenConnection();
 	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
 	if(document.getElementById("server_address").value == "")
 		document.getElementById("server_address").value = "localhost:5555"
@@ -49,6 +48,8 @@ function habdec_init(habdec_srv_url)
 
 	AnimatePowerSpectrum(0);
 	AnimateDemod(0);
+
+	setTimeout(	OpenConnection, 500);
 }
 
 

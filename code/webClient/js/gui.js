@@ -285,7 +285,7 @@ function LoadFlightsData_CB(i_data)
 function CreatePayloadsButton()
 {
 	var PayloadsWrapperDiv = document.getElementById("PayloadsWrapperDiv");
-	PayloadsWrapperDiv.classList.add("MenuDropdownWrapper")
+	PayloadsWrapperDiv.classList.add("MenuDropdownWrapper");
 
 	var PayloadsButton = document.createElement("button");
 	PayloadsButton.classList.add("MenuDropButton");

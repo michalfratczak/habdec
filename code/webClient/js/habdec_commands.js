@@ -40,7 +40,7 @@ function debug_print()
 function OpenConnection()
 {
 	if(G_HD_CONNECTED)
-		return;
+		G_HD_WEBSOCKET.close();
 
 	var server = document.getElementById("server_address").value;
 	if( server.toLowerCase().startsWith('ws://') )
@@ -315,6 +315,14 @@ function RefreshPowerSpectrum()
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var zoom = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var canvas = document.getElementById("powerSpectrumCanvas");
+
+	// resize if canvas iz zero-size
+	if( 	!(canvas.offsetParent === null) /*not visible*/
+		&& 	(!canvas.width || !canvas.height) ) /*zero size*/
+	{
+		canvas.width = canvas.parentElement.clientWidth;
+		canvas.height = canvas.parentElement.clientHeight;
+	}
 
 	SendCommand("power:res=" + canvas.width + ",zoom=" + zoom);
 	RefreshPowerSpectrum_lastReq = d.getTime();
