@@ -89,16 +89,16 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
 	// CLEAR THE CANVAS
 	//
-    ctx.clearRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+    ctx.clearRect(0, 0, i_canvas.width, i_canvas.height);
 
     // BG
     //
-    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
+    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
 	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_bg.addColorStop(.5, HD_COLOR_SCHEME['CSS']['HD_fg']);
 	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 
@@ -114,14 +114,13 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	var _r  = Math.min(1, .5 + .5 * _lowpass_bw_relative);
 	var _rr = Math.min(1, .5 + .5 * (_lowpass_bw_relative + _lowpass_trans));
 
-	grd_lowpass.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_lowpass.addColorStop(_ll, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_lowpass.addColorStop(_l, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
 	grd_lowpass.addColorStop(_r, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
 	grd_lowpass.addColorStop(_rr, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_lowpass.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_lowpass;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	// SPECTRUM
 	//
@@ -159,7 +158,7 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	// spectrum_min_avg *= 1.3; // drawing pedestal
 
 	// draw
-	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
+	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
 	power_grd.addColorStop(1-Math.abs(noise_floor_avg / spectrum_min_avg), HD_COLOR_SCHEME['SPECTRUM']['HIGH']);
 	power_grd.addColorStop(1-Math.abs(spectrum_max_avg / spectrum_min_avg), HD_COLOR_SCHEME['SPECTRUM']['MID']);
 	power_grd.addColorStop(1 , HD_COLOR_SCHEME['SPECTRUM']['LOW']);
@@ -191,7 +190,7 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	var nf_0_1 = 1.0 - Math.abs(noise_floor_avg / spectrum_min_avg);
 	nf_0_1 = Math.max(nf_0_1, 0);
 	ctx.moveTo(0, (1-nf_0_1)*i_canvas.height - 1);
-	ctx.lineTo(i_canvas.width-1, (1-nf_0_1)*i_canvas.height - 1);
+	ctx.lineTo(i_canvas.width, (1-nf_0_1)*i_canvas.height - 1);
 	ctx.stroke();
 
 	// PEAK LEFT
@@ -233,19 +232,19 @@ function DrawDemod(i_canvas, i_demod)
 
     // BG
     //
-    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
+    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
 	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	grd_bg.addColorStop(.5,HD_COLOR_SCHEME['CSS']['HD_fg']);
 	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	// CENTER LINE
 	//
 	ctx.strokeStyle = HD_COLOR_SCHEME['SPECTRUM']['LOW'];
 	ctx.beginPath();
 	ctx.moveTo(0, i_canvas.height/2);
-	ctx.lineTo(i_canvas.width-1, i_canvas.height/2);
+	ctx.lineTo(i_canvas.width, i_canvas.height/2);
 	ctx.stroke();
 
 	// DEMOD
