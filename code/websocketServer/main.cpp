@@ -138,20 +138,24 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	auto& device = device_list[device_index];
 	cout<<"Running with "<<device["driver"]<<endl<<endl;
 
-	if( !GLOBALS::get().par_.sampling_rate_ )
+	// user supplied sampling_rate could be unsupported by device
+	// find what's closest available to user supplied value or 2MHz
 	{
-		// find what is nearest to 2e6
-		double sr_diff = std::numeric_limits<double>::max();
 		auto p_device = SoapySDR::Device::make(device);
+		const double user_sr = 	GLOBALS::get().par_.sampling_rate_ ?
+								GLOBALS::get().par_.sampling_rate_  : 2e6;
+		double sr_diff = std::numeric_limits<double>::max();
 		for(double sr : p_device->listSampleRates(SOAPY_SDR_RX, 0))
 		{
-			if( abs(sr - 2e6) < sr_diff )
+			if( abs(sr - user_sr) < sr_diff )
 			{
-				sr_diff = abs(sr - 2e6);
+				sr_diff = abs(sr - user_sr);
 				GLOBALS::get().par_.sampling_rate_ = sr;
 			}
 		}
+		cout<<C_RED<<"Setting sampling rate to "<<GLOBALS::get().par_.sampling_rate_<<C_OFF<<endl;
 	}
+
 
 	GLOBALS::get().p_iq_source_.reset(new habdec::IQSource_SoapySDR);
 
