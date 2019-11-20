@@ -79,6 +79,7 @@ void prog_opts(int ac, char* av[])
 			("help", "Display help message")
 			("device",	po::value<int>(), "SDR Device Number. -1 to list")
 			("sampling_rate",	po::value<double>()->default_value(GLOBALS::get().par_.sampling_rate_), "Sampling Rate, as supported by device")
+			("no_exit", po::value<bool>(), "Constantly retry on missing device instead of exit.")
 
 			("port",	po::value<string>(),	"Command Port, example: --port 127.0.0.1:5555")
 
@@ -198,6 +199,10 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("print"))
 		{
 			GLOBALS::get().par_.live_print_ = vm["print"].as<bool>();
+		}
+		if (vm.count("no_exit"))
+		{
+			GLOBALS::get().par_.no_exit_ = vm["no_exit"].as<bool>();
 		}
 		if (vm.count("biast"))
 		{

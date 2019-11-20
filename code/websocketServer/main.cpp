@@ -394,11 +394,28 @@ int main(int argc, char** argv)
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
-	if(!SetupDevice(device))
+	while(true)
 	{
-		cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
-		return 1;
+		if( SetupDevice(device) )
+		{
+			break;
+		}
+		else
+		{
+			if( GLOBALS::get().par_.no_exit_ )
+			{
+				cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
+				std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
+				continue;
+			}
+			else
+			{
+				cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
+				return 1;
+			}
+		}
 	}
+
 
 	// station info
 	if(	GLOBALS::get().par_.station_callsign_ != "" )

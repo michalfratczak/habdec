@@ -47,9 +47,11 @@ CLI opts:
   --help                    Display help message
   --device arg              SDR Device Number. -1 to list
   --sampling_rate arg (=0)  Sampling Rate, as supported by device
+  --no_exit arg             Constantly retry on missing device instead of exit.
   --port arg                Command Port, example: --port 127.0.0.1:5555
   --station arg             HABHUB station callsign
   --latlon arg              station GPS location (decimal)
+  --alt arg                 station altitude in meters
   --freq arg                frequency in MHz
   --ppm arg                 frequency correction in PPM
   --gain arg                gain
@@ -58,6 +60,11 @@ CLI opts:
   --biast arg               biasT, values: 0, 1
   --bias_t arg              biasT, values: 0, 1
   --afc arg                 Auto Frequency Correction, values: 0, 1
+  --usb_pack arg            AirSpy USB bit packing
+  --dc_remove arg           DC remove
+  --dec arg                 decimation: 2^dec, range: 0-8
+  --lowpass arg             lowpass bandwidth in Hertz
+  --lp_trans arg            lowpass transition width. (0-1)
   --sentence_cmd arg        Call external command with sentence as parameter
   --flights [=arg(=0)]      List Habitat flights
   --payload arg             Configure for Payload ID

@@ -97,6 +97,7 @@ public:
 		bool 	dc_remove_ = false;
 		float	lowpass_bw_Hz_ = 1500;
 		float	lowpass_tr_ = 0.025;
+		bool	no_exit_ = false;
 		std::string 	sentence_cmd_ = "";
 		std::string 	habitat_payload_ = "";
 		// int 	datasize_ = 1;
@@ -131,6 +132,7 @@ public:
 				&& sampling_rate_ == rhs.sampling_rate_
 				&& sentence_cmd_ == rhs.sentence_cmd_
 				&& habitat_payload_ == rhs.habitat_payload_
+				&& no_exit_ == rhs.no_exit_
 				;
 		}
 		bool operator!=(const PARAMS& rhs) const { return !operator==(rhs); }
@@ -167,6 +169,7 @@ public:
 			oFile<<"lp_trans = "<<GLOBALS::get().par_.lowpass_tr_<<endl;
 			oFile<<"sentence_cmd = "<<GLOBALS::get().par_.sentence_cmd_<<endl;
 			oFile<<"payload = "<<GLOBALS::get().par_.habitat_payload_<<endl;
+			oFile<<"no_exit = "<<GLOBALS::get().par_.no_exit_<<endl;
 		}
 		catch (exception& e) {
 			cout<<"Can't save config "<<fName<<endl;
@@ -201,6 +204,7 @@ public:
 		cout<<"\tdc_remove: "<<GLOBALS::get().par_.dc_remove_<<endl;
 		cout<<"\tlowpass: "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
 		cout<<"\tlp_trans: "<<GLOBALS::get().par_.lowpass_tr_<<endl;
+		cout<<"\tno_exit: "<<GLOBALS::get().par_.no_exit_<<endl;
 	}
 
 
