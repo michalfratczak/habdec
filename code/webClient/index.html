@@ -10,51 +10,26 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <head>
-<style>
-	body, html {
-		height: 100%;
-		width: 100%;
-	}
-	div {
-		font-family: Tahoma, Verdana, Segoe, sans-serif;
-	}
-</style>
-<link rel="stylesheet" href="css/habdec.css">
+	<style>
+		body,
+		html {
+			height: 100%;
+			width: 100%;
+		}
+
+		div {
+			font-family: Tahoma, Verdana, Segoe, sans-serif;
+		}
+	</style>
+
+	<link rel="stylesheet" href="css/habdec.css">
 </head>
 
 <body>
-
-<div id="HABDEC_UI_DIV"> </div>
-
+	<div id="HABDEC_UI_DIV"> </div>
 </body>
 
 
 <script language="javascript" type="text/javascript">
-
-function habdec_init(habdec_srv_url)
-{
-	HABDEC_BUILD_UI( document.getElementById("HABDEC_UI_DIV") );
-
-	if(habdec_srv_url)
-		document.getElementById("server_address").value = habdec_srv_url;
-
-	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
-	if(document.getElementById("server_address").value == "")
-		document.getElementById("server_address").value = "localhost:5555"
-	ResizeCanvas("powerSpectrumCanvas");
-	ResizeCanvas("demodCanvas");
-
-	HD_ApplyColorScheme(HD_COLOR_SCHEMES["DEFAULT"]);
-
-	AnimatePowerSpectrum(0);
-	AnimateDemod(0);
-
-	setTimeout(	OpenConnection, 500);
-}
-
-
-
-window.addEventListener("load", () => {habdec_init("192.168.100.20:5555")}, false);
-
+	window.addEventListener("load", () => { habdec_init("192.168.100.20:5555") }, false);
 </script>
-

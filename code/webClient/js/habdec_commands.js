@@ -42,7 +42,7 @@ function OpenConnection()
 	if(G_HD_CONNECTED)
 		G_HD_WEBSOCKET.close();
 
-	var server = document.getElementById("server_address").value;
+	var server = document.getElementById("HabDec_server_address").value;
 	if( server.toLowerCase().startsWith('ws://') )
 		server = server.substr(5, server.length);
 	server = 'ws://' + server;
@@ -314,7 +314,7 @@ function RefreshPowerSpectrum()
 
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var zoom = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
-	var canvas = document.getElementById("powerSpectrumCanvas");
+	var canvas = document.getElementById("HabDec_powerSpectrumCanvas");
 
 	// resize if canvas iz zero-size
 	if( 	!(canvas.offsetParent === null) /*not visible*/
@@ -349,7 +349,7 @@ function RefreshDemod()
 		return;
 	}
 
-	var canvas = document.getElementById("demodCanvas");
+	var canvas = document.getElementById("HabDec_demodCanvas");
 
 	SendCommand("demod:res=" + canvas.width);
 	RefreshDemod_lastReq = d.getTime();
@@ -375,14 +375,14 @@ function SetBiasT()
 	if(value)
 	{
 		SendCommand("set:biastee=0");
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:biastee=1");
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
 	}
@@ -395,14 +395,14 @@ function SetAFC()
 	if(value)
 	{
 		SendCommand("set:afc=0");
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:afc=1");
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
 	}
@@ -414,14 +414,14 @@ function SetDCRemove()
 	if(value)
 	{
 		SendCommand("set:dc_remove=0");
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:dc_remove=1");
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
 	}

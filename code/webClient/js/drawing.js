@@ -296,7 +296,7 @@ var G_PowerCanvas;
 function AnimatePowerSpectrum(timestamp)
 {
 	if(G_PowerCanvas == undefined)
-		G_PowerCanvas = document.getElementById("powerSpectrumCanvas");
+		G_PowerCanvas = document.getElementById("HabDec_powerSpectrumCanvas");
 
 	if(!AnimatePowerSpectrum_last)
 		AnimatePowerSpectrum_last = timestamp;
@@ -315,7 +315,7 @@ var G_DemodCanvas;
 function AnimateDemod(timestamp)
 {
 	if(G_DemodCanvas == undefined)
-		G_DemodCanvas = document.getElementById("demodCanvas");
+		G_DemodCanvas = document.getElementById("HabDec_demodCanvas");
 
 	if(!AnimateDemod_last)
 		AnimateDemod_last = timestamp;

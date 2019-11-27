@@ -111,13 +111,13 @@ function SetGuiToGlobals(i_globals)
 	var biastee_value = HD_GLOBALS.biastee;
 	if(biastee_value)
 	{
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = HD_enabled;
 		button.style.color = HD_bg;
 	}
 	else
 	{
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = HD_button;
 		button.style.color = HD_button_text;
 	}
@@ -126,13 +126,13 @@ function SetGuiToGlobals(i_globals)
 	var afc_value = HD_GLOBALS.afc
 	if(afc_value)
 	{
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = HD_enabled;
 		button.style.color = HD_bg;
 	}
 	else
 	{
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = HD_button;
 		button.style.color = HD_button_text;
 	}
@@ -140,13 +140,13 @@ function SetGuiToGlobals(i_globals)
 	var dcremove_value = HD_GLOBALS.dc_remove;
 	if(dcremove_value)
 	{
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = HD_enabled;
 		button.style.color = HD_bg;
 	}
 	else
 	{
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = HD_button;
 		button.style.color = HD_button_text;
 	}
@@ -289,7 +289,7 @@ function CreatePayloadsButton()
 
 	var PayloadsButton = document.createElement("button");
 	PayloadsButton.classList.add("MenuDropButton");
-	PayloadsButton.id = "HD_PayloadsButton";
+	PayloadsButton.id = "HabDec_PayloadsButton";
 	PayloadsButton.onclick = function() { document.getElementById("PayloadsDropMenuDiv").classList.toggle("show") };
 	PayloadsButton.innerHTML = "HabHub Flights";
 	PayloadsWrapperDiv.appendChild(PayloadsButton);
@@ -319,7 +319,7 @@ function UpdatePayloadsButton(i_Flights)
 				pl_button.innerHTML = label;
 				pl_button.onclick = function(){
 					SetPayload(p_id);
-					document.getElementById('HD_PayloadsButton').click();
+					document.getElementById('HabDec_PayloadsButton').click();
 				};
 
 				DropMenuDiv.appendChild(pl_button);
@@ -339,7 +339,7 @@ function CreateColorSchemesButton()
 
 	var ColorSchemesButton = document.createElement("button");
 	ColorSchemesButton.classList.add("MenuDropButton");
-	ColorSchemesButton.id = "HD_ColorSchemesButton";
+	ColorSchemesButton.id = "HabDec_ColorSchemesButton";
 	ColorSchemesButton.onclick = function() { document.getElementById("ColorSchemesDropMenuDiv").classList.toggle("show") };
 	ColorSchemesButton.innerHTML = "Colors";
 	ColorSchemesWrapperDiv.appendChild(ColorSchemesButton);
@@ -363,7 +363,7 @@ function UpdateColorSchemesButton(i_color_schemes)
 			pl_button.innerHTML = i_color;
 			pl_button.onclick = function(){
 				HD_ApplyColorScheme(i_color_schemes[i_color]);
-				document.getElementById('HD_ColorSchemesButton').click();
+				document.getElementById("HabDec_ColorSchemesButton").click();
 			};
 
 			DropMenuDiv.appendChild(pl_button);
@@ -395,7 +395,7 @@ function HABDEC_BUILD_UI_PowerSpectrum(HABDEC_POWER_SPECTRUM_DIV)
 
 	// spectrum canvas
 	var spectrum_canvas = document.createElement("canvas");
-	spectrum_canvas.id = "powerSpectrumCanvas";
+	spectrum_canvas.id = "HabDec_powerSpectrumCanvas";
 	div_cnt_powerSpectrumCanvas.appendChild(spectrum_canvas);
 
 	// +/- buttons
@@ -441,7 +441,7 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 
 	// demod canvas
 	var demod_canvas = document.createElement("canvas");
-	demod_canvas.id = "demodCanvas";
+	demod_canvas.id = "HabDec_demodCanvas";
 	div_cnt_demodCanvas.appendChild(demod_canvas);
 
 	// info printout div
@@ -534,21 +534,21 @@ function HABDEC_BUILD_UI_ExtraRadioButtons()
 {
 	var div_top = document.createElement("div");
 
-	// <button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
+	// <button id="HabDecD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
 	var b_biasTee = document.createElement("button");
-	b_biasTee.id = "HD_biastee";
+	b_biasTee.id = "HabDecD_biastee";
 	b_biasTee.innerHTML = "BiasTee";
 	b_biasTee.onclick = SetBiasT;
 
-	// <button id="HD_afc" 		onclick="SetAFC()"      > AFC </button>
+	// <button id="HabDec_afc" 		onclick="SetAFC()"      > AFC </button>
 	var b_afc = document.createElement("button");
-	b_afc.id = "HD_afc";
+	b_afc.id = "HabDec_afc";
 	b_afc.innerHTML = "AFC";
 	b_afc.onclick = SetAFC;
 
-	// <button id="HD_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
+	// <button id="HabDec_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
 	var b_dc_remove = document.createElement("button");
-	b_dc_remove.id = "HD_dc_remove";
+	b_dc_remove.id = "HabDec_dc_remove";
 	b_dc_remove.innerHTML = "DC Remove";
 	b_dc_remove.onclick = SetDCRemove;
 
@@ -581,12 +581,12 @@ function HABDEC_BUILD_UI_Server()
 	server_label.innerHTML = "Server Address";
 	var div_label = document.createElement("div").appendChild(server_label);
 
-	// <input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
+	// <input id="HabDec_server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById("HabDec_server_address").value);">
 	var input_srv = document.createElement("input");
-	input_srv.id = "server_address";
+	input_srv.id = "HabDec_server_address";
 	input_srv.value = "localhost:5555";
 	input_srv.onchange = () => {
-		localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);
+		localStorage.setItem('habdec_server_address', document.getElementById("HabDec_server_address").value);
 	};
 
 	// <button  onclick="OpenConnection()" >Connect</button>
@@ -649,7 +649,7 @@ function HB_WinMsgHandler(i_msg)
 	{
 		console.debug('HB_WinMsgHandler ', set_match);
 		var addr = set_match[1];
-		document.getElementById("server_address").value = addr;
+		document.getElementById("HabDec_server_address").value = addr;
 	}
 }
 
@@ -696,3 +696,23 @@ function HABDEC_BUILD_UI(parent_div)
 }
 
 
+function habdec_init(habdec_srv_url)
+{
+	HABDEC_BUILD_UI( document.getElementById("HABDEC_UI_DIV") );
+
+	if(habdec_srv_url)
+		document.getElementById("HabDec_server_address").value = habdec_srv_url;
+
+	document.getElementById("HabDec_server_address").value = localStorage.getItem('habdec_server_address');
+	if(document.getElementById("HabDec_server_address").value == "")
+		document.getElementById("HabDec_server_address").value = "localhost:5555"
+	ResizeCanvas("HabDec_powerSpectrumCanvas");
+	ResizeCanvas("HabDec_demodCanvas");
+
+	HD_ApplyColorScheme(HD_COLOR_SCHEMES["DEFAULT"]);
+
+	AnimatePowerSpectrum(0);
+	AnimateDemod(0);
+
+	setTimeout(	OpenConnection, 500);
+}
