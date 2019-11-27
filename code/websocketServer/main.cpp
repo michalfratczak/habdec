@@ -138,20 +138,24 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	auto& device = device_list[device_index];
 	cout<<"Running with "<<device["driver"]<<endl<<endl;
 
-	if( !GLOBALS::get().par_.sampling_rate_ )
+	// user supplied sampling_rate could be unsupported by device
+	// find what's closest available to user supplied value or 2MHz
 	{
-		// find what is nearest to 2e6
-		double sr_diff = std::numeric_limits<double>::max();
 		auto p_device = SoapySDR::Device::make(device);
+		const double user_sr = 	GLOBALS::get().par_.sampling_rate_ ?
+								GLOBALS::get().par_.sampling_rate_  : 2e6;
+		double sr_diff = std::numeric_limits<double>::max();
 		for(double sr : p_device->listSampleRates(SOAPY_SDR_RX, 0))
 		{
-			if( abs(sr - 2e6) < sr_diff )
+			if( abs(sr - user_sr) < sr_diff )
 			{
-				sr_diff = abs(sr - 2e6);
+				sr_diff = abs(sr - user_sr);
 				GLOBALS::get().par_.sampling_rate_ = sr;
 			}
 		}
+		cout<<C_RED<<"Setting sampling rate to "<<GLOBALS::get().par_.sampling_rate_<<C_OFF<<endl;
 	}
+
 
 	GLOBALS::get().p_iq_source_.reset(new habdec::IQSource_SoapySDR);
 
@@ -390,11 +394,28 @@ int main(int argc, char** argv)
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
-	if(!SetupDevice(device))
+	while(true)
 	{
-		cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
-		return 1;
+		if( SetupDevice(device) )
+		{
+			break;
+		}
+		else
+		{
+			if( GLOBALS::get().par_.no_exit_ )
+			{
+				cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
+				std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
+				continue;
+			}
+			else
+			{
+				cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
+				return 1;
+			}
+		}
 	}
+
 
 	// station info
 	if(	GLOBALS::get().par_.station_callsign_ != "" )

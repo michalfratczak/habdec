@@ -32,7 +32,7 @@ void FSK2_Demod(
 		T* o_demod )
 {
 	// TO DO - this should not be static if threads...
-	static std::complex<T> last_value = p_cmplx_samples[0];
+	thread_local static std::complex<T> last_value = p_cmplx_samples[0];
 
 	for(size_t i=1; i<samples_count; ++i)
 		o_demod[i] = std::arg( p_cmplx_samples[i] * std::conj(p_cmplx_samples[i-1]) );
