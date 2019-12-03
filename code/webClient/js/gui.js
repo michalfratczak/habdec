@@ -219,11 +219,17 @@ function LoadFlightsData()
 	var _url = 'http://habitat.habhub.org/habitat/_design/flight/_view/end_start_including_payloads?startkey=[' + now + ']&include_docs=True'
 	console.debug(_url);
 
-	$.ajax({
-		url: _url,
-		dataType: "json",
-		success: function(result) { LoadFlightsData_CB(result) }
-	});
+	let xhr = new XMLHttpRequest();
+	xhr.open('GET', _url);
+	xhr.onload = function () {
+		if (xhr.status != 200) {
+			console.debug("LoadFlightsData failed. Status: ", xhr.status);
+		} else {
+			LoadFlightsData_CB( JSON.parse(xhr.responseText) )
+		}
+	};
+	xhr.onerror = function () { alert("LoadFlightsData: Request to HTTP server failed."); };
+	xhr.send();
 }
 
 
@@ -696,9 +702,9 @@ function HABDEC_BUILD_UI(parent_div)
 }
 
 
-function habdec_init(habdec_srv_url)
+function habdec_init(habdec_div, habdec_srv_url)
 {
-	HABDEC_BUILD_UI( document.getElementById("HABDEC_UI_DIV") );
+	HABDEC_BUILD_UI( document.getElementById(habdec_div) );
 
 	if(habdec_srv_url)
 		document.getElementById("HabDec_server_address").value = habdec_srv_url;
