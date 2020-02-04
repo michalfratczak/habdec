@@ -75,7 +75,7 @@ public:
 	// options
 	struct PARAMS
 	{
-		int 			device_ = -1; 	// index to SoapySDR::Device::enumerate()
+		int 			device_ = 0; 	// index to SoapySDR::Device::enumerate()
 		std::string 	command_host_ = "0.0.0.0";
 		int 		 	command_port_ = 5555;
 		std::string 	station_callsign_ = ""; // habitat upload

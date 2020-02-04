@@ -112,6 +112,18 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	}
 
 	int device_index = GLOBALS::get().par_.device_;
+
+	if(device_index < 0)
+	{
+		cout<<C_MAGENTA<<"No SDR device specified. Select one by specifying it's"<<C_RED<<" NUMBER"<<C_OFF<<endl;
+		cout<<C_MAGENTA<<"Available Devices:"<<C_OFF<<endl;
+
+		int DEV_NUM = 0;
+		PrintDevicesList(device_list);
+		cout<<C_OFF<<endl;
+		return false;
+	}
+
 	if( device_index >= int(device_list.size()) )
 	{
 		cout<<C_RED<<"No device with number "<<device_index<<endl;
@@ -122,16 +134,7 @@ bool SetupDevice(SoapySDR::Kwargs& o_device)
 	{
 		device_index = 0;
 	}
-	else if(device_index < 0)
-	{
-		cout<<C_MAGENTA<<"No SDR device specified. Select one by specifying it's"<<C_RED<<" NUMBER"<<C_OFF<<endl;
-		cout<<C_MAGENTA<<"Available Devices:"<<C_OFF<<endl;
 
-		int DEV_NUM = 0;
-		PrintDevicesList(device_list);
-		cout<<C_OFF<<endl;
-		return false;
-	}
 
 	// setup DEVICE
 	//
