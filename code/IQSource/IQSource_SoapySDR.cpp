@@ -112,9 +112,9 @@ size_t IQSource_SoapySDR::get(void* p_data, const size_t i_count)
 
 	// const size_t buffs_size = 1;
 	void* buffs[1] = { reinterpret_cast<void*>(p_data) };
-	int reveice_flags = 0;
+	int receive_flags = 0;
 	long long time_ns = 0;
-	const int result = p_device_->readStream(p_stream_, buffs, i_count, reveice_flags, time_ns);
+	const int result = p_device_->readStream(p_stream_, buffs, i_count, receive_flags, time_ns);
 
 	if(result<0)
 	{
