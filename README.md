@@ -15,7 +15,7 @@ Original motivation for habdec was to have a portable tracking device you could 
 
 Fatty laptop with dl-fldigi, full-fledged SDR app and required internet connection is not too comfortable.
 
-Ultimatelly habdec is intended for integration into bigger app, probably based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4. Right now you can run it on headless board and control from your mobile.
+Ultimatelly habdec is intended for integration into bigger app, probably based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4 [see prototype](https://www.youtube.com/watch?v=ZuoNf171e_A). Right now you can run it on headless board and control from your mobile.
 
 ## Getting habdec
 
