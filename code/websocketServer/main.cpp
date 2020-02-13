@@ -234,7 +234,8 @@ void DECODER_THREAD()
 		auto _start = std::chrono::high_resolution_clock::now();
 
 		size_t count = p_iq_src->get( samples.data(), samples.size() );
-		samples.resize(count);
+		if(count)
+			samples.resize(count);
 		DECODER.pushSamples(samples);
 
 		DECODER(); // DECODE !
