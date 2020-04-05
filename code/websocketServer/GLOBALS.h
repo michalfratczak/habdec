@@ -100,6 +100,8 @@ public:
 		bool	no_exit_ = false;
 		std::string 	sentence_cmd_ = "";
 		std::string 	habitat_payload_ = "";
+		std::string		coord_format_lat_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
+		std::string		coord_format_lon_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		// int 	datasize_ = 1;
 		TransportDataType  	transport_data_type_ = TransportDataType::kChar;
 
@@ -133,6 +135,8 @@ public:
 				&& sentence_cmd_ == rhs.sentence_cmd_
 				&& habitat_payload_ == rhs.habitat_payload_
 				&& no_exit_ == rhs.no_exit_
+				&& coord_format_lat_ == rhs.coord_format_lat_
+				&& coord_format_lon_ == rhs.coord_format_lon_
 				;
 		}
 		bool operator!=(const PARAMS& rhs) const { return !operator==(rhs); }
@@ -170,6 +174,9 @@ public:
 			oFile<<"sentence_cmd = "<<GLOBALS::get().par_.sentence_cmd_<<endl;
 			oFile<<"payload = "<<GLOBALS::get().par_.habitat_payload_<<endl;
 			oFile<<"no_exit = "<<GLOBALS::get().par_.no_exit_<<endl;
+			oFile	<<"nmea = "<< ( 	GLOBALS::get().par_.coord_format_lat_ == "ddmm.mmmm"
+									&& 	GLOBALS::get().par_.coord_format_lon_ == "ddmm.mmmm" )<<endl;
+
 		}
 		catch (exception& e) {
 			cout<<"Can't save config "<<fName<<endl;
@@ -205,6 +212,8 @@ public:
 		cout<<"\tlowpass: "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
 		cout<<"\tlp_trans: "<<GLOBALS::get().par_.lowpass_tr_<<endl;
 		cout<<"\tno_exit: "<<GLOBALS::get().par_.no_exit_<<endl;
+		cout<<"\tnmea = "<< ( 	GLOBALS::get().par_.coord_format_lat_ == "ddmm.mmmm"
+							&& 	GLOBALS::get().par_.coord_format_lon_ == "ddmm.mmmm" )<<endl;
 	}
 
 

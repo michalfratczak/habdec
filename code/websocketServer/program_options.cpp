@@ -50,6 +50,8 @@ int LoadPayloadParameters(std::string i_payload_id)
 				GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
 				GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
 				GLOBALS::get().par_.frequency_ = payload.second.frequency_;
+				GLOBALS::get().par_.coord_format_lat_ = payload.second.coord_format_lat_;
+				GLOBALS::get().par_.coord_format_lon_ = payload.second.coord_format_lon_;
 
 				cout<<C_MAGENTA<<"Loading parameters for payload "<<i_payload_id<<C_OFF<<endl;
 
@@ -106,6 +108,7 @@ void prog_opts(int ac, char* av[])
 
 			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
 			("payload",	po::value<string>(), "Configure for Payload ID")
+			("nmea",	po::value<bool>(), "assume NMEA lat/lon format: ddmm.mmmm")
 		;
 
 		po::options_description cli_options("Command Line Interface options");
@@ -269,6 +272,11 @@ void prog_opts(int ac, char* av[])
 			for(auto& flight : payloads)
 				cout<<flight.second<<endl;
 			exit(0);
+		}
+		if (vm.count("nmea") && vm["nmea"].as<bool>())
+		{
+			GLOBALS::get().par_.coord_format_lat_ = "ddmm.mmmm";
+			GLOBALS::get().par_.coord_format_lon_ = "ddmm.mmmm";
 		}
 		if (vm.count("latlon"))
 		{

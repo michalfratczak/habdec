@@ -101,6 +101,19 @@ std::map<std::string, habdec::habitat::HabitatFlight> ParseFlightsJson(const std
             break; // use first of RTTY transmissions
         }
 
+        auto& sentences = doc.get_child("sentences");
+        for(auto& sentence : sentences)
+        {
+            auto& fields = sentence.second.get_child("fields");
+            for(auto& field : fields)
+            {
+                if( field.second.get<string>("name") == "latitude" )
+                    _p.coord_format_lat_ = field.second.get<string>("format");
+                if( field.second.get<string>("name") == "longitude" )
+                    _p.coord_format_lon_ = field.second.get<string>("format");
+            }
+        }
+
         if(_p.baud_ && _p.ascii_bits_ && _p.ascii_stops_)
             flights_map[_p.flight_id_].payloads_[_p.id_] = _p;
     }

@@ -24,6 +24,8 @@ struct HabitatPayload
     int             baud_ = 0;
     int             ascii_bits_ = 0;
     int             ascii_stops_ = 0;
+    std::string     coord_format_lat_ {""}; // dd.dddd or dd.mm.mmmm
+    std::string     coord_format_lon_ {""}; // dd.dddd or dd.mm.mmmm
 };
 
 std::ostream&

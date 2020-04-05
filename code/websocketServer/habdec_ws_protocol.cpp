@@ -352,6 +352,8 @@ std::vector< std::shared_ptr<HabdecMessage> >  HandleCommand(const std::string i
 					GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
 					GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
 					GLOBALS::get().par_.frequency_ = payload.second.frequency_;
+					GLOBALS::get().par_.coord_format_lat_ = payload.second.coord_format_lat_;
+					GLOBALS::get().par_.coord_format_lon_ = payload.second.coord_format_lon_;
 
 					DEC.baud( GLOBALS::get().par_.baud_ );
 					DEC.rtty_bits( GLOBALS::get().par_.rtty_ascii_bits_ );

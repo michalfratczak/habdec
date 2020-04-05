@@ -59,13 +59,30 @@ std::vector<std::string> split_string(const std::string& text, char sep)
 }
 
 
-void SentenceToPosition(std::string i_snt, float &lat, float &lon, float &alt)
+void SentenceToPosition(const std::string i_snt,
+						float &lat, float &lon, float &alt,
+						const std::string coord_format_lat, const std::string coord_format_lon
+						)
 {
     // "CALLSIGN,123,15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9"
     std::vector<std::string> tokens = split_string(i_snt, ',');
     lat = std::stof(tokens[3]);
     lon = std::stof(tokens[4]);
     alt = std::stof(tokens[5]);
+
+	if(coord_format_lat == "ddmm.mmmm")
+	{
+		const float degs = trunc(lat / 100);
+		const float mins = lat - 100.0f * degs;
+		lat = degs + mins / 60.0f;
+	}
+
+	if(coord_format_lon == "ddmm.mmmm")
+	{
+		const float degs = trunc(lon / 100);
+		const float mins = lon - 100.0f * degs;
+		lon = degs + mins / 60.0f;
+	}
 }
 
 
@@ -337,7 +354,9 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 	if( GLOBALS::get().par_.station_lat_ )
 	{
 		float lat, lon, alt;
-		SentenceToPosition(sentence, lat, lon, alt);
+		SentenceToPosition(	sentence, lat, lon, alt,
+							GLOBALS::get().par_.coord_format_lat_,
+							GLOBALS::get().par_.coord_format_lon_);
 
 		auto& stats = GLOBALS::get().stats_;
 		stats.D_ = habdec::CalcGpsDistance(
