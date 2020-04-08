@@ -285,11 +285,11 @@ function DisplayStats(i_str)
 	}
 
 	document.getElementById("cnt_stats").innerHTML =
-		"OK: " + stats.ok
-		+ " Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
-		+ " Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
-		+ " MaxDistL: " + (stats.max_dist / 1000).toFixed(1) + "km "
-		+ " MinElev: " + (stats.min_elev).toFixed(1);
+		"Ok: " + stats.ok
+		+ " | Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
+		+ "(" + (stats.max_dist / 1000).toFixed(1) + "km)"
+		+ " | Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
+		+ " | MinElev: " + (stats.min_elev).toFixed(1);
 
 }
 
