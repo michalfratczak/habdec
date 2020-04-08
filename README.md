@@ -10,6 +10,7 @@ Some facts:
 - runs in command line (headless)
 - provides websocket server so can be controlled from any web browser [even on your phone](https://www.youtube.com/watch?v=dli8FEFy5tM)
 - can be easily integrated into your own code
+- has example python client
 
 Original motivation for habdec was to have a portable tracking device you could take to a chasecar or into a field.
 
