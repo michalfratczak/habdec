@@ -42,6 +42,7 @@
 #include "SpectrumInfo.h"
 #include "print_habhub_sentence.h"
 #include "CRC.h"
+#include "ssdv_wrapper.h"
 
 namespace habdec
 {
@@ -177,6 +178,9 @@ private:
 	std::string 	rtty_char_stream_; // result of rtty
 	std::string 	last_sentence_; // result of rtty
 	// size_t 		last_sentence_len_ = 0;  // optimization for regexp run
+
+	// SSDV
+	SSDV_wraper_t 	ssdv_;
 
 	// threading
 	mutable std::mutex	process_mutex_;		// mutex for main processing
@@ -555,14 +559,19 @@ void habdec::Decoder<TReal>::process()
 		return;
 
 
-	auto decoded_chars = rtty_.get();
-	rtty_char_stream_.insert( rtty_char_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
-	chr_callback_stream_.insert( chr_callback_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
+	vector<char> raw_chars = rtty_.get();
+	ssdv_.push(raw_chars);
 
+	vector<char> printable_chars;
+	copy_if( raw_chars.begin(), raw_chars.end(), back_inserter(printable_chars),
+			[](char c){return isprint(c) || c == '\n';}
+	);
+	rtty_char_stream_.insert( rtty_char_stream_.end(), printable_chars.begin(), printable_chars.end() );
+	chr_callback_stream_.insert( chr_callback_stream_.end(), printable_chars.begin(), printable_chars.end() );
 
 	if(live_print_)
 	{
-		for( auto c : decoded_chars )
+		for( auto c : printable_chars )
 			cout<<c;
 		cout.flush();
 	}

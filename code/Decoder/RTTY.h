@@ -84,7 +84,7 @@ size_t RTTY<TBit>::operator()()
 
 	using namespace std;
 
-	size_t decoded_chars = 0;
+	size_t n_decoded_chars = 0;
 	size_t last_decoded_bit_index = 0;
 
 	for(size_t i=0; i<bits_.size()/*-char_bitlen*/; /**/)
@@ -118,10 +118,10 @@ size_t RTTY<TBit>::operator()()
 				++i;
 			}
 
-			if( isprint(c) || c == '\n' )
+			// if( isprint(c) || c == '\n' )
 			{
 				chars_.push_back(c);
-				++decoded_chars;
+				++n_decoded_chars;
 			}
 
 			i += nstops_;
@@ -133,7 +133,7 @@ size_t RTTY<TBit>::operator()()
 	if(last_decoded_bit_index)
 		bits_.erase( bits_.begin(), bits_.begin() + last_decoded_bit_index + 1 );
 
-	return decoded_chars;
+	return n_decoded_chars;
 }
 
 

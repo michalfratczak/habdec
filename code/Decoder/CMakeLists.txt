@@ -31,6 +31,7 @@ set ( Decoder_src
 					sentence_extract.h	sentence_extract.cpp
 					SpectrumInfo.h
 					SymbolExtractor.h
+					ssdv_wrapper.cpp
 			)
 
 SET( CMAKE_CXX_FLAGS  " -O3 " )
@@ -50,6 +51,7 @@ endif()
 
 add_library( Decoder  ${Decoder_src})
 target_link_libraries( 	Decoder
+						ssdv_lib
 						#${SoapySDR_LIBRARIES}
 						${FFTW3f_LIBRARIES}
 						${PlatformSpecificLinking} )
