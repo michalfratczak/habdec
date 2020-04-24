@@ -56,39 +56,20 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
     const size_t jpeg_data_sz_ = 1024 * 1024 * 3;
 
     // copy to buff_
-    {
-        const size_t buff_end = buff_.size();
-        buff_.resize( buff_.size() + i_chars.size() );
-        memcpy( buff_.data() + buff_end, i_chars.data(), i_chars.size() );
-    }
+    const size_t last_buff_end = buff_.size();
+    buff_.resize( buff_.size() + i_chars.size() );
+    memcpy( buff_.data() + last_buff_end, i_chars.data(), i_chars.size() );
 
-    if(buff_.size() < SSDV_PKT_SIZE)
-        return false;
-
-    // scan input for packet sync bytes: 0x55 [0x66|0x67] 0x0 0x0 0xb3 0xeb
-    const uint8_t _fec[6] =   {0x55, 0x66, 0x0, 0x0, 0xb3, 0xeb};
-    const uint8_t _nofec[6] = {0x55, 0x67, 0x0, 0x0, 0xb3, 0xeb};
+    // scan newly appended input for packet sync byte: 0x55
     if(packet_begin_ == -1)
     {
-        for(int i=0; i<buff_.size()-sizeof(_fec); ++i) //
-        {
-            int j=0;
-            while(  j < sizeof(_fec) &&
-                    ( buff_[i+j] == _fec[j] || buff_[i+j] == _nofec[j] )
-                )
-                ++j;
-
-            if(j == sizeof(_fec))
-            {
-                packet_begin_ = i;
-                break;
-            }
-        }
-    }
-
-    if(packet_begin_ == -1) { // no packet sync bits found
-        buff_.erase( buff_.begin(), buff_.end() - sizeof(_fec) );
-        return false;
+        size_t i = last_buff_end;
+        while( i < buff_.size() && buff_[i] != 0x55 )
+            ++i;
+        if(i < buff_.size() )
+            packet_begin_ = i;
+        else
+            return false;
     }
 
     if(packet_begin_>0)
@@ -105,9 +86,11 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
 
     int errors = 0;
     const int is_packet = ssdv_dec_is_packet( buff_.data(), &errors );
-    if( is_packet != 0 ) // not a packet
+    if( is_packet != 0 ) // no packet starting at packet_begin_
     {
-        buff_.erase( buff_.begin(), buff_.begin()+SSDV_PKT_SIZE );
+        // lets not delete whole 256 bytes. packet could start somewhere there
+        // buff_.erase( buff_.begin(), buff_.begin() + SSDV_PKT_SIZE );
+        buff_.erase( buff_.begin(), buff_.begin() + 2 );
         packet_begin_ = -1;
         return false;
     }
