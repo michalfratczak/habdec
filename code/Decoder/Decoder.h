@@ -130,6 +130,9 @@ public:
 	std::function<void(std::string, std::string, std::string)> sentence_callback_; // callback on each successfull sentence decode
 	std::function<void(std::string)> character_callback_; // callback on each decoded character
 
+	// SSDV
+	SSDV_wraper_t 	ssdv_;
+
 private:
 	// IQ buffers
 	TIQVector			iq_in_buffer_;			// input IQ buffer
@@ -178,9 +181,6 @@ private:
 	std::string 	rtty_char_stream_; // result of rtty
 	std::string 	last_sentence_; // result of rtty
 	// size_t 		last_sentence_len_ = 0;  // optimization for regexp run
-
-	// SSDV
-	SSDV_wraper_t 	ssdv_;
 
 	// threading
 	mutable std::mutex	process_mutex_;		// mutex for main processing
@@ -833,5 +833,4 @@ std::ostream& operator<<( std::ostream& output, const std::vector<T>& v )
 }
 
 
-}
- // namespace habdec
+} // namespace habdec

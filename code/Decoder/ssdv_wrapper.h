@@ -23,11 +23,8 @@
 #include <array>
 #include <vector>
 #include <map>
-#include <queue>
 #include <set>
 #include <memory>
-#include <functional>
-#include <utility>
 #include "../ssdv/ssdv.h"
 
 namespace habdec
@@ -38,8 +35,12 @@ class SSDV_wraper_t
 
 public:
     bool push(const std::vector<char>& i_chars);
+    std::string base_file() const { return base_file_; }
+    void base_file(const std::string& i_fn) { base_file_ = i_fn; }
 
 private:
+    void decode_and_save( std::pair<std::string,uint16_t> );
+
     // incomming data buffer
     std::vector<uint8_t>    buff_;
     int packet_begin_ = -1;
@@ -65,6 +66,9 @@ private:
                             packet_set_t >;
 
     image_map_t images_;
+
+    // output_image base filename
+    std::string base_file_;
 
 };
 

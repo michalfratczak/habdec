@@ -102,6 +102,7 @@ public:
 		std::string 	habitat_payload_ = "";
 		std::string		coord_format_lat_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		std::string		coord_format_lon_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
+		std::string		ssdv_dir_ = ".";
 		// int 	datasize_ = 1;
 		TransportDataType  	transport_data_type_ = TransportDataType::kChar;
 

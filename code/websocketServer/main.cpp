@@ -415,6 +415,7 @@ int main(int argc, char** argv)
 	// setup GLOBALS
 	prog_opts(argc, argv);
 
+	auto& G = GLOBALS::get();
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
@@ -426,7 +427,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			if( GLOBALS::get().par_.no_exit_ )
+			if( G.par_.no_exit_ )
 			{
 				cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
 				std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
@@ -442,37 +443,38 @@ int main(int argc, char** argv)
 
 
 	// station info
-	if(	GLOBALS::get().par_.station_callsign_ != "" )
+	if(	G.par_.station_callsign_ != "" )
 	{
-		habdec::habitat::UploadStationInfo(	GLOBALS::get().par_.station_callsign_,
+		habdec::habitat::UploadStationInfo(	G.par_.station_callsign_,
 											device["driver"] + " - habdec" );
 
-		if(		GLOBALS::get().par_.station_lat_
-			&& 	GLOBALS::get().par_.station_lon_ )
+		if(		G.par_.station_lat_
+			&& 	G.par_.station_lon_ )
 					habdec::habitat::UploadStationTelemetry(
-						GLOBALS::get().par_.station_callsign_,
-						GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
-						GLOBALS::get().par_.station_alt_, 0, false
+						G.par_.station_callsign_,
+						G.par_.station_lat_, G.par_.station_lon_,
+						G.par_.station_alt_, 0, false
 					);
 	}
 
 	// initial options from globals
 	//
-	auto& DECODER = GLOBALS::get().decoder_;
-	DECODER.baud(GLOBALS::get().par_.baud_);
-	DECODER.rtty_bits(GLOBALS::get().par_.rtty_ascii_bits_);
-	DECODER.rtty_stops(GLOBALS::get().par_.rtty_ascii_stops_);
-	DECODER.livePrint( GLOBALS::get().par_.live_print_ );
-	DECODER.dc_remove( GLOBALS::get().par_.dc_remove_ );
-	DECODER.lowpass_bw( GLOBALS::get().par_.lowpass_bw_Hz_ );
-	DECODER.lowpass_trans( GLOBALS::get().par_.lowpass_tr_ );
-	int _decim = GLOBALS::get().par_.decimation_;
+	auto& DECODER = G.decoder_;
+	DECODER.baud(G.par_.baud_);
+	DECODER.rtty_bits(G.par_.rtty_ascii_bits_);
+	DECODER.rtty_stops(G.par_.rtty_ascii_stops_);
+	DECODER.livePrint( G.par_.live_print_ );
+	DECODER.dc_remove( G.par_.dc_remove_ );
+	DECODER.lowpass_bw( G.par_.lowpass_bw_Hz_ );
+	DECODER.lowpass_trans( G.par_.lowpass_tr_ );
+	int _decim = G.par_.decimation_;
 	DECODER.setupDecimationStagesFactor( pow(2,_decim) );
+	DECODER.ssdv_.base_file( G.par_.ssdv_dir_ + "/ssdv_" );
 
-	double freq = GLOBALS::get().par_.frequency_;
-	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
+	double freq = G.par_.frequency_;
+	G.p_iq_source_->setOption("frequency_double", &freq);
 
-	if(GLOBALS::get().par_.station_callsign_ == "")
+	if(G.par_.station_callsign_ == "")
 		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
 
 	cout<<"Current Options: "<<endl;
@@ -481,7 +483,7 @@ int main(int argc, char** argv)
 
 	// websocket server
 	shared_ptr<WebsocketServer> p_ws_server = make_shared<WebsocketServer>(
-		GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_);
+		G.par_.command_host_ , G.par_.command_port_);
 
 	DECODER.sentence_callback_ =
 		[p_ws_server](string callsign, string data, string crc)
