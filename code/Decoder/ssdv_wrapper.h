@@ -39,8 +39,6 @@ public:
     void base_file(const std::string& i_fn) { base_file_ = i_fn; }
 
 private:
-    void decode_and_save( std::pair<std::string,uint16_t> );
-
     // incomming data buffer
     std::vector<uint8_t>    buff_;
     int packet_begin_ = -1;
@@ -61,14 +59,23 @@ private:
 
     using packet_set_t = std::set<packet_t_ptr, packet_t_ptr_less>;
 
+    using image_key_t = std::pair<std::string,uint16_t>;
+
     using image_map_t = std::map<  // indexed by (callsign,imageID)
-                            std::pair<std::string,uint16_t>,
+                            image_key_t,
                             packet_set_t >;
 
-    image_map_t images_;
+    // list of packets for each (callsign, imageId)
+    std::map< image_key_t, packet_set_t >           packets_;
+
+    // complete JPEG for each (callsign, imageId)
+    std::map< image_key_t, std::vector<uint8_t> >   jpegs_;
 
     // output_image base filename
     std::string base_file_;
+
+    void make_jpeg(const packet_set_t&, const image_key_t&);
+    void save_jpeg(const image_key_t&);
 
 };
 

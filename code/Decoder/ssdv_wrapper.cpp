@@ -43,8 +43,6 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
 {
     using namespace std;
 
-    const size_t jpeg_data_sz_ = 1024 * 1024 * 3;
-
     // copy to buff_
     const size_t last_buff_end = buff_.size();
     buff_.resize( buff_.size() + i_chars.size() );
@@ -92,41 +90,56 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
     packet_begin_ = -1;
     ssdv_dec_header( &(p_packet->header_), p_packet->data_.data() );
 
-    // insert to image_ map
+    // insert to packets_ map
     pair<string,uint16_t> image_key(p_packet->header_.callsign_s, p_packet->header_.image_id);
-    if( images_.find(image_key) == images_.end() )
-        images_[image_key] = packet_set_t();
-    auto& packet_list = images_[image_key];
+    if( packets_.find(image_key) == packets_.end() )
+        packets_[image_key] = packet_set_t();
+    auto& packet_list = packets_[image_key];
     packet_list.insert(p_packet);
 
     // decode and save image
-    decode_and_save(image_key);
-    if( (*packet_list.rbegin())->header_.eoi )
-        images_.erase(image_key);
+    make_jpeg(packet_list, image_key);
+    save_jpeg(image_key);
+    // if( (*packet_list.rbegin())->header_.eoi )
+    //     packets_.erase(image_key);
 
     return true;
 }
 
 
-void SSDV_wraper_t::decode_and_save( std::pair<std::string,uint16_t> image_key )
+void SSDV_wraper_t::make_jpeg( const packet_set_t& packet_list, const image_key_t& image_key )
 {
     using namespace std;
 
-    if( images_.find(image_key) == images_.end() )
-        return;
+    auto& last_pkt = *packet_list.rbegin();
+    // size_t jpeg_sz = 3 * last_pkt->header_.width * last_pkt->header_.height;
+    size_t jpeg_sz = 3*1024*1024;
+
+    if( jpegs_.find(image_key) == jpegs_.end() )
+        jpegs_[image_key] = vector<uint8_t>( jpeg_sz );
+
+    auto& jpeg = jpegs_[image_key];
+    uint8_t* p_data = &jpeg[0];
 
     ssdv_t ssdv;
     ssdv_dec_init(&ssdv);
-    uint8_t* jpeg = new uint8_t[1024*1024*3];
-    ssdv_dec_set_buffer( &ssdv, jpeg, 1024*1024*3 );
 
-    auto& packet_list = images_[image_key];
-
+    ssdv_dec_set_buffer( &ssdv, p_data, jpeg_sz );
     for(auto p_pkt : packet_list)
         ssdv_dec_feed( &ssdv, p_pkt->data_.data() );
 
-    size_t jpeg_sz = 0;
-    ssdv_dec_get_jpeg(&ssdv, &jpeg, &jpeg_sz);
+    ssdv_dec_get_jpeg(&ssdv, &p_data, &jpeg_sz);
+}
+
+
+void SSDV_wraper_t::save_jpeg( const image_key_t& image_key )
+{
+    using namespace std;
+
+    if( jpegs_.find(image_key) == jpegs_.end() )
+        return;
+
+    const auto& jpeg = jpegs_[image_key];
 
     auto t = std::time(nullptr);
     char timestamp[200];
@@ -139,9 +152,9 @@ void SSDV_wraper_t::decode_and_save( std::pair<std::string,uint16_t> image_key )
                     + "_" + image_key.first
                     + "_" + img_id_pad + ".jpeg";
     FILE* fh = fopen( fname.c_str(), "wb" );
-    fwrite(jpeg, 1, jpeg_sz, fh);
+    fwrite(jpeg.data(), 1, jpeg.size(), fh);
     fclose(fh);
-    delete [] jpeg;
 }
+
 
 } // namespace habdec
