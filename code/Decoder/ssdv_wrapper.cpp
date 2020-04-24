@@ -112,8 +112,7 @@ void SSDV_wraper_t::make_jpeg( const packet_set_t& packet_list, const image_key_
     using namespace std;
 
     auto& last_pkt = *packet_list.rbegin();
-    // size_t jpeg_sz = 3 * last_pkt->header_.width * last_pkt->header_.height;
-    size_t jpeg_sz = 3*1024*1024;
+    size_t jpeg_sz = 3 * last_pkt->header_.width * last_pkt->header_.height;
 
     if( jpegs_.find(image_key) == jpegs_.end() )
         jpegs_[image_key] = vector<uint8_t>( jpeg_sz );
@@ -129,7 +128,20 @@ void SSDV_wraper_t::make_jpeg( const packet_set_t& packet_list, const image_key_
         ssdv_dec_feed( &ssdv, p_pkt->data_.data() );
 
     ssdv_dec_get_jpeg(&ssdv, &p_data, &jpeg_sz);
+
+    last_img_k_ = image_key;
 }
+
+std::vector<uint8_t> SSDV_wraper_t::get_jpeg(const image_key_t& image_key)
+
+{
+    if( jpegs_.find(image_key) == jpegs_.end() ) {
+        return std::vector<uint8_t>(0);
+    }
+
+    return jpegs_[image_key];
+}
+
 
 
 void SSDV_wraper_t::save_jpeg( const image_key_t& image_key )

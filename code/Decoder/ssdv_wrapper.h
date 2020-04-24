@@ -32,12 +32,6 @@ namespace habdec
 
 class SSDV_wraper_t
 {
-
-public:
-    bool push(const std::vector<char>& i_chars);
-    std::string base_file() const { return base_file_; }
-    void base_file(const std::string& i_fn) { base_file_ = i_fn; }
-
 private:
     // incomming data buffer
     std::vector<uint8_t>    buff_;
@@ -76,6 +70,13 @@ private:
 
     void make_jpeg(const packet_set_t&, const image_key_t&);
     void save_jpeg(const image_key_t&);
+
+public:
+    bool push(const std::vector<char>& i_chars);
+    std::string base_file() const { return base_file_; }
+    void base_file(const std::string& i_fn) { base_file_ = i_fn; }
+    image_key_t     last_img_k_ = {"",0};
+    std::vector<uint8_t> get_jpeg(const image_key_t&);
 
 };
 

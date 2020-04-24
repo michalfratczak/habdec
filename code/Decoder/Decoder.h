@@ -127,8 +127,15 @@ public:
 
 	bool livePrint() const { return live_print_; }
 	void livePrint(bool i_live) { live_print_ = i_live; }
-	std::function<void(std::string, std::string, std::string)> sentence_callback_; // callback on each successfull sentence decode
-	std::function<void(std::string)> character_callback_; // callback on each decoded character
+
+	// callback on each successfull sentence decode. callsign, sentence_data, CRC
+	std::function<void(std::string, std::string, std::string)> sentence_callback_;
+
+	// callback on each decoded characters
+	std::function<void(std::string)> character_callback_;
+
+	// callback on each decoded ssdv packet. callsign, image_id, jpeg_bytes
+	std::function<void(std::string, int, std::vector<uint8_t>)> ssdv_callback_;
 
 	// SSDV
 	SSDV_wraper_t 	ssdv_;
@@ -560,7 +567,7 @@ void habdec::Decoder<TReal>::process()
 
 
 	vector<char> raw_chars = rtty_.get();
-	ssdv_.push(raw_chars);
+	const bool b_new_ssdv = ssdv_.push(raw_chars);
 
 	vector<char> printable_chars;
 	copy_if( raw_chars.begin(), raw_chars.end(), back_inserter(printable_chars),
@@ -618,6 +625,8 @@ void habdec::Decoder<TReal>::process()
 		character_callback_time = std::chrono::high_resolution_clock::now();
 	}
 
+	if(b_new_ssdv && ssdv_callback_)
+		ssdv_callback_( ssdv_.last_img_k_.first, ssdv_.last_img_k_.second, ssdv_.get_jpeg(ssdv_.last_img_k_) );
 
 	// overflow protection
 	if(rtty_char_stream_.size() > 1000)

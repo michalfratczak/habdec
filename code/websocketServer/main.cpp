@@ -40,6 +40,7 @@
 #include "GLOBALS.h"
 #include "ws_server.h"
 #include "common/git_repo_sha1.h"
+#include "Base64.h"
 
 
 using namespace std;
@@ -498,6 +499,26 @@ int main(int argc, char** argv)
 			p_msg->data_stream_<<"cmd::info:liveprint="<<rtty_characters;
 			p_ws_server->sessions_send(p_msg);
 		};
+
+	DECODER.ssdv_callback_ =
+		[p_ws_server](string callsign, int image_id, std::vector<uint8_t> jpeg)
+		{
+			shared_ptr<HabdecMessage> p_msg = make_shared<HabdecMessage>();
+			p_msg->is_binary_ = true;
+			// p_msg->to_all_clients_ = true;
+
+			// header
+			pair<int,int> ssdv_header{ (int)callsign.size(), (int)image_id };
+			p_msg->data_stream_<<"SDV_";
+			p_msg->data_stream_.write( reinterpret_cast<char*>(&ssdv_header), sizeof(ssdv_header) );
+			p_msg->data_stream_<<callsign;
+			// base64 encoded JPEG bytes
+			string b64_jpeg_out = macaron::Base64().Encode( string((char*)jpeg.data(), jpeg.size()) );
+			for(size_t i = 0; i<b64_jpeg_out.size(); ++i)
+				p_msg->data_stream_<<(char)b64_jpeg_out[i];
+			p_ws_server->sessions_send(p_msg);
+		};
+
 
 
 	// START THREADS

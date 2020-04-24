@@ -667,6 +667,14 @@ function HABDEC_BUILD_UI(parent_div)
 	var div_server = HABDEC_BUILD_UI_Server();
 	//<!-- <div id="PayloadsWrapperDiv"></div> -->
 
+	// SSDV
+	var ssdv_div = document.createElement("div");
+	var ssdv_info = document.createElement("text");
+	ssdv_info.id = "HabDec_SSDV_Info";
+	var ssdv_image = document.createElement("img");
+	ssdv_image.id = "HabDec_SSDV_Image";
+	ssdv_div.appendChild(ssdv_image);
+	ssdv_div.appendChild(ssdv_info);
 
 	// flights list
 	var div_payloads_wrapper = document.createElement("div");
@@ -685,6 +693,7 @@ function HABDEC_BUILD_UI(parent_div)
 	// parent_div.display.height = "1000px";
 	parent_div.appendChild(div_power);
 	parent_div.appendChild(div_demod_and_ctrls);
+	parent_div.appendChild(ssdv_div);
 	parent_div.appendChild(div_extra_radio_buttons);
 	parent_div.appendChild(div_server);
 	// parent_div.appendChild(div_payloads_wrapper);
@@ -696,7 +705,6 @@ function HABDEC_BUILD_UI(parent_div)
 	CreateColorSchemesButton();
 
 	window.addEventListener('message', HB_WinMsgHandler);
-
 
 	// HD_ApplyeColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
 }
