@@ -89,16 +89,16 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
 	// CLEAR THE CANVAS
 	//
-    ctx.clearRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+    ctx.clearRect(0, 0, i_canvas.width, i_canvas.height);
 
     // BG
     //
-    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	grd_bg.addColorStop(0, "hsl(210, 15%, 24%)");
-	grd_bg.addColorStop(.5, "hsl(210, 15%, 40%)");
-	grd_bg.addColorStop(1, "hsl(210, 15%, 24%)");
+    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
+	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_bg.addColorStop(.5, HD_COLOR_SCHEME['CSS']['HD_fg']);
+	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 
@@ -106,22 +106,21 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 
     // LOWPASS FILTER DRAW
 	//
-	var _lowpass_bw_relative = GLOBALS.lowpass_bw / i_spectrum.sampling_rate_ / (1.0 - .999*zoom);
-    var _lowpass_trans = GLOBALS.lowpass_trans / (1.0 - .999*zoom);
+	var _lowpass_bw_relative = HD_GLOBALS.lowpass_bw / i_spectrum.sampling_rate_ / (1.0 - .999*zoom);
+    var _lowpass_trans = HD_GLOBALS.lowpass_trans / (1.0 - .999*zoom);
 	var grd_lowpass = ctx.createLinearGradient(0, 0, i_canvas.width-1, 0);
 	var _l  = Math.max(0, .5 - .5 * _lowpass_bw_relative);
 	var _ll = Math.max(0, .5 - .5 * (_lowpass_bw_relative + _lowpass_trans));
 	var _r  = Math.min(1, .5 + .5 * _lowpass_bw_relative);
 	var _rr = Math.min(1, .5 + .5 * (_lowpass_bw_relative + _lowpass_trans));
 
-	grd_lowpass.addColorStop(0, "rgba(15,25,50,0)");
-	grd_lowpass.addColorStop(_ll, "rgba(15,25,50,0)");
-	grd_lowpass.addColorStop(_l, "#113555");
-	grd_lowpass.addColorStop(_r, "#113555");
-	grd_lowpass.addColorStop(_rr, "rgba(15,25,50,0)");
-	grd_lowpass.addColorStop(1, "rgba(15,25,50,0)");
+	grd_lowpass.addColorStop(_ll, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_lowpass.addColorStop(_l, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
+	grd_lowpass.addColorStop(_r, HD_COLOR_SCHEME["SPECTRUM"]["FILTER"]);
+	grd_lowpass.addColorStop(_rr, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_lowpass.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_lowpass;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	// SPECTRUM
 	//
@@ -159,10 +158,11 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	// spectrum_min_avg *= 1.3; // drawing pedestal
 
 	// draw
-	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	power_grd.addColorStop(1-Math.abs(noise_floor_avg / spectrum_min_avg), "yellow");
-	power_grd.addColorStop(1-Math.abs(spectrum_max_avg / spectrum_min_avg), "#993311");
-	power_grd.addColorStop(1 , "#301000");
+	var power_grd = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
+	power_grd.addColorStop(1-Math.abs(noise_floor_avg / spectrum_min_avg), HD_COLOR_SCHEME['SPECTRUM']['HIGH']);
+	power_grd.addColorStop(1-Math.abs(spectrum_max_avg / spectrum_min_avg), HD_COLOR_SCHEME['SPECTRUM']['MID']);
+	power_grd.addColorStop(1 , HD_COLOR_SCHEME['SPECTRUM']['LOW']);
+
 	ctx.strokeStyle = power_grd;
 	ctx.beginPath();
 	for(var x=0; x<i_canvas.width; ++x)
@@ -190,7 +190,7 @@ function DrawPowerSpectrum(i_canvas, i_spectrum)
 	var nf_0_1 = 1.0 - Math.abs(noise_floor_avg / spectrum_min_avg);
 	nf_0_1 = Math.max(nf_0_1, 0);
 	ctx.moveTo(0, (1-nf_0_1)*i_canvas.height - 1);
-	ctx.lineTo(i_canvas.width-1, (1-nf_0_1)*i_canvas.height - 1);
+	ctx.lineTo(i_canvas.width, (1-nf_0_1)*i_canvas.height - 1);
 	ctx.stroke();
 
 	// PEAK LEFT
@@ -232,24 +232,24 @@ function DrawDemod(i_canvas, i_demod)
 
     // BG
     //
-    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height-1);
-	grd_bg.addColorStop(0, "hsl(210, 15%, 24%)");
-	grd_bg.addColorStop(.5,"hsl(210, 15%, 40%)");
-	grd_bg.addColorStop(1, "hsl(210, 15%, 24%)");
+    var grd_bg = ctx.createLinearGradient(0, 0, 0, i_canvas.height);
+	grd_bg.addColorStop(0, HD_COLOR_SCHEME['CSS']['HD_bg']);
+	grd_bg.addColorStop(.5,HD_COLOR_SCHEME['CSS']['HD_fg']);
+	grd_bg.addColorStop(1, HD_COLOR_SCHEME['CSS']['HD_bg']);
 	ctx.fillStyle = grd_bg;
-	ctx.fillRect(0, 0, i_canvas.width-1, i_canvas.height-1);
+	ctx.fillRect(0, 0, i_canvas.width, i_canvas.height);
 
 	// CENTER LINE
 	//
-	ctx.strokeStyle = 'hsl(210, 15%, 30%)';
+	ctx.strokeStyle = HD_COLOR_SCHEME['SPECTRUM']['LOW'];
 	ctx.beginPath();
 	ctx.moveTo(0, i_canvas.height/2);
-	ctx.lineTo(i_canvas.width-1, i_canvas.height/2);
+	ctx.lineTo(i_canvas.width, i_canvas.height/2);
 	ctx.stroke();
 
 	// DEMOD
 	//
-	ctx.strokeStyle = "#aa5500";
+	ctx.strokeStyle = HD_COLOR_SCHEME['SPECTRUM']['MID'];
 
 	ctx.beginPath();
 
@@ -296,7 +296,7 @@ var G_PowerCanvas;
 function AnimatePowerSpectrum(timestamp)
 {
 	if(G_PowerCanvas == undefined)
-		G_PowerCanvas = document.getElementById("powerSpectrumCanvas");
+		G_PowerCanvas = document.getElementById("HabDec_powerSpectrumCanvas");
 
 	if(!AnimatePowerSpectrum_last)
 		AnimatePowerSpectrum_last = timestamp;
@@ -315,7 +315,7 @@ var G_DemodCanvas;
 function AnimateDemod(timestamp)
 {
 	if(G_DemodCanvas == undefined)
-		G_DemodCanvas = document.getElementById("demodCanvas");
+		G_DemodCanvas = document.getElementById("HabDec_demodCanvas");
 
 	if(!AnimateDemod_last)
 		AnimateDemod_last = timestamp;

@@ -6,107 +6,29 @@
 <script src="js/habdec_commands.js"></script>
 <script src="js/drawing.js"></script>
 <script src="js/gui.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/color_schemes.js"></script>
 
 <head>
-<style>
-	body, html {
-		height: 100%;
-		width: 100%;
-	}
-	div {
-		font-family: Tahoma, Verdana, Segoe, sans-serif;
-	}
-</style>
-<link rel="stylesheet" href="css/habdec.css">
+	<style>
+		body,
+		html {
+			height: 100%;
+			width: 100%;
+		}
+
+		div {
+			font-family: Tahoma, Verdana, Segoe, sans-serif;
+		}
+	</style>
+
+	<link rel="stylesheet" href="css/habdec.css">
 </head>
 
 <body>
-
-<!-- Power Spectrum -->
-<div style="display: grid; grid-template-columns: auto 80px; width: 100%; height: 150px;" >
-	<div id="cnt_powerSpectrumCanvas" style="display: flex;">
-		<canvas id="powerSpectrumCanvas" ></canvas>
-	</div>
-	<div>
-		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM += .1})()" > + </button><br>
-		<button type="button" style="height: 50%; width: 100%; overflow: auto; font-size: 30px;" onclick="(function(){G_SPECTRUM_ZOOM -= .1})()" > - </button><br>
-	</div>
-</div>
-
-<div style="display: grid; grid-template-columns: minmax(0, 1fr) 540px;">
-	<!-- Demod Graph -->
-	<div>
-		<div id="cnt_demodCanvas" style="display: flex; height: 128px;">
-			<canvas id="demodCanvas" height="128px"></canvas>
-		</div>
-		<div>
-			<div id="cnt_debug" style="font-size: 12px;"></div>
-			<!-- <div id="cnt_habsentence" class="habsentence">SENTENCE</div> -->
-			<br>
-			<div id="cnt_liveprint" class="habsentence_text" style="color: cadetblue; word-wrap: break-word;"></div>
-			<div id="cnt_stats" class="habsentence_text"  style="color: rgb(250, 0, 0)"></div>
-			<div id="cnt_habsentence_list" class="habsentence_text"></div>
-		</div>
-	</div>
-	<!-- Control Buttons -->
-	<div>
-		<div id="cnt_spectrum_zoom"	class="ctrl_container"> </div>
-		<div id="cnt_frequency"		class="ctrl_container">	</div>
-		<div id="cnt_decimation"	class="ctrl_container">	</div>
-		<div id="cnt_gain"			class="ctrl_container">	</div>
-		<div id="cnt_lowpass_bw"	class="ctrl_container">	</div>
-		<div id="cnt_lowpass_trans"	class="ctrl_container"> </div>
-		<div id="cnt_baud"			class="ctrl_container">	</div>
-		<div id="cnt_rtty_bits"		class="ctrl_container">	</div>
-		<div id="cnt_rtty_stops"	class="ctrl_container"> </div>
-		<div id="cnt_datasize"		class="ctrl_container"> </div>
-	</div>
-</div>
-
-<div>
-	<div style="display: inline-block;">
-		<button id="HD_biastee" 	onclick="SetBiasT()"    > BiasTee </button>
-		<button id="HD_afc" 		onclick="SetAFC()"      > AFC </button>
-		<button id="HD_dc_remove" 	onclick="SetDCRemove()" > DC Remove </button>
-	</div>
-
-	<p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
-</div>
-
-<div>
-	<div><label>Server Address</label></div>
-	<input id="server_address" value="localhost:5555" onchange="localStorage.setItem('habdec_server_address', document.getElementById('server_address').value);">
-	<button  onclick="OpenConnection()" >Connect</button>
-</div>
-
-<!-- Payloads Dropwown Menu -->
-<div id="PayloadsWrapperDiv"></div>
-
+	<div id="HABDEC_UI_DIV"> </div>
 </body>
 
 
 <script language="javascript" type="text/javascript">
-
-var G_POWER_FPS = 40;
-var G_DEMOD_FPS = 4;
-
-function habdec_init()
-{
-	OpenConnection();
-	CreateControls();
-	document.getElementById("server_address").value = localStorage.getItem('habdec_server_address');
-	if(document.getElementById("server_address").value == "")
-	document.getElementById("server_address").value = "192.168.1.104:5555"
-	ResizeCanvas("powerSpectrumCanvas");
-	ResizeCanvas("demodCanvas");
-	LoadFlightsData();
-
-	AnimatePowerSpectrum(0);
-	AnimateDemod(0);
-}
-
-window.addEventListener("load", habdec_init, false);
-
+	window.addEventListener("load", () => { habdec_init("HABDEC_UI_DIV", "192.168.88.249:5555") }, false);
 </script>
-

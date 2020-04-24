@@ -1,12 +1,14 @@
 
 var G_HD_WEBSOCKET;
 var G_HD_CONNECTED = 0;
-var LastHabSentences = [];
+var G_HD_LastHabSentences = [];
 var G_SPECTRUM_DATA;
 var G_SPECTRUM_ZOOM = 0;
 var G_DEMOD_DATA;
+var G_POWER_FPS = 40;
+var G_DEMOD_FPS = 1;
 
-var GLOBALS =
+var HD_GLOBALS =
 {
 	frequency: 0,
 	sampling_rate: 0,
@@ -38,11 +40,15 @@ function debug_print()
 function OpenConnection()
 {
 	if(G_HD_CONNECTED)
-		return;
+		G_HD_WEBSOCKET.close();
 
-	var server = document.getElementById("server_address").value;
+	var server = document.getElementById("HabDec_server_address").value;
+	if( server.toLowerCase().startsWith('ws://') )
+		server = server.substr(5, server.length);
+	server = 'ws://' + server;
 	console.debug("Connecting to ", server, " ...");
-	G_HD_WEBSOCKET = new WebSocket("ws://" + server);
+
+	G_HD_WEBSOCKET = new WebSocket(server);
 	G_HD_WEBSOCKET.binaryType = 'arraybuffer'; // or 'blob'
 
 	G_HD_WEBSOCKET.onopen =    function(evt) { ws_onOpen(evt) };
@@ -72,7 +78,7 @@ function ws_onOpen(evt)
 	debug_print("ws_onOpen: ", "Connected.");
 
 	G_HD_WEBSOCKET.send("hi");
-	for(var param in GLOBALS)
+	for(var param in HD_GLOBALS)
 		SendCommand("get:" + param);
 
 	console.debug("ws_onOpen: init refresh.");
@@ -153,48 +159,48 @@ function HandleMessage(i_data)
 	if(set_match != null && set_match.length == 3)
 	{
 		if(set_match[1] == "frequency")
-			GLOBALS.frequency = parseFloat(set_match[2]);
+			HD_GLOBALS.frequency = parseFloat(set_match[2]);
 		if(set_match[1] == "decimation")
-			GLOBALS.decimation = parseInt(set_match[2]);
+			HD_GLOBALS.decimation = parseInt(set_match[2]);
 		else if(set_match[1] == "gain")
-			GLOBALS.gain = parseFloat(set_match[2]);
+			HD_GLOBALS.gain = parseFloat(set_match[2]);
 		else if(set_match[1] == "baud")
-			GLOBALS.baud = parseInt(set_match[2]);
+			HD_GLOBALS.baud = parseInt(set_match[2]);
 		else if(set_match[1] == "lowpass_bw")
-			GLOBALS.lowpass_bw = parseFloat(set_match[2]);
+			HD_GLOBALS.lowpass_bw = parseFloat(set_match[2]);
 		else if(set_match[1] == "lowpass_trans")
-			GLOBALS.lowpass_trans = parseFloat(set_match[2]);
+			HD_GLOBALS.lowpass_trans = parseFloat(set_match[2]);
 		else if(set_match[1] == "rtty_bits")
-			GLOBALS.rtty_bits = parseFloat(set_match[2]);
+			HD_GLOBALS.rtty_bits = parseFloat(set_match[2]);
 		else if(set_match[1] == "rtty_stops")
-			GLOBALS.rtty_stops = parseFloat(set_match[2]);
+			HD_GLOBALS.rtty_stops = parseFloat(set_match[2]);
 		else if(set_match[1] == "lowPass")
 		{
-			GLOBALS.lowpass_bw = parseFloat(set_match[2].split(',')[0]);
-			GLOBALS.lowpass_trans = parseFloat(set_match[2].split(',')[1]);
+			HD_GLOBALS.lowpass_bw = parseFloat(set_match[2].split(',')[0]);
+			HD_GLOBALS.lowpass_trans = parseFloat(set_match[2].split(',')[1]);
 		}
 		else if(set_match[1] == "biastee")
 		{
-			GLOBALS.biastee = parseFloat(set_match[2]);
+			HD_GLOBALS.biastee = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "afc")
 		{
-			GLOBALS.afc = parseFloat(set_match[2]);
+			HD_GLOBALS.afc = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "dc_remove")
 		{
-			GLOBALS.dc_remove = parseFloat(set_match[2]);
+			HD_GLOBALS.dc_remove = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 		else if(set_match[1] == "datasize")
 		{
-			GLOBALS.datasize = parseFloat(set_match[2]);
+			HD_GLOBALS.datasize = parseFloat(set_match[2]);
 			debug_print("Received Message: ", i_data);
 		}
 
-		SetGuiToGlobals(GLOBALS);
+		SetGuiToGlobals(HD_GLOBALS);
 
 		return true;
 	}
@@ -215,14 +221,14 @@ function HandleMessage(i_data)
 			var cnt_habsentence_list = document.getElementById("cnt_habsentence_list")
 			cnt_habsentence_list.innerHTML = '<text style=\"color: rgb(0,200,0);\">' + sntnc + '</text>';;
 
-			while(LastHabSentences.length > 12)
-				LastHabSentences.pop();
-			LastHabSentences.forEach( function(i_snt){
+			while(G_HD_LastHabSentences.length > 12)
+				G_HD_LastHabSentences.pop();
+			G_HD_LastHabSentences.forEach( function(i_snt){
 				cnt_habsentence_list.innerHTML += '<br><text>' + i_snt + '</text>';
 				}
 			);
 
-			LastHabSentences.unshift( info_match[2] );
+			G_HD_LastHabSentences.unshift( info_match[2] );
 
 			SendCommand("stats");
 		}
@@ -279,11 +285,11 @@ function DisplayStats(i_str)
 	}
 
 	document.getElementById("cnt_stats").innerHTML =
-		"OK: " + stats.ok
-		+ " Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
-		+ " Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
-		+ " MaxDistL: " + (stats.max_dist / 1000).toFixed(1) + "km "
-		+ " MinElev: " + (stats.min_elev).toFixed(1);
+		"Ok: " + stats.ok
+		+ " | Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
+		+ "(" + (stats.max_dist / 1000).toFixed(1) + "km)"
+		+ " | Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
+		+ " | MinElev: " + (stats.min_elev).toFixed(1);
 
 }
 
@@ -308,7 +314,15 @@ function RefreshPowerSpectrum()
 
 	G_SPECTRUM_ZOOM = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
 	var zoom = Math.max(0, Math.min(1, G_SPECTRUM_ZOOM));
-	var canvas = document.getElementById("powerSpectrumCanvas");
+	var canvas = document.getElementById("HabDec_powerSpectrumCanvas");
+
+	// resize if canvas iz zero-size
+	if( 	!(canvas.offsetParent === null) /*not visible*/
+		&& 	(!canvas.width || !canvas.height) ) /*zero size*/
+	{
+		canvas.width = canvas.parentElement.clientWidth;
+		canvas.height = canvas.parentElement.clientHeight;
+	}
 
 	SendCommand("power:res=" + canvas.width + ",zoom=" + zoom);
 	RefreshPowerSpectrum_lastReq = d.getTime();
@@ -335,7 +349,7 @@ function RefreshDemod()
 		return;
 	}
 
-	var canvas = document.getElementById("demodCanvas");
+	var canvas = document.getElementById("HabDec_demodCanvas");
 
 	SendCommand("demod:res=" + canvas.width);
 	RefreshDemod_lastReq = d.getTime();
@@ -357,18 +371,18 @@ function RefreshLivePrint()
 
 function SetBiasT()
 {
-	var value = GLOBALS.biastee;
+	var value = HD_GLOBALS.biastee;
 	if(value)
 	{
 		SendCommand("set:biastee=0");
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:biastee=1");
-		var button = document.getElementById("HD_biastee");
+		var button = document.getElementById("HabDecD_biastee");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
 	}
@@ -377,37 +391,37 @@ function SetBiasT()
 
 function SetAFC()
 {
-	var value = GLOBALS.afc
+	var value = HD_GLOBALS.afc
 	if(value)
 	{
 		SendCommand("set:afc=0");
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:afc=1");
-		var button = document.getElementById("HD_afc");
+		var button = document.getElementById("HabDec_afc");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
-	}s
+	}
 }
 
 function SetDCRemove()
 {
-	var value = GLOBALS.dc_remove;
+	var value = HD_GLOBALS.dc_remove;
 	if(value)
 	{
 		SendCommand("set:dc_remove=0");
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = "hsl(210, 15%, 34%)";
 		button.style.color = "#AAA";
 	}
 	else
 	{
 		SendCommand("set:dc_remove=1");
-		var button = document.getElementById("HD_dc_remove");
+		var button = document.getElementById("HabDec_dc_remove");
 		button.style.backgroundColor = "#bb0";
 		button.style.color = "#000";
 	}

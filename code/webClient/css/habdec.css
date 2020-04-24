@@ -1,6 +1,20 @@
 
+
+:root {
+    --HD_bg: 	        hsl(210, 15%, 24%);
+    --HD_button: 	    hsl(210, 15%, 34%);
+    --HD_button_border: hsl(210, 15%, 15%);
+    --HD_button_text: 	hsl(0, 0%, 80%);
+    --HD_label:      	hsl(32, 93%, 45%);
+    --HD_highlight:    	hsl(210, 80%, 45%);
+    --HD_enabled:    	hsl(40, 100%, 40%);
+    --HD_sentence:     	hsl(0, 100%, 33%);
+}
+
+
+
 body, html {
-    background-color:hsl(210, 15%, 24%);
+    background-color: var(--HD_bg);
 }
 
 div{
@@ -8,13 +22,13 @@ div{
 }
 
 label {
-    color: hsl(32, 93%, 45%);
+    color: var(--HD_label);
 }
 
 button {
-    background-color:hsl(210, 15%, 34%);
-    border: none;
-    color: #AAAAAA;
+    background-color:var(--HD_button);
+    color: var(--HD_button_text);
+    /* border: none; */
     /* padding: 15px 32px; */
     text-align: center;
     display: inline-block;
@@ -22,11 +36,11 @@ button {
     height: 7.0rem;
     width: 8.0rem;
 
-    border: 0.1rem solid  hsl(210, 15%, 20%);
+    border: 0.1rem solid  var(--HD_button_border);
     border-radius: .4rem;
 }
 button:hover, button:focus {
-    background-color: #2980B9;
+    background-color: var(--HD_highlight);
 }
 
 input[type=checkbox]
@@ -50,13 +64,14 @@ input[type=checkbox]
 }
 
 .habsentence_text {
-	font-size: 12px;
+    font-size: 12px;
+    color: var(--HD_sentence);
 }
 
 .ctrl_box {
-    color: hsl(32, 93%, 60%);
+    color: var(--HD_label);
     background-color: transparent;
-    border: 0.1rem solid #000000;
+    border: 0.1rem solid var(--HD_button_border);
     border-radius: .4rem;
     height: 2.5rem;
     padding: .6rem 1.0rem;
@@ -64,62 +79,62 @@ input[type=checkbox]
 }
 
 .increment_button {
-    background-color:hsl(210, 15%, 34%);
+    background-color: var(--HD_button);
     border: none;
-    color: #AAAAAA;
+    color: var(--HD_button_text);
     text-align: center;
     display: inline-block;
     font-size: 20px;
     height: 60px;
     width: 80px;
 
-    border: 0.1rem solid  hsl(210, 15%, 20%);
+    border: 0.1rem solid  var(--HD_button_border);
     border-radius: .4rem;
 }
 
 
-/* Payloads DropDown Menu */
+/* DropDown Menu */
 
 /* wrapper */
-.PayloadsWrapperDiv {
+.MenuWrapperDiv {
     position: relative;
     display: inline-block;
 }
-.PayloadsWrapperDiv a:hover {background-color: #ddd}
+.MenuWrapperDiv a:hover {background-color: rgb(75, 231, 14)}
 
 
-.PayloadsDropButton {
-    background-color:hsl(210, 15%, 34%);
+.MenuDropButton {
+    background-color:var(--HD_button);
     border: none;
-    color: #AAAAAA;
+    color: var(--HD_button_text);
     text-align: center;
     display: inline-block;
     font-size: 20px;
     width: 23.5rem;
     height: 7.0rem;
 
-    border: 0.1rem solid  hsl(210, 15%, 20%);
+    border: 0.1rem solid  var(--HD_button_border);
     border-radius: .4rem;
 }
-.PayloadsDropButton:hover, .PayloadsDropButton:focus {
-    background-color: #2980B9;
+.MenuDropButton:hover, .MenuDropButton:focus {
+    background-color: var(--HD_highlight);
 }
 
 
 /* Dropdown Content (Hidden by Default) */
-.PayloadsDropMenu {
+.MenuDropMenu {
     display: none;
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: #46d41b;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
 }
 
 /* Payload Button */
-.PayloadsDropMenu button {
+.MenuDropMenu button {
     display: block;
-    color: black;
+    /* color: black; */
     padding: 16px 16px;
     text-decoration: none;
     font-size: 16px;
