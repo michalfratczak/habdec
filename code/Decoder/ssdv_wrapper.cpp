@@ -23,6 +23,7 @@
 #include <cstring>
 #include <iostream>
 #include <iomanip>
+#include <future>
 #include <ctime>
 #include <stdio.h>
 #include "../ssdv/ssdv.h"
@@ -151,21 +152,26 @@ void SSDV_wraper_t::save_jpeg( const image_key_t& image_key )
     if( jpegs_.find(image_key) == jpegs_.end() )
         return;
 
-    const auto& jpeg = jpegs_[image_key];
+    const auto jpeg = jpegs_[image_key];
+    const auto base_file = base_file_;
 
-    auto t = std::time(nullptr);
-    char timestamp[200];
-    strftime(timestamp, 200, "%Y-%m-%d", std::localtime(&t) );
+    async(launch::async, [&jpeg, &base_file, image_key](){
+        // timestamp
+        auto t = std::time(nullptr);
+        char timestamp[200];
+        strftime(timestamp, 200, "%Y-%m-%d", std::localtime(&t) );
+        // filename 0 padding
+        string img_id_pad = std::to_string(image_key.second);
+        img_id_pad = string(4 - img_id_pad.length(), '0') + img_id_pad;
+        string fname =  base_file + string(timestamp)
+                        + "_" + image_key.first
+                        + "_" + img_id_pad + ".jpeg";
 
-    string img_id_pad = std::to_string(image_key.second);
-    img_id_pad = string(4 - img_id_pad.length(), '0') + img_id_pad;
+        FILE* fh = fopen( fname.c_str(), "wb" );
+        fwrite(jpeg.data(), 1, jpeg.size(), fh);
+        fclose(fh);
+    });
 
-    string fname =  base_file_ + string(timestamp)
-                    + "_" + image_key.first
-                    + "_" + img_id_pad + ".jpeg";
-    FILE* fh = fopen( fname.c_str(), "wb" );
-    fwrite(jpeg.data(), 1, jpeg.size(), fh);
-    fclose(fh);
 }
 
 

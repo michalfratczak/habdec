@@ -63,12 +63,12 @@ class Decoder
 	// RTTY
 
 public:
-	typedef 	TReal												TValue;
-	typedef 	std::complex<TReal>									TComplex;
-	typedef 	std::vector<TReal>									TRVector;
-	typedef 	habdec::IQVector<TReal>								TIQVector;
-	typedef 	habdec::Decimator< std::complex<TReal>, TReal >		TDecimator;
-	typedef 	habdec::FirFilter< std::complex<TReal>, TReal>		TFIR;
+	using TValue =		TReal;
+	using TComplex =	std::complex<TReal>;
+	using TRVector =	std::vector<TReal>;
+	using TIQVector =	habdec::IQVector<TReal>;
+	using TDecimator =	habdec::Decimator< std::complex<TReal>, TReal >;
+	using TFIR =		habdec::FirFilter< std::complex<TReal>, TReal>;
 
 	// feed decoder
 	bool 	pushSamples(const TIQVector& i_stream);
@@ -128,6 +128,9 @@ public:
 	bool livePrint() const { return live_print_; }
 	void livePrint(bool i_live) { live_print_ = i_live; }
 
+	std::string ssdvBaseFile() const { return ssdv_.base_file(); }
+	void ssdvBaseFile(const std::string& _f)  { ssdv_.base_file(_f); }
+
 	// callback on each successfull sentence decode. callsign, sentence_data, CRC
 	std::function<void(std::string, std::string, std::string)> sentence_callback_;
 
@@ -136,9 +139,6 @@ public:
 
 	// callback on each decoded ssdv packet. callsign, image_id, jpeg_bytes
 	std::function<void(std::string, int, std::vector<uint8_t>)> ssdv_callback_;
-
-	// SSDV
-	SSDV_wraper_t 	ssdv_;
 
 private:
 	// IQ buffers
@@ -188,6 +188,9 @@ private:
 	std::string 	rtty_char_stream_; // result of rtty
 	std::string 	last_sentence_; // result of rtty
 	// size_t 		last_sentence_len_ = 0;  // optimization for regexp run
+
+	// SSDV
+	SSDV_wraper_t 	ssdv_;
 
 	// threading
 	mutable std::mutex	process_mutex_;		// mutex for main processing

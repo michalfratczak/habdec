@@ -239,8 +239,6 @@ void DECODER_THREAD()
 	//////
 	//
 
-	typedef std::chrono::nanoseconds TDur;
-
 	auto& DECODER = GLOBALS::get().decoder_;
 
 	habdec::IQVector<TReal>	samples;
@@ -249,8 +247,6 @@ void DECODER_THREAD()
 
 	while(1)
 	{
-		auto _start = std::chrono::high_resolution_clock::now();
-
 		size_t count = p_iq_src->get( samples.data(), samples.size() );
 		if(count)
 			samples.resize(count);
@@ -277,9 +273,6 @@ void DECODER_THREAD()
 				}
 			}
 		}
-
-
-		TDur _duration = std::chrono::duration_cast<TDur>(std::chrono::high_resolution_clock::now() - _start);
 
 		// accumulate demod samples to display more
 		{
@@ -470,7 +463,7 @@ int main(int argc, char** argv)
 	DECODER.lowpass_trans( G.par_.lowpass_tr_ );
 	int _decim = G.par_.decimation_;
 	DECODER.setupDecimationStagesFactor( pow(2,_decim) );
-	DECODER.ssdv_.base_file( G.par_.ssdv_dir_ + "/ssdv_" );
+	DECODER.ssdvBaseFile( G.par_.ssdv_dir_ + "/ssdv_" );
 
 	double freq = G.par_.frequency_;
 	G.p_iq_source_->setOption("frequency_double", &freq);
