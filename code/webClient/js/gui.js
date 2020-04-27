@@ -477,12 +477,10 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 
 	// SSDV
 	var ssdv_div = document.createElement("div");
-	ssdv_div.style.display = "block;";
 	var ssdv_info = document.createElement("text");
 	ssdv_info.id = "HabDec_SSDV_Info";
 	ssdv_info.style.color = "var(--HD_label)"
 	var ssdv_img = document.createElement("img");
-	ssdv_img.src = "http://www.cgarea.com/ssdv.jpg";
 	ssdv_img.id = "HabDec_SSDV_Image";
 	ssdv_img.style.height = "100%";
 	var ssdv_img_div = document.createElement("div");
