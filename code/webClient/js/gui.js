@@ -477,13 +477,31 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 
 	// SSDV
 	var ssdv_div = document.createElement("div");
+	ssdv_div.style.display = "block;";
 	var ssdv_info = document.createElement("text");
 	ssdv_info.id = "HabDec_SSDV_Info";
 	ssdv_info.style.color = "var(--HD_label)"
-	var ssdv_image = document.createElement("img");
-	ssdv_image.id = "HabDec_SSDV_Image";
-	ssdv_div.appendChild(ssdv_image);
+	var ssdv_img = document.createElement("img");
+	ssdv_img.src = "http://www.cgarea.com/ssdv.jpg";
+	ssdv_img.id = "HabDec_SSDV_Image";
+	ssdv_img.style.height = "100%";
+	var ssdv_img_div = document.createElement("div");
 	ssdv_div.appendChild(ssdv_info);
+	ssdv_img_div.appendChild(ssdv_img);
+	ssdv_div.appendChild(ssdv_img_div);
+
+	// SSDV fullscreen - when clicked
+	var ssdv_FS_div = document.createElement("div");
+	ssdv_FS_div.classList.add("HD_ssdv_modal");
+	ssdv_img.onclick = function(){
+		ssdv_FS_div.appendChild(ssdv_img_div);
+		ssdv_FS_div.style.display = "block";
+	}
+	ssdv_FS_div.onclick = function(){
+		ssdv_div.appendChild(ssdv_img_div);
+		ssdv_FS_div.style.display = "None";
+	}
+	ssdv_div.appendChild(ssdv_FS_div);
 
 
 	div_info.appendChild(div_debug);
@@ -678,14 +696,12 @@ function HABDEC_BUILD_UI(parent_div)
 	var div_colors_wrapper = document.createElement("div");
 	div_colors_wrapper.id = "ColorSchemesWrapperDiv";
 
-	// <p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
+	// fullscreen button
 	var div_but_fs = document.createElement("div");
 	var btnFullscreen = document.createElement("button");
 	btnFullscreen.innerHTML = "Fullscreen";
 	btnFullscreen.onclick = () => { toggleFullscreen() };
 	div_but_fs.appendChild(btnFullscreen);
-	// var btnFS_par = document.createElement("p");
-	// btnFS_par.appendChild(btnFullscreen);
 
 	// div for [flights, colors, fillscreen] - in row
 	var extra_options = document.createElement("div");

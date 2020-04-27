@@ -144,3 +144,24 @@ input[type=checkbox]
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
+
+.HD_ssdv_modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+}
+
+.HD_ssdv_modal img {
+    width: 50%;
+    height: 50%;
+    display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+}
