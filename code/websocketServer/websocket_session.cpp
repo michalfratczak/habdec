@@ -91,44 +91,58 @@ void websocket_session::on_read(error_code ec, std::size_t)
 
 void websocket_session::send(std::shared_ptr<HabdecMessage const> const& i_msg)
 {
+    using namespace std;
+
     {
-		std::lock_guard<std::mutex> _lock(mtx_);
-
+		lock_guard<mutex> _lock(mtx_);
         queue_.push_back(i_msg);
-
         if(queue_.size() > 1)
             return;
-
-        ws_.binary(i_msg->is_binary_);
-
-        ws_.async_write(
-            net::buffer(queue_.front()->data_stream_.str()),
-            [sp = shared_from_this()](error_code ec, std::size_t bytes)
-            {
-                sp->on_write(ec, bytes);
-            });
     }
+
+    ws_.binary(i_msg->is_binary_);
+
+    // construct body of message as shared_ptr string and
+    // put it on on_write() arguments list
+    // to ensure it's lifetime exceeds async_write() lifetime
+    shared_ptr<string> p_msgstr( make_shared<string>(i_msg->data_stream_.str()) );
+
+    ws_.async_write(
+        net::buffer(*p_msgstr),
+        [sp = shared_from_this(), _msg=p_msgstr] (boost::system::error_code ec, size_t bytes)
+        {
+            sp->on_write(_msg, ec, bytes);
+        }
+    );
 }
 
 
-void websocket_session::on_write(error_code ec, std::size_t)
+void websocket_session::on_write(std::shared_ptr<std::string const> _unused, boost::system::error_code ec, std::size_t send_bytes)
 {
-    if(ec)
-        return fail(ec, "write");
+    using namespace std;
+
+    if(ec) {
+        cout<<"websocket_session::send ws_.async_write send bytes "<<send_bytes<<" of msg.size="<<_unused->size()<<endl;
+        return fail(ec, "websocket_session::send ws_.async_write error ");
+    }
 
     {
-		std::lock_guard<std::mutex> _lock(mtx_);
-
+		lock_guard<mutex> _lock(mtx_);
         queue_.erase(queue_.begin());
 
         if(!queue_.empty())
         {
-            ws_.binary(queue_.front()->is_binary_);
+            auto p_msg = queue_.front();
+            ws_.binary(p_msg->is_binary_);
+
+            // msg body. ensure lifetime. look into websocket_session::send for description
+            shared_ptr<string> p_msgstr( make_shared<string>(p_msg->data_stream_.str()) );
+
             ws_.async_write(
-                net::buffer(queue_.front()->data_stream_.str()),
-                [sp = shared_from_this()](error_code ec, std::size_t bytes)
+                net::buffer(p_msg->data_stream_.str()),
+                [sp = shared_from_this(), _msg=p_msgstr](boost::system::error_code ec, size_t bytes)
                 {
-                    sp->on_write(ec, bytes);
+                    sp->on_write(_msg, ec, bytes);
                 });
         }
     }
