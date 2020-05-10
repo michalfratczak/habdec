@@ -50,7 +50,7 @@ class websocket_session : public std::enable_shared_from_this<websocket_session>
     void fail(error_code ec, char const* what);
     void on_accept(error_code ec);
     void on_read(error_code ec, std::size_t bytes_transferred);
-    void on_write(error_code ec, std::size_t bytes_transferred);
+    void on_write(std::shared_ptr<std::string const> _unused, error_code ec, std::size_t);
 
     std::mutex	mtx_;
 
