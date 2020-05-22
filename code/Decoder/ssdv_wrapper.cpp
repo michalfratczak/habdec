@@ -20,6 +20,7 @@
 
 #include "ssdv_wrapper.h"
 #include <cstddef>
+#include <string>
 #include <cstring>
 #include <iostream>
 #include <iomanip>
