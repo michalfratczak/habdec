@@ -70,7 +70,7 @@ target_link_libraries( 	habdecWebsocketServer
 							${PlatformSpecificLinking} )
 
 install ( TARGETS habdecWebsocketServer DESTINATION ${CMAKE_INSTALL_PREFIX} )
-install ( 	FILES ${PROJECT_SOURCE_DIR}/habLogger/habLogger.py
+install ( 	FILES ${PROJECT_SOURCE_DIR}/habLogger/habLogger.py ${PROJECT_SOURCE_DIR}/habLogger/fileLogger.sh
 		PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
 		DESTINATION  ${CMAKE_INSTALL_PREFIX} )
 
