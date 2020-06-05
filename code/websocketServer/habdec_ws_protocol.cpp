@@ -548,6 +548,10 @@ std::vector< std::shared_ptr<HabdecMessage> >  HandleRequest(std::string command
 		p_msg->data_stream_<<",lon:"<<GLOBALS::get().par_.station_lon_;
 		p_msg->data_stream_<<",alt:"<<GLOBALS::get().par_.station_alt_;
 
+		const auto last_sentence_age = std::chrono::duration_cast<std::chrono::seconds>(
+			std::chrono::steady_clock::now() - stats.last_sentence_timestamp_).count();
+		p_msg->data_stream_<<",age:"<<int(round(last_sentence_age));
+
 		result.push_back(p_msg);
 	}
 	// cmd::****

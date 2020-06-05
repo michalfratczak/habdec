@@ -68,7 +68,8 @@ public:
 		unsigned int num_ok_ = 0; // num of decoded packets
 		habdec::GpsDistance D_;
 		double dist_max_ = 0;
-		double elev_min_ = std::numeric_limits<double>::max();
+		double elev_min_ = 90.0;
+		std::chrono::steady_clock::time_point last_sentence_timestamp_ = std::chrono::steady_clock::now();
 	};
 	STATS stats_;
 
