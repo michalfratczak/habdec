@@ -298,9 +298,11 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 	using namespace std;
 	using Ms = std::chrono::milliseconds;
 
+	auto& stats = GLOBALS::get().stats_;
+	stats.last_sentence_timestamp_ = std::chrono::steady_clock::now();
+
 	const string sentence = callsign + "," + data + "*" + crc;
 	const int sentence_number = stoi( data.substr(0, data.find(',')) );
-
 
 	// notify all websocket clients
 	if(p_ws)
@@ -352,7 +354,6 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 							GLOBALS::get().par_.coord_format_lat_,
 							GLOBALS::get().par_.coord_format_lon_);
 
-		auto& stats = GLOBALS::get().stats_;
 		stats.D_ = habdec::CalcGpsDistance(
 				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
 				GLOBALS::get().par_.station_alt_,

@@ -84,7 +84,7 @@ function ws_onOpen(evt)
 	console.debug("ws_onOpen: init refresh.");
 	RefreshPowerSpectrum();
 	RefreshDemod();
-	// RefreshLivePrint();
+	RefreshStats();
 }
 
 
@@ -271,6 +271,7 @@ function DisplayStats(i_str)
 		'dist_circ': 0,
 		'max_dist': 0,
 		'min_elev': 90,
+		'age': -1
 	};
 
 	var stats_arr = i_str.split(",");
@@ -291,14 +292,20 @@ function DisplayStats(i_str)
 			stats.max_dist = parseFloat(v);
 		if(k == 'min_elev')
 			stats.min_elev = parseFloat(v);
+		if(k == 'age')
+			stats.age = parseInt(v);
 	}
 
-	document.getElementById("cnt_stats").innerHTML =
-		"Ok: " + stats.ok
+	var stats_string = "Ok: " + stats.ok
 		+ " | Dist-Line: " + (stats.dist_line / 1000).toFixed(1) + "km "
 		+ "(" + (stats.max_dist / 1000).toFixed(1) + "km)"
 		+ " | Dist-Circle: " + (stats.dist_circ / 1000).toFixed(1) + "km "
-		+ " | MinElev: " + (stats.min_elev).toFixed(1);
+		+ " | MinElev: " + (stats.min_elev).toFixed(1)
+		+ " | Age: " + stats.age;
+	if(stats.age > 30)
+		document.getElementById("cnt_stats").innerHTML = "<font color=red>" + stats_string + "</font>";
+	else
+		document.getElementById("cnt_stats").innerHTML = "<font color=yellow>" + stats_string + "</font>";
 
 }
 
@@ -367,15 +374,15 @@ function RefreshDemod()
 }
 
 
-/*
-function RefreshLivePrint()
+// stats are send from server on every success sentence
+// but update every 2 seconds to display sentence age
+function RefreshStats()
 {
 	if(!G_HD_CONNECTED)
 		return;
-	SendCommand("liveprint");
-	setTimeout(function () {RefreshLivePrint();}, 1000 / 4);
+	SendCommand("stats");
+	setTimeout(function () {RefreshStats();}, 2000);
 }
-*/
 
 
 function SetBiasT()
