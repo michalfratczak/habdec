@@ -93,17 +93,57 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
     ssdv_dec_header( &(p_packet->header_), p_packet->data_.data() );
 
     // insert to packets_ map
+    //  what happens when we already inserted packet with that ID ?
+    //      either the packet is retransmitted for the same image
+    //      or this indicates that a new image is being send with conflicting image num (over 255 cycle?)
+    //       -> delete image and insert as new packet
+    //  what happens when new packet has different resolution as previously inserted ?
+    //      this indicates that a new image is being send with conflicting image num
+    //       -> delete image and insert as new packet
+
     pair<string,uint16_t> image_key(p_packet->header_.callsign_s, p_packet->header_.image_id);
-    if( packets_.find(image_key) == packets_.end() )
+    auto p_packet_list = packets_.find(image_key);
+    if( p_packet_list == packets_.end() ) // new image (callsign/id)
+    {
+        cout<<endl<<"   --   new image/packet set: "<<image_key.first<<" "<<image_key.second<<endl;
         packets_[image_key] = packet_set_t();
-    auto& packet_list = packets_[image_key];
-    packet_list.insert(p_packet);
+        packets_[image_key].insert(p_packet);
+    }
+    else  // append to existing image (callsign/id)
+    {
+        // check if this packet ID was already inserted
+        bool packet_already_exists = false;
+        for(auto _p_pkt : p_packet_list->second) {
+            if(_p_pkt->header_.packet_id == p_packet->header_.packet_id) {
+                packet_already_exists = true;
+                break;
+            }
+        }
+
+        // and check for resolution mismatch against previously inserted packet
+        const auto last_height = p_packet_list->second.rbegin()->get()->header_.height;
+        const auto last_width = p_packet_list->second.rbegin()->get()->header_.width;
+
+        if(packet_already_exists) {
+            cout<<endl<<"Packet ID "<<p_packet->header_.packet_id<<" for image "<<image_key.first<<"/"<<image_key.second
+                <<" has already been received. Deleting and restarting image with new packet."<<endl;
+            packets_[image_key] = packet_set_t();
+            packets_[image_key].insert(p_packet);
+        }
+        else if(last_height != p_packet->header_.height || last_width != p_packet->header_.width ) {
+            cout<<endl<<"Packet ID "<<p_packet->header_.packet_id<<" for image "<<image_key.first<<"/"<<image_key.second
+                <<" has different resolution. Deleting and restarting image with new packet."<<endl;
+            packets_[image_key] = packet_set_t();
+            packets_[image_key].insert(p_packet);
+        }
+        else { // new packet has OK resolution and unique ID. Inserting.
+            packets_[image_key].insert(p_packet);
+        }
+    }
 
     // decode and save image
-    make_jpeg(packet_list, image_key);
+    make_jpeg( packets_[image_key], image_key );
     save_jpeg(image_key);
-    // if( (*packet_list.rbegin())->header_.eoi )
-    //     packets_.erase(image_key);
 
     return true;
 }
