@@ -281,13 +281,25 @@ function DrawDemod(i_canvas, i_demod)
 
 function ResizeCanvas(canvas_id)
 {
+	// for some reason canvas size has to be checked periodically
+	// at least when demod canvas is zero in size
+	// ????
 	var canvasNode = document.getElementById(canvas_id);
 	var canvasDiv = canvasNode.parentNode;
+	var canvasDiv_clientWidth = canvasDiv.clientWidth;
+	var canvasDiv_clientHeight = canvasDiv.clientHeight;
 
-	canvasNode.style.width = '100%';
-	canvasNode.style.height = '100%';
-	canvasNode.width = canvasDiv.clientWidth;
-	canvasNode.height = canvasDiv.clientHeight;
+	if(canvasDiv_clientWidth && canvasDiv_clientHeight) {
+		canvasNode.width = canvasDiv_clientWidth;
+		canvasNode.height = canvasDiv_clientHeight;
+		setTimeout(() => {
+			ResizeCanvas(canvas_id)
+		}, 60000);
+	} else {
+		setTimeout(() => {
+			ResizeCanvas(canvas_id)
+		}, 1000);
+	}
 }
 
 

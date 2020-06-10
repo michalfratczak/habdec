@@ -442,7 +442,6 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 	// <div id="cnt_demodCanvas" style="display: flex; height: 128px;">
 	var div_cnt_demodCanvas = document.createElement("div");
 	div_cnt_demodCanvas.id = "cnt_demodCanvas";
-	div_cnt_demodCanvas.style.display= "flex";
 	div_cnt_demodCanvas.style.height= "128px";
 
 	// demod canvas
