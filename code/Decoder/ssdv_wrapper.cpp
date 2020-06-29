@@ -30,13 +30,6 @@
 #include "../ssdv/ssdv.h"
 
 
-static void print_hex(const std::array<uint8_t,256>& v)
-{
-    for(auto c : v)        std::cout<<"0x"<<std::hex<<(int)c<<" ";
-    std::cout<<std::dec<<std::endl;
-}
-
-
 namespace habdec
 {
 
@@ -50,45 +43,51 @@ bool SSDV_wraper_t::push(const std::vector<char>& i_chars)
     buff_.resize( buff_.size() + i_chars.size() );
     memcpy( buff_.data() + last_buff_end, i_chars.data(), i_chars.size() );
 
-    // scan newly appended input for packet sync byte: 0x55
+    if( buff_.size() < SSDV_PKT_SIZE )
+        return false;
+
+    // scan buff_ for packet sync byte: 0x55
     if(packet_begin_ == -1)
     {
-        size_t i = last_buff_end;
-        while( i < buff_.size() && buff_[i] != 0x55 )
-            ++i;
-        if(i < buff_.size() ) {
-            packet_begin_ = i;
-        }
-        else {
+        while( ++packet_begin_ < buff_.size() && buff_[packet_begin_] != 0x55 ) /**/;
+
+        if(packet_begin_ == buff_.size())
+        {
             buff_.clear();
+            packet_begin_ = -1;
             return false;
         }
     }
 
-    if(packet_begin_>0)
-    {
-        buff_.erase( buff_.begin(), buff_.begin()+packet_begin_ );
-        packet_begin_ = 0;
-    }
-
-    if( buff_.size() < SSDV_PKT_SIZE )
+    if( (buff_.size()-packet_begin_) < SSDV_PKT_SIZE )
         return false;
 
     int errors = 0;
-    const int is_packet = ssdv_dec_is_packet( buff_.data(), &errors );
+    const int is_packet = ssdv_dec_is_packet( buff_.data()+packet_begin_, &errors );
     if( is_packet != 0 ) // no packet starting at packet_begin_
     {
-        // lets not delete whole 256 bytes. packet could start somewhere there
-        // buff_.erase( buff_.begin(), buff_.begin() + SSDV_PKT_SIZE );
-        buff_.erase( buff_.begin(), buff_.begin() + 2 );
-        packet_begin_ = -1;
-        return false;
+        //scan for another 0x55
+        while( ++packet_begin_ < buff_.size() && buff_[packet_begin_] != 0x55 ) /**/;
+
+        if(packet_begin_ == buff_.size())
+        {
+            buff_.clear();
+            packet_begin_ = -1;
+            return false;
+        }
+        else
+        {
+            buff_.erase( buff_.begin(), buff_.begin() + packet_begin_ );
+            packet_begin_ = 0;
+            return false;
+        }
     }
+
 
     // make packet and decode header
     shared_ptr<packet_t> p_packet(new packet_t);
-    memcpy( p_packet->data_.data(), buff_.data(), sizeof(p_packet->data_) );
-    buff_.erase( buff_.begin(), buff_.begin() + SSDV_PKT_SIZE);
+    memcpy( p_packet->data_.data(), buff_.data()+packet_begin_, sizeof(p_packet->data_) );
+    buff_.erase( buff_.begin() + packet_begin_, buff_.begin() + packet_begin_ + SSDV_PKT_SIZE );
     packet_begin_ = -1;
     ssdv_dec_header( &(p_packet->header_), p_packet->data_.data() );
 
