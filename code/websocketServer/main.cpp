@@ -93,22 +93,30 @@ void PrintDevicesList(const SoapySDR::KwargsList& device_list)
 	cout<<endl;
 	for(const auto& dev : device_list)
 	{
-		cout<<C_RED<<DEV_NUM++<<":"<<C_OFF<<endl;
+		cout<<C_RED<<DEV_NUM<<":"<<C_OFF<<endl;
 		for(const auto& kv : dev)
 			cout<<'\t'<<kv.first<<" "<<kv.second<<endl;
 
 		// print sampling rates
-		auto p_device = SoapySDR::Device::make(dev);
-		std::vector<double> sampling_rates = p_device->listSampleRates(SOAPY_SDR_RX, 0);
-		sort(sampling_rates.begin(), sampling_rates.end());
+		try {
+			auto p_device = SoapySDR::Device::make(dev);
+			std::vector<double> sampling_rates = p_device->listSampleRates(SOAPY_SDR_RX, 0);
+			sort(sampling_rates.begin(), sampling_rates.end());
 
-		cout<<"\tSampling Rates:"<<endl;
-		int sr_index = 0;
-		for(auto sr : sampling_rates)
-			cout<<"\t\t"<<C_MAGENTA<<sr<<C_OFF<<endl;
-		cout<<endl;
+			cout<<"\tSampling Rates:"<<endl;
+			int sr_index = 0;
+			for(auto sr : sampling_rates)
+				cout<<"\t\t"<<C_MAGENTA<<sr<<C_OFF<<endl;
+			cout<<endl;
 
-		SoapySDR::Device::unmake(p_device);
+			SoapySDR::Device::unmake(p_device);
+		}
+		catch(std::runtime_error& er) {
+			cout<<C_RED<<"Failed opening device "<<DEV_NUM<<" : "
+				<<C_MAGENTA<<er.what()<<C_OFF<<endl;
+		}
+
+		++DEV_NUM;
 	}
 }
 
@@ -416,7 +424,15 @@ int main(int argc, char** argv)
 	SoapySDR::Kwargs device;
 	while(true)
 	{
-		if( SetupDevice(device) )
+		bool ok = false;
+		try {
+			ok = SetupDevice(device);
+		} catch(std::runtime_error& er) {
+			cout<<C_RED<<"Failed opening device: "
+				<<C_MAGENTA<<er.what()<<C_OFF<<endl;
+		}
+
+		if( ok )
 		{
 			break;
 		}
