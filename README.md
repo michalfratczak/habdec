@@ -14,10 +14,15 @@ Some facts:
 - decodes [SSDV](https://ukhas.org.uk/guides:ssdv) images
 
 Original motivation for habdec was to have a portable tracking device you could take to a chasecar or into a field.
-
 Fatty laptop with dl-fldigi, full-fledged SDR app and required internet connection is not too comfortable.
 
-Ultimatelly habdec is intended for integration into bigger app, probably based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4 [see prototype](https://www.youtube.com/watch?v=ZuoNf171e_A). Right now you can run it on headless board and control from your mobile.
+Ultimatelly habdec is intended for integration into bigger app, based on OpenStreetmap and running on portable RaspberryPI or OdroidXU4 - see [here](https://www.youtube.com/watch?v=ZuoNf171e_A), [here](https://twitter.com/froszu/status/1274308780923269120) or [here](https://twitter.com/froszu/status/1271166163993661440)
+
+It was successfully used to track and recover several HAB payloads.
+Below is an altitude graph from ARY5 flight - you can see amount of valid telemetry sentences received. One receiver was a stationary antenna, the other is car roof magmount.
+
+![alt text](./chart_alt_mobile.svg)
+![alt text](./chart_alt_stationary.svg)
 
 ## Getting habdec
 
@@ -190,7 +195,7 @@ Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP serv
 - Decoding will stop if decimation setting is too low or too high. It was tested to work with stream around 40kHz bandwidth.
 - Automatic Frequency Correction needs more work. Use consciously. dc_remove=on can help if AFC is confused by center spike.
 - Connecting from browser is not very reliable yet, sometimes you need to refresh and wait.
-- habdec was developed and tested with [AirSpy](https://airspy.com/) and [OdroidXU4](http://hardkernel.com/). Support for windows and RtlSdr is less tested.
+- habdec was developed and tested with [AirSpy](https://airspy.com/) and [OdroidXU4](http://hardkernel.com/),[RaspberryPI](http://raspberrypi.org). Support for windows and RtlSdr is less tested.
 
 
 ## Reporting Problems
