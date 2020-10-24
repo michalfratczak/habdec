@@ -1,0 +1,3 @@
+[submodule "code/ssdv"]
+	path = code/ssdv
+	url = https://github.com/fsphil/ssdv.git

@@ -118,6 +118,15 @@ function ws_onMessage(evt)
 			G_DEMOD_DATA = DecodeDemod(evt.data, 4);
 			RefreshDemod_lastReq = 0;
 		}
+		else if(what == "SDV_") // SSDV jpeg
+		{
+			[callsing_str, image_id, jpeg_en64] = DecodeJpegBase64(evt.data, 4);
+			console.debug("SSDV", callsing_str, image_id);
+			var img = document.getElementById("HabDec_SSDV_Image");
+			img.setAttribute('src', 'data:image/jpeg;base64,' + jpeg_en64);
+			var tex= document.getElementById("HabDec_SSDV_Info");
+			tex.innerHTML = callsing_str + " / " + image_id;
+		}
 	}
 	else
 	{

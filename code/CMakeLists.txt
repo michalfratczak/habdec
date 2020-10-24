@@ -17,6 +17,7 @@ message ( "CMAKE_INSTALL_PREFIX: " ${CMAKE_INSTALL_PREFIX} )
 
 add_subdirectory("Decoder")
 add_subdirectory("IQSource")
+add_subdirectory("ssdv_build")
 add_subdirectory("websocketServer")
 
 option( fltkGUI "fltkGUI" OFF )

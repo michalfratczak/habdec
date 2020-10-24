@@ -40,6 +40,7 @@
 #include "GLOBALS.h"
 #include "ws_server.h"
 #include "common/git_repo_sha1.h"
+#include "Base64.h"
 
 
 using namespace std;
@@ -238,8 +239,6 @@ void DECODER_THREAD()
 	//////
 	//
 
-	typedef std::chrono::nanoseconds TDur;
-
 	auto& DECODER = GLOBALS::get().decoder_;
 
 	habdec::IQVector<TReal>	samples;
@@ -248,8 +247,6 @@ void DECODER_THREAD()
 
 	while(1)
 	{
-		auto _start = std::chrono::high_resolution_clock::now();
-
 		size_t count = p_iq_src->get( samples.data(), samples.size() );
 		if(count)
 			samples.resize(count);
@@ -276,9 +273,6 @@ void DECODER_THREAD()
 				}
 			}
 		}
-
-
-		TDur _duration = std::chrono::duration_cast<TDur>(std::chrono::high_resolution_clock::now() - _start);
 
 		// accumulate demod samples to display more
 		{
@@ -416,6 +410,7 @@ int main(int argc, char** argv)
 	// setup GLOBALS
 	prog_opts(argc, argv);
 
+	auto& G = GLOBALS::get();
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
@@ -427,7 +422,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			if( GLOBALS::get().par_.no_exit_ )
+			if( G.par_.no_exit_ )
 			{
 				cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
 				std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
@@ -443,37 +438,38 @@ int main(int argc, char** argv)
 
 
 	// station info
-	if(	GLOBALS::get().par_.station_callsign_ != "" )
+	if(	G.par_.station_callsign_ != "" )
 	{
-		habdec::habitat::UploadStationInfo(	GLOBALS::get().par_.station_callsign_,
+		habdec::habitat::UploadStationInfo(	G.par_.station_callsign_,
 											device["driver"] + " - habdec" );
 
-		if(		GLOBALS::get().par_.station_lat_
-			&& 	GLOBALS::get().par_.station_lon_ )
+		if(		G.par_.station_lat_
+			&& 	G.par_.station_lon_ )
 					habdec::habitat::UploadStationTelemetry(
-						GLOBALS::get().par_.station_callsign_,
-						GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
-						GLOBALS::get().par_.station_alt_, 0, false
+						G.par_.station_callsign_,
+						G.par_.station_lat_, G.par_.station_lon_,
+						G.par_.station_alt_, 0, false
 					);
 	}
 
 	// initial options from globals
 	//
-	auto& DECODER = GLOBALS::get().decoder_;
-	DECODER.baud(GLOBALS::get().par_.baud_);
-	DECODER.rtty_bits(GLOBALS::get().par_.rtty_ascii_bits_);
-	DECODER.rtty_stops(GLOBALS::get().par_.rtty_ascii_stops_);
-	DECODER.livePrint( GLOBALS::get().par_.live_print_ );
-	DECODER.dc_remove( GLOBALS::get().par_.dc_remove_ );
-	DECODER.lowpass_bw( GLOBALS::get().par_.lowpass_bw_Hz_ );
-	DECODER.lowpass_trans( GLOBALS::get().par_.lowpass_tr_ );
-	int _decim = GLOBALS::get().par_.decimation_;
+	auto& DECODER = G.decoder_;
+	DECODER.baud(G.par_.baud_);
+	DECODER.rtty_bits(G.par_.rtty_ascii_bits_);
+	DECODER.rtty_stops(G.par_.rtty_ascii_stops_);
+	DECODER.livePrint( G.par_.live_print_ );
+	DECODER.dc_remove( G.par_.dc_remove_ );
+	DECODER.lowpass_bw( G.par_.lowpass_bw_Hz_ );
+	DECODER.lowpass_trans( G.par_.lowpass_tr_ );
+	int _decim = G.par_.decimation_;
 	DECODER.setupDecimationStagesFactor( pow(2,_decim) );
+	DECODER.ssdvBaseFile( G.par_.ssdv_dir_ + "/ssdv_" );
 
-	double freq = GLOBALS::get().par_.frequency_;
-	GLOBALS::get().p_iq_source_->setOption("frequency_double", &freq);
+	double freq = G.par_.frequency_;
+	G.p_iq_source_->setOption("frequency_double", &freq);
 
-	if(GLOBALS::get().par_.station_callsign_ == "")
+	if(G.par_.station_callsign_ == "")
 		cout<<C_RED<<"No --station parameter set. HAB Upload disabled."<<C_OFF<<endl;
 
 	cout<<"Current Options: "<<endl;
@@ -482,7 +478,7 @@ int main(int argc, char** argv)
 
 	// websocket server
 	shared_ptr<WebsocketServer> p_ws_server = make_shared<WebsocketServer>(
-		GLOBALS::get().par_.command_host_ , GLOBALS::get().par_.command_port_);
+		G.par_.command_host_ , G.par_.command_port_);
 
 	DECODER.sentence_callback_ =
 		[p_ws_server](string callsign, string data, string crc)
@@ -497,6 +493,26 @@ int main(int argc, char** argv)
 			p_msg->data_stream_<<"cmd::info:liveprint="<<rtty_characters;
 			p_ws_server->sessions_send(p_msg);
 		};
+
+	DECODER.ssdv_callback_ =
+		[p_ws_server](string callsign, int image_id, std::vector<uint8_t> jpeg)
+		{
+			shared_ptr<HabdecMessage> p_msg = make_shared<HabdecMessage>();
+			p_msg->is_binary_ = true;
+			// p_msg->to_all_clients_ = true;
+
+			// header
+			pair<int,int> ssdv_header{ (int)callsign.size(), (int)image_id };
+			p_msg->data_stream_<<"SDV_";
+			p_msg->data_stream_.write( reinterpret_cast<char*>(&ssdv_header), sizeof(ssdv_header) );
+			p_msg->data_stream_<<callsign;
+			// base64 encoded JPEG bytes
+			string b64_jpeg_out = macaron::Base64().Encode( string((char*)jpeg.data(), jpeg.size()) );
+			for(size_t i = 0; i<b64_jpeg_out.size(); ++i)
+				p_msg->data_stream_<<(char)b64_jpeg_out[i];
+			p_ws_server->sessions_send(p_msg);
+		};
+
 
 
 	// START THREADS

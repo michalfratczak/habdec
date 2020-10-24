@@ -474,6 +474,32 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 	divcnt_habsentence_list.id = "cnt_habsentence_list";
 	divcnt_habsentence_list.classList.add("habsentence_text");
 
+	// SSDV
+	var ssdv_div = document.createElement("div");
+	var ssdv_info = document.createElement("text");
+	ssdv_info.id = "HabDec_SSDV_Info";
+	ssdv_info.style.color = "var(--HD_label)"
+	var ssdv_img = document.createElement("img");
+	ssdv_img.id = "HabDec_SSDV_Image";
+	ssdv_img.style.height = "100%";
+	var ssdv_img_div = document.createElement("div");
+	ssdv_div.appendChild(ssdv_info);
+	ssdv_img_div.appendChild(ssdv_img);
+	ssdv_div.appendChild(ssdv_img_div);
+
+	// SSDV fullscreen - when clicked
+	var ssdv_FS_div = document.createElement("div");
+	ssdv_FS_div.classList.add("HD_ssdv_modal");
+	ssdv_img.onclick = function(){
+		ssdv_FS_div.appendChild(ssdv_img_div);
+		ssdv_FS_div.style.display = "block";
+	}
+	ssdv_FS_div.onclick = function(){
+		ssdv_div.appendChild(ssdv_img_div);
+		ssdv_FS_div.style.display = "None";
+	}
+	ssdv_div.appendChild(ssdv_FS_div);
+
 
 	div_info.appendChild(div_debug);
 	div_info.appendChild( document.createElement("br") );
@@ -483,6 +509,7 @@ function HABDEC_BUILD_UI_DemodAndInfo()
 
 	div_top.appendChild(div_cnt_demodCanvas);
 	div_top.appendChild(div_info);
+	div_top.appendChild(ssdv_div);
 
 	return div_top;
 
@@ -563,15 +590,7 @@ function HABDEC_BUILD_UI_ExtraRadioButtons()
 	div_three_buttons.appendChild(b_afc);
 	div_three_buttons.appendChild(b_dc_remove);
 
-	// <p> <button id="btnFullscreen" type="button" onclick="toggleFullscreen()">Fullscreen</button> </p>
-	var btnFullscreen = document.createElement("button");
-	btnFullscreen.innerHTML = "Fullscreen";
-	btnFullscreen.onclick = () => { toggleFullscreen() };
-	var paragraph = document.createElement("p");
-	paragraph.appendChild(btnFullscreen);
-
 	div_top.appendChild(div_three_buttons);
-	div_top.appendChild(paragraph);
 
 	return div_top;
 }
@@ -666,7 +685,6 @@ function HABDEC_BUILD_UI(parent_div)
 	var div_server = HABDEC_BUILD_UI_Server();
 	//<!-- <div id="PayloadsWrapperDiv"></div> -->
 
-
 	// flights list
 	var div_payloads_wrapper = document.createElement("div");
 	div_payloads_wrapper.id = "PayloadsWrapperDiv";
@@ -675,11 +693,19 @@ function HABDEC_BUILD_UI(parent_div)
 	var div_colors_wrapper = document.createElement("div");
 	div_colors_wrapper.id = "ColorSchemesWrapperDiv";
 
-	// div for flights and colors - in row
+	// fullscreen button
+	var div_but_fs = document.createElement("div");
+	var btnFullscreen = document.createElement("button");
+	btnFullscreen.innerHTML = "Fullscreen";
+	btnFullscreen.onclick = () => { toggleFullscreen() };
+	div_but_fs.appendChild(btnFullscreen);
+
+	// div for [flights, colors, fillscreen] - in row
 	var extra_options = document.createElement("div");
 	extra_options.style.display = 'flex';
 	extra_options.appendChild(div_payloads_wrapper);
 	extra_options.appendChild(div_colors_wrapper);
+	extra_options.appendChild(div_but_fs);
 
 	// parent_div.display.height = "1000px";
 	parent_div.appendChild(div_power);
@@ -695,7 +721,6 @@ function HABDEC_BUILD_UI(parent_div)
 	CreateColorSchemesButton();
 
 	window.addEventListener('message', HB_WinMsgHandler);
-
 
 	// HD_ApplyeColorScheme( HD_COLOR_SCHEMES["DEFAULT"] );
 }

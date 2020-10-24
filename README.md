@@ -11,6 +11,7 @@ Some facts:
 - provides websocket server so can be controlled from any web browser [even on your phone](https://www.youtube.com/watch?v=dli8FEFy5tM)
 - can be easily integrated into your own code
 - has example python client
+- decodes [SSDV](https://ukhas.org.uk/guides:ssdv) images
 
 Original motivation for habdec was to have a portable tracking device you could take to a chasecar or into a field.
 
@@ -186,7 +187,6 @@ Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP serv
 ## Known Limitations
 
 - RTTY Modes **NOT** supported: 5bit baudot, 1.5 bit stop
-- SSDV is not supported
 - Decoding will stop if decimation setting is too low or too high. It was tested to work with stream around 40kHz bandwidth.
 - Automatic Frequency Correction needs more work. Use consciously. dc_remove=on can help if AFC is confused by center spike.
 - Connecting from browser is not very reliable yet, sometimes you need to refresh and wait.

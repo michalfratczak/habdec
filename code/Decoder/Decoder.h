@@ -42,6 +42,7 @@
 #include "SpectrumInfo.h"
 #include "print_habhub_sentence.h"
 #include "CRC.h"
+#include "ssdv_wrapper.h"
 
 namespace habdec
 {
@@ -62,12 +63,12 @@ class Decoder
 	// RTTY
 
 public:
-	typedef 	TReal												TValue;
-	typedef 	std::complex<TReal>									TComplex;
-	typedef 	std::vector<TReal>									TRVector;
-	typedef 	habdec::IQVector<TReal>								TIQVector;
-	typedef 	habdec::Decimator< std::complex<TReal>, TReal >		TDecimator;
-	typedef 	habdec::FirFilter< std::complex<TReal>, TReal>		TFIR;
+	using TValue =		TReal;
+	using TComplex =	std::complex<TReal>;
+	using TRVector =	std::vector<TReal>;
+	using TIQVector =	habdec::IQVector<TReal>;
+	using TDecimator =	habdec::Decimator< std::complex<TReal>, TReal >;
+	using TFIR =		habdec::FirFilter< std::complex<TReal>, TReal>;
 
 	// feed decoder
 	bool 	pushSamples(const TIQVector& i_stream);
@@ -126,8 +127,18 @@ public:
 
 	bool livePrint() const { return live_print_; }
 	void livePrint(bool i_live) { live_print_ = i_live; }
-	std::function<void(std::string, std::string, std::string)> sentence_callback_; // callback on each successfull sentence decode
-	std::function<void(std::string)> character_callback_; // callback on each decoded character
+
+	std::string ssdvBaseFile() const { return ssdv_.base_file(); }
+	void ssdvBaseFile(const std::string& _f)  { ssdv_.base_file(_f); }
+
+	// callback on each successfull sentence decode. callsign, sentence_data, CRC
+	std::function<void(std::string, std::string, std::string)> sentence_callback_;
+
+	// callback on each decoded characters
+	std::function<void(std::string)> character_callback_;
+
+	// callback on each decoded ssdv packet. callsign, image_id, jpeg_bytes
+	std::function<void(std::string, int, std::vector<uint8_t>)> ssdv_callback_;
 
 private:
 	// IQ buffers
@@ -177,6 +188,9 @@ private:
 	std::string 	rtty_char_stream_; // result of rtty
 	std::string 	last_sentence_; // result of rtty
 	// size_t 		last_sentence_len_ = 0;  // optimization for regexp run
+
+	// SSDV
+	SSDV_wraper_t 	ssdv_;
 
 	// threading
 	mutable std::mutex	process_mutex_;		// mutex for main processing
@@ -555,14 +569,19 @@ void habdec::Decoder<TReal>::process()
 		return;
 
 
-	auto decoded_chars = rtty_.get();
-	rtty_char_stream_.insert( rtty_char_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
-	chr_callback_stream_.insert( chr_callback_stream_.end(), decoded_chars.begin(), decoded_chars.end() );
+	vector<char> raw_chars = rtty_.get();
+	const bool b_new_ssdv = ssdv_.push(raw_chars);
 
+	vector<char> printable_chars;
+	copy_if( raw_chars.begin(), raw_chars.end(), back_inserter(printable_chars),
+			[](char c){return isprint(c) || c == '\n';}
+	);
+	rtty_char_stream_.insert( rtty_char_stream_.end(), printable_chars.begin(), printable_chars.end() );
+	chr_callback_stream_.insert( chr_callback_stream_.end(), printable_chars.begin(), printable_chars.end() );
 
 	if(live_print_)
 	{
-		for( auto c : decoded_chars )
+		for( auto c : printable_chars )
 			cout<<c;
 		cout.flush();
 	}
@@ -609,6 +628,8 @@ void habdec::Decoder<TReal>::process()
 		character_callback_time = std::chrono::high_resolution_clock::now();
 	}
 
+	if(b_new_ssdv && ssdv_callback_)
+		ssdv_callback_( ssdv_.last_img_k_.first, ssdv_.last_img_k_.second, ssdv_.get_jpeg(ssdv_.last_img_k_) );
 
 	// overflow protection
 	if(rtty_char_stream_.size() > 1000)
@@ -824,5 +845,4 @@ std::ostream& operator<<( std::ostream& output, const std::vector<T>& v )
 }
 
 
-}
- // namespace habdec
+} // namespace habdec

@@ -78,3 +78,22 @@ function DecodeDemod(i_buffer, i_offset)
 
 	return header;
 }
+
+
+function DecodeJpegBase64(i_buffer, i_offset)
+{
+	var dv = new DataView(i_buffer, i_offset);
+	var offset = 0;
+	var callsign_size = dv.getInt32(offset, true); 	offset += 4;
+	var image_id = dv.getInt32(offset, true); 	offset += 4;
+
+	offset += 4; // why ?
+	var callsing_data = new Uint8Array( i_buffer, offset, callsign_size); 	offset += callsign_size;
+	var callsing_str = new TextDecoder("utf-8").decode(callsing_data);
+
+	// rest is JPEG data
+	var jpeg_data = new Uint8Array( i_buffer, offset );
+	var jpeg_str =  new TextDecoder("utf-8").decode(jpeg_data);
+
+	return [callsing_str, image_id, jpeg_str];
+}

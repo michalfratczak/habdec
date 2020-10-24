@@ -109,6 +109,9 @@ void prog_opts(int ac, char* av[])
 			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
 			("payload",	po::value<string>(), "Configure for Payload ID")
 			("nmea",	po::value<bool>(), "assume NMEA lat/lon format: ddmm.mmmm")
+
+			("ssdv_dir",	po::value<string>()->default_value(GLOBALS::get().par_.ssdv_dir_), "SSDV directory.")
+
 		;
 
 		po::options_description cli_options("Command Line Interface options");
@@ -292,6 +295,10 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("alt"))
 		{
 			GLOBALS::get().par_.station_alt_ = vm["alt"].as<float>();
+		}
+		if (vm.count("ssdv_dir"))
+		{
+			GLOBALS::get().par_.ssdv_dir_ = vm["ssdv_dir"].as<string>();
 		}
 	}
 	catch(exception& e)
