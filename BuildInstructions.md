@@ -6,6 +6,9 @@ To build habdec from source code, you need to build it's dependecies first:
 - CMake version 3.8.2 (make sure CMake version supports your boost version, otherwise CMake could fail finding stuff)
 - optionally: FLTK
 
+If you target RaspberryPi, consider starting with PiSDR image https://github.com/luigifcruz/pisdr-image
+It has preinstalled all dependencies except FFTW.
+
 Below are instructions how to obtain and compile each package. Keep in mind, these are WIP and some adjustment to your build env may be needed.
 
 For windows, you need to start 64bit build env, ie: `C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat`
