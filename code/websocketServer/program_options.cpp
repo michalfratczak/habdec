@@ -85,7 +85,7 @@ void prog_opts(int ac, char* av[])
 
 			("port",	po::value<string>(),	"Command Port, example: --port 127.0.0.1:5555")
 
-			("station",	po::value<string>(),	"HABHUB station callsign")
+			("station",	po::value<string>(),	"HABHUB station callsign. Omitting this flag disables HABHUB upload.")
 			("latlon",	po::value< std::vector<float> >()->multitoken(), "station GPS location (decimal)")
 			("alt",		po::value<float>(), "station altitude in meters")
 
