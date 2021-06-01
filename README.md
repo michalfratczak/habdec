@@ -56,7 +56,7 @@ CLI opts:
   --sampling_rate arg (=0)  Sampling Rate, as supported by device
   --no_exit arg             Constantly retry on missing device instead of exit.
   --port arg                Command Port, example: --port 127.0.0.1:5555
-  --station arg             HABHUB station callsign
+  --station arg             HABHUB station callsign. Omitting this flag disables HABHUB upload.
   --latlon arg              station GPS location (decimal)
   --alt arg                 station altitude in meters
   --freq arg                frequency in MHz
