@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <string>
 #include <array>
 #include <vector>
 #include <map>
@@ -46,7 +47,7 @@ private:
     using packet_t_ptr = std::shared_ptr<packet_t>;
 
     struct packet_t_ptr_less { // comparator
-        bool operator()(const packet_t_ptr& lhs, const packet_t_ptr& rhs) {
+        bool operator()(const packet_t_ptr& lhs, const packet_t_ptr& rhs) const {
             return lhs->header_.packet_id < rhs->header_.packet_id;
         }
     };
