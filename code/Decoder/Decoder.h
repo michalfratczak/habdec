@@ -286,33 +286,33 @@ size_t habdec::Decoder<TReal>::setupDecimationStagesFactor(const size_t i_factor
 	switch(i_factor)
 	{
 		case 256:
-			decimation_stages_.emplace_back( TDecimator(64, &d_256_r_64_kernel[0],  d_256_r_64_len) );
-			decimation_stages_.emplace_back( TDecimator(4,  &d_4_r_4_kernel[0], 	d_4_r_4_len) );
+			decimation_stages_.emplace_back( 64, &d_256_r_64_kernel[0],  d_256_r_64_len );
+			decimation_stages_.emplace_back( 4,  &d_4_r_4_kernel[0], 	d_4_r_4_len );
 			break;
 		case 128:
-			decimation_stages_.emplace_back( TDecimator(32, &d_128_r_32_kernel[0],  d_128_r_32_len) );
-			decimation_stages_.emplace_back( TDecimator(4,  &d_4_r_4_kernel[0], 	d_4_r_4_len) );
+			decimation_stages_.emplace_back( 32, &d_128_r_32_kernel[0],  d_128_r_32_len );
+			decimation_stages_.emplace_back( 4,  &d_4_r_4_kernel[0], 	d_4_r_4_len );
 			break;
 		case 64:
-			decimation_stages_.emplace_back( TDecimator(32, &d_64_r_32_kernel[0], 	d_64_r_32_len) );
-			decimation_stages_.emplace_back( TDecimator(2,  &d_2_r_2_kernel[0], 	d_2_r_2_len) );
+			decimation_stages_.emplace_back( 32, &d_64_r_32_kernel[0], 	d_64_r_32_len );
+			decimation_stages_.emplace_back( 2,  &d_2_r_2_kernel[0], 	d_2_r_2_len );
 			break;
 		case 32:
-			decimation_stages_.emplace_back( TDecimator(16, &d_32_r_16_kernel[0], 	d_32_r_16_len) );
-			decimation_stages_.emplace_back( TDecimator(2,  &d_2_r_2_kernel[0], 	d_2_r_2_len) );
+			decimation_stages_.emplace_back( 16, &d_32_r_16_kernel[0], 	d_32_r_16_len );
+			decimation_stages_.emplace_back( 2,  &d_2_r_2_kernel[0], 	d_2_r_2_len );
 			break;
 		case 16:
-			decimation_stages_.emplace_back( TDecimator(8,  &d_16_r_8_kernel[0], 	d_16_r_8_len) );
-			decimation_stages_.emplace_back( TDecimator(2,  &d_2_r_2_kernel[0], 	d_2_r_2_len) );
+			decimation_stages_.emplace_back( 8,  &d_16_r_8_kernel[0], 	d_16_r_8_len );
+			decimation_stages_.emplace_back( 2,  &d_2_r_2_kernel[0], 	d_2_r_2_len );
 			break;
 		case 8:
-			decimation_stages_.emplace_back( TDecimator(8,  &d_8_r_8_kernel[0], 	d_8_r_8_len) );
+			decimation_stages_.emplace_back( 8,  &d_8_r_8_kernel[0], 	d_8_r_8_len );
 			break;
 		case 4:
-			decimation_stages_.emplace_back( TDecimator(4,  &d_4_r_4_kernel[0], 	d_4_r_4_len) );
+			decimation_stages_.emplace_back( 4,  &d_4_r_4_kernel[0], 	d_4_r_4_len );
 			break;
 		case 2:
-			decimation_stages_.emplace_back( TDecimator(2,  &d_2_r_2_kernel[0], 	d_2_r_2_len) );
+			decimation_stages_.emplace_back( 2,  &d_2_r_2_kernel[0], 	d_2_r_2_len );
 			break;
 		default:
 			cout<<"Unsupported decimation factor: "<<i_factor<<endl;
