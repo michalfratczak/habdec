@@ -25,6 +25,12 @@ find_package(SoapySDR REQUIRED) # this reverts CMAKE_CXX_STANDARD to '11'
 include_directories( ${SoapySDR_INCLUDE_DIRS} )
 
 
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+                         GIT_TAG 871ed52d350214a034f6ef8a3b8f51c5ce1bd400) # The commit hash for 1.9.0. Replace with the latest from: https://github.com/libcpr/cpr/releases
+FetchContent_MakeAvailable(cpr)
+
+
 set( CMAKE_CXX_FLAGS  " -O3 " )
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	# set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wshadow" )
@@ -53,8 +59,12 @@ set ( websocketServer_src
 					CompressedVector.h CompressedVector.cpp
 					${CMAKE_SOURCE_DIR}/habitat/habitat_upload.cpp
 					${CMAKE_SOURCE_DIR}/habitat/habitat_list_flights.cpp
+					${CMAKE_SOURCE_DIR}/sondehub/sondehub_uploader.cpp
 					${CMAKE_SOURCE_DIR}/common/http_request.cpp
 					${CMAKE_SOURCE_DIR}/common/GpsDistance.cpp
+					${CMAKE_SOURCE_DIR}/common/sentence_parse.cpp
+					${CMAKE_SOURCE_DIR}/common/utc_now_iso.cpp
+					${CMAKE_SOURCE_DIR}/Decoder/CRC.cpp
 					main.cpp
 			)
 
@@ -67,6 +77,7 @@ target_link_libraries( 	habdecWebsocketServer
 							Decoder
 							IQSource
 							${Boost_LIBRARIES}
+							cpr::cpr
 							${PlatformSpecificLinking} )
 
 install ( TARGETS habdecWebsocketServer DESTINATION ${CMAKE_INSTALL_PREFIX} )

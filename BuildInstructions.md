@@ -67,7 +67,7 @@ You need to build FFTW with float (single precission) support. Also, enable neon
 #### Windows
 Download http://fftw.org/fftw-3.3.8.tar.gz and unpack.
 
-    cmake -D BUILD_SHARED_LIBS=0 -D ENABLE_FLOAT=1 -D CMAKE_INSTALL_PREFIX=d:\dev\c_libs\fftw\3.3.8\install -D CMAKE_BUILD_TYPE=RELEASE -G "NMake Makefiles" ..\src
+    cmake -D BUILD_SHARED_LIBS=0 -D ENABLE_FLOAT=1 -D CMAKE_INSTALL_PREFIX=d:\dev\c_libs\fftw\3.3.8\install -D CMAKE_BUILD_TYPE=Release -G "NMake Makefiles" ..\src
     nmake
     nmake install
 
@@ -125,7 +125,7 @@ If you managed to build or install dependencies, you're ready do build habdec
     cd habdec
     mkdir build
     cd build
-    cmake cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=RELEASE ../code
+    cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=Release ../code
     make -j 4
     make install
 

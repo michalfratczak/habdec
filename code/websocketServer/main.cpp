@@ -28,6 +28,8 @@
 #include <cstdlib>
 #include <unordered_set>
 
+#include <boost/algorithm/string.hpp>
+
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Formats.hpp>
 #include <SoapySDR/Version.hpp>
@@ -41,12 +43,18 @@
 #include "ws_server.h"
 #include "common/git_repo_sha1.h"
 #include "Base64.h"
-
+#include "common/sentence_parse.h"
+#include "common/http_request.h"
+#include "common/date.h"
+#include "common/utc_now_iso.h"
+#include "Decoder/CRC.h"
+#include "sondehub/sondehub_uploader.h"
+#include <cpr/cpr.h>
 
 using namespace std;
 
 
-std::vector<std::string> split_string(const std::string& text, char sep)
+std::vector<std::string> split_str(const std::string& text, char sep)
 {
     std::vector<std::string> tokens;
     std::size_t start = 0, end = 0;
@@ -66,7 +74,7 @@ void SentenceToPosition(const std::string i_snt,
 						)
 {
     // "CALLSIGN,123,15:41:24,44.32800,-74.14427,00491,0,0,12,30.7,0.0,0.001,20.2,958*6BC9"
-    std::vector<std::string> tokens = split_string(i_snt, ',');
+    std::vector<std::string> tokens = split_str(i_snt, ',');
     lat = std::stof(tokens[3]);
     lon = std::stof(tokens[4]);
     alt = std::stof(tokens[5]);
@@ -301,16 +309,37 @@ void DECODER_THREAD()
 }
 
 
-void SentenceCallback(std::string callsign, std::string data, std::string crc, std::shared_ptr<WebsocketServer> p_ws)
+void SentenceCallback(	std::string callsign, std::string data, std::string crc,
+						std::shared_ptr<WebsocketServer> p_ws,
+						std::shared_ptr<sondehub::SondeHubUploader> p_sondehub_uploader)
+						// sondehub::SondeHubUploader& sondehub_uploader)
 {
 	using namespace std;
+
+	const string sentence_no_crc = callsign + "," + data;
+	cout<<"SentenceCallback "<<sentence_no_crc<<endl;
+
+	auto maybe_telemetry = habdec::parse_sentence(sentence_no_crc);
+	sondehub::MinTelemetry t;
+	if(maybe_telemetry) {
+		t = maybe_telemetry.value();
+	}
+	else {
+		cout<<"Failed parsing "<<sentence_no_crc<<endl;
+		return;
+	}
+	t.time_received = utc_now_iso();
+
+	// sondehub upload
+	// cout<<"push"<<endl;
+	p_sondehub_uploader->push(t);
+
 	using Ms = std::chrono::milliseconds;
 
 	auto& stats = GLOBALS::get().stats_;
 	stats.last_sentence_timestamp_ = std::chrono::steady_clock::now();
 
 	const string sentence = callsign + "," + data + "*" + crc;
-	const int sentence_number = stoi( data.substr(0, data.find(',')) );
 
 	// notify all websocket clients
 	if(p_ws)
@@ -325,7 +354,7 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 	// register in globals
 	if( GLOBALS::get().sentences_map_mtx_.try_lock_for(Ms(1000)) )
 	{
-		GLOBALS::get().sentences_map_[sentence_number] = sentence;
+		GLOBALS::get().sentences_map_[t.frame] = sentence;
 		GLOBALS::get().stats_.num_ok_ = GLOBALS::get().sentences_map_.size();
 		GLOBALS::get().sentences_map_mtx_.unlock();
 	}
@@ -357,15 +386,10 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 	// print distance and elevation
 	if( GLOBALS::get().par_.station_lat_ )
 	{
-		float lat, lon, alt;
-		SentenceToPosition(	sentence, lat, lon, alt,
-							GLOBALS::get().par_.coord_format_lat_,
-							GLOBALS::get().par_.coord_format_lon_);
-
 		stats.D_ = habdec::CalcGpsDistance(
 				GLOBALS::get().par_.station_lat_, GLOBALS::get().par_.station_lon_,
 				GLOBALS::get().par_.station_alt_,
-				lat, lon, alt );
+				t.lat, t.lon, t.alt );
 
 		stats.dist_max_ = max(stats.dist_max_, stats.D_.dist_line_);
 		stats.elev_min_ = min(stats.elev_min_, stats.D_.elevation_);
@@ -384,6 +408,111 @@ void SentenceCallback(std::string callsign, std::string data, std::string crc, s
 		int res = system( (GLOBALS::get().par_.sentence_cmd_ + " " + sentence).c_str() );
 		if(res)
 			cout<<C_CLEAR<<C_RED<<"sentence_cmd result: "<<res<<endl;
+	}
+}
+
+void test_sentence_parsing_and_upload(std::string test_sentence, std::string api_endpoint)
+{
+	using namespace std;
+	using namespace boost;
+
+	sondehub::MinTelemetry t;
+	try {
+		auto maybe_telemetry = habdec::parse_sentence(test_sentence);
+		if(!maybe_telemetry) {
+			cout<<"Failed parsing sentence to minimal telemetry"<<endl;
+			return;
+		}
+		else {
+			t = maybe_telemetry.value();
+		}
+	} catch(std::exception const& e) {
+		cout<<"Failed parsing sentence to minimal telemetry: "<<e.what()<<endl;
+		return;
+	}
+
+	//upload to sondehub
+	//
+	string tele_json =
+R"([{
+	"software_name": "habdec",
+	"software_version": "4ec86fbad93fb30e073f29be0eef53b437c2c64b",
+	"uploader_callsign": "$uploader_callsign",
+	"time_received": "$time_received",
+	"upload_time": "$upload_time",
+	"payload_callsign": "$payload_callsign",
+	"datetime": "$datetime",
+	"lat": $lat,
+	"lon": $lon,
+	"alt": $alt
+}])";
+
+	string utc_now_str = utc_now_iso();
+	boost::replace_all(tele_json, "$uploader_callsign", "SP7HAB");
+	boost::replace_all(tele_json, "$time_received", utc_now_str);
+	boost::replace_all(tele_json, "$upload_time", utc_now_str);
+	boost::replace_all(tele_json, "$payload_callsign", t.payload_callsign);
+	boost::replace_all(tele_json, "$datetime", t.datetime);
+	boost::replace_all(tele_json, "$lat", to_string(t.lat));
+	boost::replace_all(tele_json, "$lon", to_string(t.lon));
+	boost::replace_all(tele_json, "$alt", to_string(static_cast<int>(t.alt)));
+	cout<<tele_json<<endl;
+
+	return;
+
+	cout<<endl<<api_endpoint<<endl;
+	cpr::Response r = cpr::Put(
+				cpr::Url{api_endpoint},
+				cpr::Body{tele_json},
+				cpr::Header{
+					{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
+					{"Content-Type", "application/json"}
+				}
+			);
+
+	cout<<r.status_code<<endl;                  // 200
+	cout<<r.header["content-type"]<<endl;       // application/json; charset=utf-8
+	cout<<r.text<<endl;
+
+}
+
+
+void Test_SentenceGenerator(
+		std::shared_ptr<WebsocketServer> p_ws_server,
+		// sondehub::SondeHubUploader& sondehub_uploader
+		std::shared_ptr<sondehub::SondeHubUploader> p_sondehub_uploader
+	)
+{
+	using namespace std;
+	using namespace chrono;
+	using namespace date;
+
+
+	static int sentence_id = 0;
+	while(1) {
+		sentence_id++;
+		this_thread::sleep_for(( duration<double, milli>(6 * 1000) ));
+
+		auto sys_now = system_clock::now();
+    	auto sys_HMS = make_time(sys_now - floor<days>(sys_now) );
+
+		stringstream ss;
+		// ss << "SP7HAB-test,";
+		ss << sentence_id;
+		ss << "," << sys_HMS;
+		if(sentence_id%2)
+			ss << ",52.5,21.25";
+		else
+			ss << ",5230.1,02115.1"; // NMEA
+		ss << ","<<int(5000 + sentence_id*00);
+		ss << ",-25.3";
+
+		string data{ ss.str() };
+		// cout<<data<<endl;
+
+		SentenceCallback( 	"SP7HAB-test", data, habdec::CRC(string("SP7HAB-test") + string(",") + data),
+							p_ws_server,
+							p_sondehub_uploader );
 	}
 }
 
@@ -419,6 +548,14 @@ int main(int argc, char** argv)
 	prog_opts(argc, argv);
 
 	auto& G = GLOBALS::get();
+
+	if(	G.par_.test_parse_sentence_ != "" ) {
+		test_sentence_parsing_and_upload(
+			G.par_.test_parse_sentence_,
+			G.par_.sondehub_ + string("/amateur/telemetry") );
+		return 0;
+	}
+
 
 	// setup SoapySDR device
 	SoapySDR::Kwargs device;
@@ -460,12 +597,53 @@ int main(int argc, char** argv)
 											device["driver"] + " - habdec" );
 
 		if(		G.par_.station_lat_
-			&& 	G.par_.station_lon_ )
+			&& 	G.par_.station_lon_ ) {
+
+					// habitat
+					cout<<"Uploading station info to HabHub."<<endl;
 					habdec::habitat::UploadStationTelemetry(
 						G.par_.station_callsign_,
 						G.par_.station_lat_, G.par_.station_lon_,
 						G.par_.station_alt_, 0, false
 					);
+
+					// sondehub
+					string sondehub_station_json = R"(
+						{
+							"uploader_callsign": "$uploader_callsign",
+							"uploader_position": [$lat,$lon,$alt],
+							"software_name": "habdec",
+							"software_version": "$software_version",
+							"uploader_radio": "$uploader_radio",
+							"mobile": false
+						}
+					)";
+        			boost::replace_all(sondehub_station_json, "$uploader_callsign", G.par_.station_callsign_);
+        			boost::replace_all(sondehub_station_json, "$lat", to_string(G.par_.station_lat_));
+        			boost::replace_all(sondehub_station_json, "$lon", to_string(G.par_.station_lon_));
+        			boost::replace_all(sondehub_station_json, "$alt", to_string(G.par_.station_alt_));
+			        boost::replace_all(sondehub_station_json, "$software_version", string(g_GIT_SHA1).substr(0,7));
+			        boost::replace_all(sondehub_station_json, "$uploader_radio", device["driver"]);
+
+					cout<<"Uploading station info to SondeHub."<<endl;
+					cout<<sondehub_station_json<<endl;
+
+					cpr::Response r = cpr::Put(
+						cpr::Url{G.par_.sondehub_ + "/amateur/listeners"},
+						cpr::Body{sondehub_station_json},
+						cpr::Header{
+							{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
+							{"Content-Type", "application/json"}
+						}
+					);
+
+					if(r.status_code != 200) {
+						cout<<"sondehub station info upload error:\n";
+						cout<<r.status_code<<endl;                  // 200
+						cout<<r.header["content-type"]<<endl;       // application/json; charset=utf-8
+						cout<<r.text<<endl;
+					}
+		}
 	}
 
 	// initial options from globals
@@ -493,13 +671,16 @@ int main(int argc, char** argv)
 
 
 	// websocket server
-	shared_ptr<WebsocketServer> p_ws_server = make_shared<WebsocketServer>(
-		G.par_.command_host_ , G.par_.command_port_);
+	auto p_ws_server = make_shared<WebsocketServer>(G.par_.command_host_ , G.par_.command_port_);
+
+	// sondehub uploader
+	auto p_sondehub_uploader = make_shared<sondehub::SondeHubUploader>(G.par_.sondehub_ + "/amateur/telemetry", G.par_.station_callsign_);
+
 
 	DECODER.sentence_callback_ =
-		[p_ws_server](string callsign, string data, string crc)
+		[p_ws_server, p_sondehub_uploader](string callsign, string data, string crc)
 		{
-			async(launch::async, SentenceCallback, callsign, data, crc, p_ws_server);
+			async(launch::async, SentenceCallback, callsign, data, crc, p_ws_server, p_sondehub_uploader);
 		};
 
 	DECODER.character_callback_ =
@@ -535,15 +716,31 @@ int main(int argc, char** argv)
 	//
 	unordered_set<thread*> threads;
 
-	// start websocket
+	// websocket server
 	threads.emplace( new thread(
 		[p_ws_server]() { (*p_ws_server)(); }
 	) );
 
-	// start decoder
+	// decoder
 	threads.emplace( new thread(
-		DECODER_THREAD
+		// DECODER_THREAD
+		[p_ws_server, p_sondehub_uploader]() {
+			Test_SentenceGenerator(p_ws_server, p_sondehub_uploader);
+		}
 	) );
+
+	// sondehub uploader
+	if(G.par_.station_callsign_ != "" && G.par_.sondehub_ != "") {
+		cout<<"Uploading to sondehub "<<G.par_.sondehub_<<endl;
+		threads.emplace( new thread(
+			[p_sondehub_uploader]() {
+				while(1) {
+					this_thread::sleep_for(( std::chrono::duration<double, std::milli>(15 * 1000) ));
+					p_sondehub_uploader->upload();
+				}
+			}
+		) );
+	}
 
 
 	for(auto t : threads)

@@ -104,6 +104,8 @@ public:
 		std::string		coord_format_lat_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		std::string		coord_format_lon_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		std::string		ssdv_dir_ = ".";
+		std::string		test_parse_sentence_ = "";
+		std::string		sondehub_ = "https://api.v2.sondehub.org/";
 		// int 	datasize_ = 1;
 		TransportDataType  	transport_data_type_ = TransportDataType::kChar;
 
@@ -176,8 +178,7 @@ public:
 			oFile<<"sentence_cmd = "<<GLOBALS::get().par_.sentence_cmd_<<endl;
 			oFile<<"payload = "<<GLOBALS::get().par_.habitat_payload_<<endl;
 			oFile<<"no_exit = "<<GLOBALS::get().par_.no_exit_<<endl;
-			oFile	<<"nmea = "<< ( 	GLOBALS::get().par_.coord_format_lat_ == "ddmm.mmmm"
-									&& 	GLOBALS::get().par_.coord_format_lon_ == "ddmm.mmmm" )<<endl;
+			oFile<<"sondehub = "<<GLOBALS::get().par_.sondehub_<<endl;
 
 		}
 		catch (exception& e) {
@@ -214,8 +215,8 @@ public:
 		cout<<"\tlowpass: "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
 		cout<<"\tlp_trans: "<<GLOBALS::get().par_.lowpass_tr_<<endl;
 		cout<<"\tno_exit: "<<GLOBALS::get().par_.no_exit_<<endl;
-		cout<<"\tnmea = "<< ( 	GLOBALS::get().par_.coord_format_lat_ == "ddmm.mmmm"
-							&& 	GLOBALS::get().par_.coord_format_lon_ == "ddmm.mmmm" )<<endl;
+		cout<<"\tsondehub: "<<GLOBALS::get().par_.sondehub_<<endl;
+
 	}
 
 
