@@ -723,10 +723,10 @@ int main(int argc, char** argv)
 
 	// decoder
 	threads.emplace( new thread(
-		// DECODER_THREAD
-		[p_ws_server, p_sondehub_uploader]() {
-			Test_SentenceGenerator(p_ws_server, p_sondehub_uploader);
-		}
+		DECODER_THREAD
+		// [p_ws_server, p_sondehub_uploader]() {
+		// 	Test_SentenceGenerator(p_ws_server, p_sondehub_uploader);
+		// }
 	) );
 
 	// sondehub uploader
