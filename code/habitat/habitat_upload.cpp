@@ -129,6 +129,7 @@ std::string HabitatUploadSentence(
     string sentence_json = SentenceToHabJson(sentence_b64, i_listener_callsign);
 
     string result;
+    // return result;
 
     int retries_left = 5;
     while( retries_left-- )
