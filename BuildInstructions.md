@@ -31,6 +31,12 @@ Just download and install binaries from https://cmake.org/download/
 ## boost
 
 #### Linux
+
+If you preffer using system installed boost, then remove `
+set ( Boost_NO_SYSTEM_PATHS ON )` from websocketServer/CMakeLists.txt
+
+To build your own boost:
+
     wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
     tar -xf ./boost_1_68_0.tar.gz
     cd boost_1_68_0
@@ -121,11 +127,11 @@ Tip: you might need to configure with:
 
 If you managed to build or install dependencies, you're ready do build habdec
 
-    git clone https://github.com/ogre/habdec.git
+    git clone --recurse-submodules https://github.com/ogre/habdec.git
     cd habdec
     mkdir build
     cd build
-    cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=Release ../code
+    cmake -D BOOST_ROOT=/path/to/boost_1.68 -D FFTW_ROOT=/path/to/fftwf/install -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=Off ../code
     make -j 4
     make install
 

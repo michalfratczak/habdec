@@ -12,7 +12,7 @@ include_directories( ${FFTW3f_INCLUDE_DIRS} )
 
 # boost
 set ( Boost_NO_BOOST_CMAKE ON )
-set ( Boost_NO_SYSTEM_PATHS ON )
+set ( Boost_NO_SYSTEM_PATHS ON ) #remove line to use system installed boost
 set ( Boost_USE_STATIC_LIBS ON )
 add_definitions ( -DBOOST_ALL_NO_LIB )
 find_package(Boost REQUIRED COMPONENTS program_options system date_time )
@@ -74,6 +74,7 @@ list(APPEND websocketServer_src "${CMAKE_CURRENT_BINARY_DIR}/git_repo_sha1.cpp" 
 
 add_executable ( 		habdecWebsocketServer ${websocketServer_src} )
 target_link_libraries( 	habdecWebsocketServer
+							# atomic # uncomment under raspbian
 							Decoder
 							IQSource
 							${Boost_LIBRARIES}
