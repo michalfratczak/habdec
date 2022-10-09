@@ -112,6 +112,7 @@ void prog_opts(int ac, char* av[])
 			("ssdv_dir",	po::value<string>()->default_value(GLOBALS::get().par_.ssdv_dir_), "SSDV directory.")
 
 			("sondehub",	po::value<string>()->default_value("https://api.v2.sondehub.org"),	"sondehub API url")
+			("iqfile",	po::value< std::vector<string> >()->multitoken(), "iqfile and it's sampling_rate")
 
 		;
 
@@ -300,6 +301,18 @@ void prog_opts(int ac, char* av[])
 		{
 			GLOBALS::get().par_.sondehub_ = vm["sondehub"].as<string>();
 		}
+		if (vm.count("iqfile"))
+		{
+			vector<string> file_and_sr = vm["iqfile"].as< vector<string> >();
+			if( file_and_sr.size() != 2 )
+			{
+				cout<<C_RED<<"--iqfile option needs 2 args"<<C_OFF<<endl;
+				exit(1);
+			}
+			GLOBALS::get().par_.iqfile_ = file_and_sr[0];
+			GLOBALS::get().par_.iqfile_sampling_rate_ = stof(file_and_sr[1]);
+		}
+
 	}
 	catch(exception& e)
 	{

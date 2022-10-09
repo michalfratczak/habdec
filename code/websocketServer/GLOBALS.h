@@ -106,6 +106,8 @@ public:
 		std::string		ssdv_dir_ = ".";
 		std::string		test_parse_sentence_ = "";
 		std::string		sondehub_ = "https://api.v2.sondehub.org/";
+		std::string		iqfile_ = "";
+		float			iqfile_sampling_rate_ =  0;
 		TransportDataType  	transport_data_type_ = TransportDataType::kFloat;
 
 

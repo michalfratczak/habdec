@@ -35,6 +35,7 @@
 #include <SoapySDR/Version.hpp>
 
 
+#include "IQSource/IQSource_File.h"
 #include "IQSource/IQSource_SoapySDR.h"
 #include "Decoder/Decoder.h"
 #include "common/console_colors.h"
@@ -471,38 +472,47 @@ int main(int argc, char** argv)
 
 	auto& G = GLOBALS::get();
 
-	// setup SoapySDR device
+	// setup SoapySDR device or iqfile
 	SoapySDR::Kwargs device;
-	while(true)
+	if(G.par_.iqfile_ != "")
 	{
-		bool ok = false;
-		try {
-			ok = SetupDevice(device);
-		} catch(std::runtime_error& er) {
-			cout<<C_RED<<"Failed opening device: "
-				<<C_MAGENTA<<er.what()<<C_OFF<<endl;
-		}
-
-		if( ok )
-		{
-			break;
-		}
-		else
-		{
-			if( G.par_.no_exit_ )
-			{
-				cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
-				std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
-				continue;
+		G.p_iq_source_.reset( new habdec::IQSource_File<float> );
+		G.p_iq_source_->setOption("file_string", &G.par_.iqfile_);
+		double sr = G.par_.iqfile_sampling_rate_;
+		G.p_iq_source_->setOption("sampling_rate_double", &sr);
+		bool iq_loop = true;
+		G.p_iq_source_->setOption("loop_bool", &iq_loop);
+		G.p_iq_source_->init();
+		cout<<"Reading IQ samples from "<<G.par_.iqfile_<<" at "<<sr<<endl;
+		G.p_iq_source_->start();
+	}
+	else
+	{
+		while(true) {
+			bool ok = false;
+			try {
+				ok = SetupDevice(device);
+			} catch(std::runtime_error& er) {
+				cout<<C_RED<<"Failed opening device: "
+					<<C_MAGENTA<<er.what()<<C_OFF<<endl;
 			}
-			else
-			{
-				cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
-				return 1;
+
+			if( ok ) {
+				break;
+			}
+			else {
+				if( G.par_.no_exit_ ) {
+					cout<<C_RED<<"Failed Device Setup. Retry."<<C_OFF<<endl;
+					std::this_thread::sleep_for( ( std::chrono::duration<double, std::milli>(3000) ));
+					continue;
+				}
+				else {
+					cout<<C_RED<<"Failed Device Setup. EXIT."<<C_OFF<<endl;
+					return 1;
+				}
 			}
 		}
 	}
-
 
 	// station info
 	if(	G.par_.station_callsign_ != "" )
