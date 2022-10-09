@@ -6,7 +6,7 @@
 namespace habdec
 {
 
-enum class HTTP_VERB { kUnknown = 0, kGet, kPost };
+enum class HTTP_VERB { kUnknown = 0, kGet, kPost, kPut };
 
 int HttpRequest(
         const std::string host,
