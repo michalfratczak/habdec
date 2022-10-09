@@ -106,8 +106,7 @@ public:
 		std::string		ssdv_dir_ = ".";
 		std::string		test_parse_sentence_ = "";
 		std::string		sondehub_ = "https://api.v2.sondehub.org/";
-		// int 	datasize_ = 1;
-		TransportDataType  	transport_data_type_ = TransportDataType::kChar;
+		TransportDataType  	transport_data_type_ = TransportDataType::kFloat;
 
 
 		bool operator==(const PARAMS& rhs) const

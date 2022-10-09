@@ -416,7 +416,6 @@ void Test_SentenceGenerator(
     	auto sys_HMS = make_time(sys_now - floor<days>(sys_now) );
 
 		stringstream ss;
-		// ss << "SP7HAB-test,";
 		ss << sentence_id;
 		ss << "," << sys_HMS;
 		if(sentence_id%2)
@@ -637,10 +636,10 @@ int main(int argc, char** argv)
 
 	// decoder
 	threads.emplace( new thread(
-		// DECODER_THREAD
-		[p_ws_server, p_sondehub_uploader]() {
-			Test_SentenceGenerator(p_ws_server, p_sondehub_uploader);
-		}
+		DECODER_THREAD
+		// [p_ws_server, p_sondehub_uploader]() {
+		// 	Test_SentenceGenerator(p_ws_server, p_sondehub_uploader);
+		// }
 	) );
 
 	// sondehub uploader
