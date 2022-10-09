@@ -30,23 +30,6 @@ private:
     std::string api_endpoint_;
     std::string uploader_callsign_;
 
-
-    inline static const std::string JSON_TEMPLATE =
-R"({
-	"dev": "true",
-	"software_name": "habdec",
-	"software_version": "$software_version",
-	"uploader_callsign": "$uploader_callsign",
-	"time_received": "$time_received",
-	"upload_time": "$upload_time",
-	"payload_callsign": "$payload_callsign",
-	"datetime": "$datetime",
-	"frame": $frame,
-	"lat": $lat,
-	"lon": $lon,
-	"alt": $alt
-})";
-
 public:
     SondeHubUploader(const std::string& api_endpoint, const std::string& uploader_callsign) : api_endpoint_(api_endpoint), uploader_callsign_(uploader_callsign) {};
     void push(const MinTelemetry&);
