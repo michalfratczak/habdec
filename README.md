@@ -2,7 +2,7 @@
 
 ![alt text](./webClientScreenshot.png)
 
-Habdec is a C++11 software to decode RTTY telemetry from High Altitude Balloon and upload it to [UKHAS Habitat](http://habitat.habhub.org/)
+Habdec is a C++17 software to decode RTTY telemetry from High Altitude Balloons and upload it to [UKHAS Habitat](http://habitat.habhub.org/) and [sondehub.org](https://amateur.sondehub.org)
 
 Some facts:
 - builds and runs on Windows/Linux and x64/RaspberryPI/OdroixXU4 platforms
@@ -35,7 +35,7 @@ To get habdec you can download precompiled exec or build it from source.
 There's also raspberryPi 3 image with ready to use binary and build env. Go to [Wiki](https://github.com/ogre/habdec/wiki)
 
 #### Building from source:
-To build habdec you need a C++11 compiler and CMake version 3.8.2
+To build habdec you need a C++17 compiler and CMake version 3.8.2
 You also need to build or install some dependencies:
 - basic decoder: [FFTW](http://www.fftw.org/)
 - websocket server: [SoapySDR](https://github.com/pothosware/SoapySDR), [boost 1.68](https://www.boost.org/) (any version with boost-beast)
@@ -75,6 +75,7 @@ CLI opts:
   --sentence_cmd arg        Call external command with sentence as parameter
   --flights [=arg(=0)]      List Habitat flights
   --payload arg             Configure for Payload ID
+  --sondehub arg            (=https://api.v2.sondehub.org) sondehub API url
 ```
 
 ### Examples:

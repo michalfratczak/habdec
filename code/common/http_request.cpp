@@ -45,13 +45,15 @@ int HttpRequest(
 
         http::request<http::string_body> req; //{_verb, target, 10/*version*/};
         req.set(http::field::host, host);
-        req.set(http::field::user_agent, "habdec");
+        req.set(http::field::user_agent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0");
         req.version(10); // 11 ?
         req.target(target);
         if(i_verb == HTTP_VERB::kGet)
             req.method( http::verb::get );
         else if(i_verb == HTTP_VERB::kPost)
             req.method( http::verb::post );
+        else if(i_verb == HTTP_VERB::kPut)
+            req.method( http::verb::put );
         if( i_content_type != "" )
             req.set(http::field::content_type, i_content_type);
         if( i_body != "" )

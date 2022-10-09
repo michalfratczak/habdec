@@ -108,9 +108,11 @@ void prog_opts(int ac, char* av[])
 
 			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
 			("payload",	po::value<string>(), "Configure for Payload ID")
-			("nmea",	po::value<bool>(), "assume NMEA lat/lon format: ddmm.mmmm")
 
 			("ssdv_dir",	po::value<string>()->default_value(GLOBALS::get().par_.ssdv_dir_), "SSDV directory.")
+
+			("sondehub",	po::value<string>()->default_value("https://api.v2.sondehub.org"),	"sondehub API url")
+			("iqfile",	po::value< std::vector<string> >()->multitoken(), "iqfile and it's sampling_rate")
 
 		;
 
@@ -276,11 +278,6 @@ void prog_opts(int ac, char* av[])
 				cout<<flight.second<<endl;
 			exit(0);
 		}
-		if (vm.count("nmea") && vm["nmea"].as<bool>())
-		{
-			GLOBALS::get().par_.coord_format_lat_ = "ddmm.mmmm";
-			GLOBALS::get().par_.coord_format_lon_ = "ddmm.mmmm";
-		}
 		if (vm.count("latlon"))
 		{
 			vector<float> latlon_vec = vm["latlon"].as< vector<float> >();
@@ -300,6 +297,22 @@ void prog_opts(int ac, char* av[])
 		{
 			GLOBALS::get().par_.ssdv_dir_ = vm["ssdv_dir"].as<string>();
 		}
+		if (vm.count("sondehub"))
+		{
+			GLOBALS::get().par_.sondehub_ = vm["sondehub"].as<string>();
+		}
+		if (vm.count("iqfile"))
+		{
+			vector<string> file_and_sr = vm["iqfile"].as< vector<string> >();
+			if( file_and_sr.size() != 2 )
+			{
+				cout<<C_RED<<"--iqfile option needs 2 args"<<C_OFF<<endl;
+				exit(1);
+			}
+			GLOBALS::get().par_.iqfile_ = file_and_sr[0];
+			GLOBALS::get().par_.iqfile_sampling_rate_ = stof(file_and_sr[1]);
+		}
+
 	}
 	catch(exception& e)
 	{
