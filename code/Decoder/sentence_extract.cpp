@@ -27,7 +27,7 @@
 namespace habdec
 {
 
-std::regex HABHUB_REGEX( R"_(.*?(\$+)([\w,\-]+?),(.+?)(\*|\$)(\w\w\w\w).*)_" );
+std::regex HABHUB_REGEX( R"_(.*?(\$+)([\w,\-,\s]+?),(.+?)(\*|\$)(\w\w\w\w).*)_" );
 
 
 // usefull for some testing
