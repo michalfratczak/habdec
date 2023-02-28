@@ -2,7 +2,7 @@
 
 ![alt text](./webClientScreenshot.png)
 
-Habdec is a C++17 software to decode RTTY telemetry from High Altitude Balloons and upload it to [UKHAS Habitat](http://habitat.habhub.org/) and [sondehub.org](https://amateur.sondehub.org)
+Habdec is a C++17 software to decode RTTY telemetry from High Altitude Balloons and upload it to ~~UKHAS Habitat~~ [sondehub.org](https://amateur.sondehub.org)
 
 Some facts:
 - builds and runs on Windows/Linux and x64/RaspberryPI/OdroixXU4 platforms
@@ -73,8 +73,6 @@ CLI opts:
   --lowpass arg             lowpass bandwidth in Hertz
   --lp_trans arg            lowpass transition width. (0-1)
   --sentence_cmd arg        Call external command with sentence as parameter
-  --flights [=arg(=0)]      List Habitat flights
-  --payload arg             Configure for Payload ID
   --sondehub arg            (=https://api.v2.sondehub.org) sondehub API url
 ```
 
@@ -157,32 +155,13 @@ habdecWebsocketServer.exe   --device 0 --sampling_rate 2.5e6
                             --freq 434.5 --gain 20 --biast 1 --afc 1
 ```
 
-Load configuration for specific Habitat Payload
-```
-./habdecWebsocketServer --flights
-Habitat Flights:
-Flight: Belice-3 6d8281c7b6e54c0c9f2488c77d043f8a
-	lat/lon: 49.7665 14.4731
-Payload: DNA-3 289b03bf7a92e06cff8ab4fec1f789bd
-	RS41-1 Belice 10/11/2018 St. Martin's day
-	Flight ID: 6d8281c7b6e54c0c9f2488c77d043f8a
-	freq 434,250,000
-	baud/ascii/stops 50 7 2
-
-./habdecWebsocketServer --payload 289b03bf7a92e06cff8ab4fec1f789bd
-Loading parameters for payload 289b03bf7a92e06cff8ab4fec1f789bd
-	baud: 50
-	ascii_bits: 7
-	ascii_stops: 2
-	frequency: 434,250,000
-```
 
 
 ### Web Client
 
 To control habdec parameters from your browser:
 - start browser
-- open `habitat/code/webClient/index.html` file from disk
+- open `habdec/code/webClient/index.html` file from disk
 - set server field ip:port and Connect
 
 Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP server and you will see this error:
@@ -193,19 +172,14 @@ Do not try connecting directly to `http://ip:port ` - habdec is not an HTTP serv
 ## Known Limitations
 
 - RTTY Modes **NOT** supported: 5bit baudot, 1.5 bit stop
-- Decoding will stop if decimation setting is too low or too high. It was tested to work with stream around 40kHz bandwidth.
+- SSDV images are not uploaded to http://ssdv.habhub.org
 - Automatic Frequency Correction needs more work. Use consciously. dc_remove=on can help if AFC is confused by center spike.
 - Connecting from browser is not very reliable yet, sometimes you need to refresh and wait.
-- habdec was developed and tested with [AirSpy](https://airspy.com/) and [OdroidXU4](http://hardkernel.com/),[RaspberryPI](http://raspberrypi.org). Support for windows and RtlSdr is less tested.
 
 
 ## Reporting Problems
 
-Use bugtracker, please.
-
-## Contributions
-
-Gladly accepted :)
+Use bugtracker.
 
 ## Authors
 

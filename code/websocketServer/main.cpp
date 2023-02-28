@@ -39,7 +39,6 @@
 #include "IQSource/IQSource_SoapySDR.h"
 #include "Decoder/Decoder.h"
 #include "common/console_colors.h"
-#include "habitat/habitat_interface.h"
 #include "GLOBALS.h"
 #include "ws_server.h"
 #include "common/git_repo_sha1.h"
@@ -355,20 +354,6 @@ void SentenceCallback(	std::string callsign, std::string data, std::string crc,
 	}
 
 
-	// habitat upload
-	if(GLOBALS::get().par_.station_callsign_ != "")
-	{
-		try {
-			string res = habdec::habitat::HabitatUploadSentence( sentence, GLOBALS::get().par_.station_callsign_ );
-			if( res != "OK" )
-				cout<<C_CLEAR<<C_RED<<"HAB Upload result: "<<res<<endl;
-		}
-		catch(const exception& e) {
-			cout<<"Failed upload to habitat: "<<e.what()<<endl;
-		}
-	}
-
-
 	// print distance and elevation
 	if( GLOBALS::get().par_.station_lat_ )
 	{
@@ -515,53 +500,42 @@ int main(int argc, char** argv)
 	}
 
 	// station info
-	if(	G.par_.station_callsign_ != "" )
+	if(		G.par_.station_callsign_ != ""
+		&&	G.par_.station_lat_
+		&& 	G.par_.station_lon_ )
 	{
-		habdec::habitat::UploadStationInfo(	G.par_.station_callsign_,
-											device["driver"] + " - habdec" );
 
-		if(		G.par_.station_lat_
-			&& 	G.par_.station_lon_ ) {
 
-			// habitat
-			cout<<"Uploading station info to HabHub."<<endl;
-			habdec::habitat::UploadStationTelemetry(
-				G.par_.station_callsign_,
-				G.par_.station_lat_, G.par_.station_lon_,
-				G.par_.station_alt_, 0, false
-			);
+		// sondehub
+		using json = nlohmann::json;
+		json sh_json;
+		sh_json["software_name"] = "habdec";
+		sh_json["software_version"] = string(g_GIT_SHA1).substr(0,7);
+		sh_json["uploader_callsign"] = G.par_.station_callsign_;
+		sh_json["uploader_position"] = vector<float>{
+			G.par_.station_lat_, G.par_.station_lon_, G.par_.station_alt_};
+		sh_json["uploader_radio"] = device["driver"];
+		sh_json["mobile"] = false;
 
-			// sondehub
-			using json = nlohmann::json;
-			json sh_json;
-			sh_json["software_name"] = "habdec";
-			sh_json["software_version"] = string(g_GIT_SHA1).substr(0,7);
-			sh_json["uploader_callsign"] = G.par_.station_callsign_;
-			sh_json["uploader_position"] = vector<float>{
-				G.par_.station_lat_, G.par_.station_lon_, G.par_.station_alt_};
-			sh_json["uploader_radio"] = device["driver"];
-			sh_json["mobile"] = false;
+		cout<<"Uploading station info to SondeHub."<<endl;
+		// cout<<sh_json<<endl;
+		stringstream s;
+		s<<sh_json;
 
-			cout<<"Uploading station info to SondeHub."<<endl;
-			// cout<<sh_json<<endl;
-			stringstream s;
-			s<<sh_json;
-
-			cpr::Response r = cpr::Put(
-				cpr::Url{G.par_.sondehub_ + "/amateur/listeners"},
-				cpr::Body{s.str()},
-				cpr::Header{
-					{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
-					{"Content-Type", "application/json"}
-				}
-			);
-
-			if(r.status_code != 200) {
-				cout<<"sondehub station info upload error:\n";
-				cout<<r.status_code<<endl;                  // 200
-				cout<<r.header["content-type"]<<endl;       // application/json; charset=utf-8
-				cout<<r.text<<endl;
+		cpr::Response r = cpr::Put(
+			cpr::Url{G.par_.sondehub_ + "/amateur/listeners"},
+			cpr::Body{s.str()},
+			cpr::Header{
+				{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
+				{"Content-Type", "application/json"}
 			}
+		);
+
+		if(r.status_code != 200) {
+			cout<<"sondehub station info upload error:\n";
+			cout<<r.status_code<<endl;                  // 200
+			cout<<r.header["content-type"]<<endl;       // application/json; charset=utf-8
+			cout<<r.text<<endl;
 		}
 	}
 

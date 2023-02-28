@@ -67,8 +67,6 @@ set ( websocketServer_src
 					websocket_session.h websocket_session.cpp
 					ws_server.h ws_server.cpp
 					CompressedVector.h CompressedVector.cpp
-					${CMAKE_SOURCE_DIR}/habitat/habitat_upload.cpp
-					${CMAKE_SOURCE_DIR}/habitat/habitat_list_flights.cpp
 					${CMAKE_SOURCE_DIR}/sondehub/sondehub_uploader.cpp
 					${CMAKE_SOURCE_DIR}/common/http_request.cpp
 					${CMAKE_SOURCE_DIR}/common/GpsDistance.cpp

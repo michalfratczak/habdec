@@ -79,7 +79,7 @@ public:
 		int 			device_ = 0; 	// index to SoapySDR::Device::enumerate()
 		std::string 	command_host_ = "0.0.0.0";
 		int 		 	command_port_ = 5555;
-		std::string 	station_callsign_ = ""; // habitat upload
+		std::string 	station_callsign_ = "";
 		float 	station_lat_ = 0;
 		float 	station_lon_ = 0;
 		float 	station_alt_ = 0;
@@ -100,7 +100,6 @@ public:
 		float	lowpass_tr_ = 0.025;
 		bool	no_exit_ = false;
 		std::string 	sentence_cmd_ = "";
-		std::string 	habitat_payload_ = "";
 		std::string		coord_format_lat_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		std::string		coord_format_lon_ = "dd.dddd"; // encoding of lat/lon coords: dd.dddd or ddmm.mmmm
 		std::string		ssdv_dir_ = ".";
@@ -138,7 +137,6 @@ public:
 				&& station_alt_ == rhs.station_alt_
 				&& sampling_rate_ == rhs.sampling_rate_
 				&& sentence_cmd_ == rhs.sentence_cmd_
-				&& habitat_payload_ == rhs.habitat_payload_
 				&& no_exit_ == rhs.no_exit_
 				&& coord_format_lat_ == rhs.coord_format_lat_
 				&& coord_format_lon_ == rhs.coord_format_lon_
@@ -177,7 +175,6 @@ public:
 			oFile<<"lowpass = "<<GLOBALS::get().par_.lowpass_bw_Hz_<<endl;
 			oFile<<"lp_trans = "<<GLOBALS::get().par_.lowpass_tr_<<endl;
 			oFile<<"sentence_cmd = "<<GLOBALS::get().par_.sentence_cmd_<<endl;
-			oFile<<"payload = "<<GLOBALS::get().par_.habitat_payload_<<endl;
 			oFile<<"no_exit = "<<GLOBALS::get().par_.no_exit_<<endl;
 			oFile<<"sondehub = "<<GLOBALS::get().par_.sondehub_<<endl;
 
@@ -199,7 +196,6 @@ public:
 		cout<<"\tcommand_host: "<<GLOBALS::get().par_.command_host_<<endl;
 		cout<<"\tcommand_port: "<<GLOBALS::get().par_.command_port_<<endl;
 		cout<<"\tsentence_cmd: "<<GLOBALS::get().par_.sentence_cmd_<<endl;
-		cout<<"\tpayload: "<<GLOBALS::get().par_.habitat_payload_<<endl;
 		cout<<"\tstation: "<<GLOBALS::get().par_.station_callsign_<<endl;
 		cout<<"\tlatlon: "<<GLOBALS::get().par_.station_lat_<<" "<<GLOBALS::get().par_.station_lon_<<endl;
 		cout<<"\talt: "<<GLOBALS::get().par_.station_alt_<<endl;

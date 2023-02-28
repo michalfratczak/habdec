@@ -28,46 +28,6 @@
 
 #include "GLOBALS.h"
 #include "common/console_colors.h"
-#include "habitat/habitat_interface.h"
-
-namespace
-{
-
-int LoadPayloadParameters(std::string i_payload_id)
-{
-	using namespace std;
-	using namespace habdec::habitat;
-
-	std::map<std::string, HabitatFlight> flights = ListFlights(0);
-
-	for(auto& flight : flights)
-	{
-		for(auto& payload : flight.second.payloads_)
-		{
-			if( !i_payload_id.compare(payload.second.id_) )
-			{
-				GLOBALS::get().par_.baud_ = payload.second.baud_;
-				GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
-				GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
-				GLOBALS::get().par_.frequency_ = payload.second.frequency_;
-				GLOBALS::get().par_.coord_format_lat_ = payload.second.coord_format_lat_;
-				GLOBALS::get().par_.coord_format_lon_ = payload.second.coord_format_lon_;
-
-				cout<<C_MAGENTA<<"Loading parameters for payload "<<i_payload_id<<C_OFF<<endl;
-
-				cout<<"\tbaud: "<<payload.second.baud_<<endl;
-				cout<<"\tascii_bits: "<<payload.second.ascii_bits_<<endl;
-				cout<<"\tascii_stops: "<<payload.second.ascii_stops_<<endl;
-				cout<<"\tfrequency: "<<payload.second.frequency_<<endl;
-
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
-} // namespace
 
 void prog_opts(int ac, char* av[])
 {
@@ -105,9 +65,6 @@ void prog_opts(int ac, char* av[])
 			("lp_trans",	po::value<float>(), "lowpass transition width. (0-1)")
 
 			("sentence_cmd",	po::value<string>(), "Call external command with sentence as parameter")
-
-			("flights",	po::value<int>()->implicit_value(0), "List Habitat flights")
-			("payload",	po::value<string>(), "Configure for Payload ID")
 
 			("ssdv_dir",	po::value<string>()->default_value(GLOBALS::get().par_.ssdv_dir_), "SSDV directory.")
 
@@ -181,12 +138,6 @@ void prog_opts(int ac, char* av[])
 		if (vm.count("station"))
 		{
 			GLOBALS::get().par_.station_callsign_ = vm["station"].as<string>();
-		}
-		if (vm.count("payload"))
-		{
-			GLOBALS::get().par_.habitat_payload_ = vm["payload"].as<string>();
-			if( !LoadPayloadParameters( GLOBALS::get().par_.habitat_payload_ ) )
-				cout<<C_RED<<"Failed loading payload "<<GLOBALS::get().par_.habitat_payload_ <<endl;
 		}
 		if (vm.count("sentence_cmd"))
 		{
@@ -267,16 +218,6 @@ void prog_opts(int ac, char* av[])
 			GLOBALS::get().par_.baud_ = rtty_tokens[0];
 			GLOBALS::get().par_.rtty_ascii_bits_ = rtty_tokens[1];
 			GLOBALS::get().par_.rtty_ascii_stops_ = rtty_tokens[2];
-		}
-		if (vm.count("flights"))
-		{
-			using namespace habdec::habitat;
-			int hours_offset = vm["flights"].as<int>();
-			cout<<"Habitat Flights: "<<endl;
-			std::map<std::string, HabitatFlight> payloads = ListFlights(hours_offset);
-			for(auto& flight : payloads)
-				cout<<flight.second<<endl;
-			exit(0);
 		}
 		if (vm.count("latlon"))
 		{

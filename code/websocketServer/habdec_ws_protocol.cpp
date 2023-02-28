@@ -41,7 +41,6 @@ namespace websocket = 	boost::beast::websocket;
 #include "common/console_colors.h"
 #include "GLOBALS.h"
 #include "NetTransport.h"
-#include "habitat/habitat_interface.h"
 
 
 // i_param == "" --> sends all parameters
@@ -325,60 +324,6 @@ std::vector< std::shared_ptr<HabdecMessage> >  HandleCommand(const std::string i
 		GLOBALS::get().decoder_.dc_remove(value);
 		GLOBALS::get().par_.dc_remove_ = value;
 		result = EchoParameter("dc_remove");
-	}
-	else if( regex_match(i_command, match, regex(R"_(set\:payload=(\w+))_")) && match.size() > 1 )
-	{
-		using namespace habdec::habitat;
-
-		string payload_id = match[1];
-		std::map<std::string, HabitatFlight> flights;
-		try {
-			flights = ListFlights(0);
-		}
-		catch(const exception& e) {
-			cout<<"Failed loading flights list: "<<e.what()<<endl;
-			return result;
-		}
-
-		auto& DEC = GLOBALS::get().decoder_;
-
-		for(auto& flight : flights)
-		{
-			for(auto& payload : flight.second.payloads_)
-			{
-				if( !payload_id.compare(payload.second.id_) )
-				{
-					GLOBALS::get().par_.baud_ = payload.second.baud_;
-					GLOBALS::get().par_.rtty_ascii_bits_ = payload.second.ascii_bits_;
-					GLOBALS::get().par_.rtty_ascii_stops_ = payload.second.ascii_stops_;
-					GLOBALS::get().par_.frequency_ = payload.second.frequency_;
-					GLOBALS::get().par_.coord_format_lat_ = payload.second.coord_format_lat_;
-					GLOBALS::get().par_.coord_format_lon_ = payload.second.coord_format_lon_;
-
-					DEC.baud( GLOBALS::get().par_.baud_ );
-					DEC.rtty_bits( GLOBALS::get().par_.rtty_ascii_bits_ );
-					DEC.rtty_stops( GLOBALS::get().par_.rtty_ascii_stops_ );
-					GLOBALS::get().p_iq_source_->setOption("frequency_double", &GLOBALS::get().par_.frequency_);
-
-					cout<<C_MAGENTA<<"Loading parameters for payload "<<payload_id<<C_OFF<<endl;
-					cout<<"\tbaud: "<<GLOBALS::get().par_.baud_<<endl;
-					cout<<"\tascii_bits: "<<GLOBALS::get().par_.rtty_ascii_bits_<<endl;
-					cout<<"\tascii_stops: "<<GLOBALS::get().par_.rtty_ascii_stops_<<endl;
-					cout<<"\tfrequency: "<<GLOBALS::get().par_.frequency_<<endl;
-
-					break;
-				}
-			}
-		}
-
-		auto res_fr = EchoParameter("frequency");
-		auto res_bd = EchoParameter("baud");
-		auto res_rb = EchoParameter("rtty_bits");
-		auto res_rs = EchoParameter("rtty_stops");
-		result.insert( result.end(), res_fr.begin(), res_fr.end() );
-		result.insert( result.end(), res_bd.begin(), res_bd.end() );
-		result.insert( result.end(), res_rb.begin(), res_rb.end() );
-		result.insert( result.end(), res_rs.begin(), res_rs.end() );
 	}
 	else
 	{
