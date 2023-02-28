@@ -23,6 +23,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <limits>
 
 namespace habdec
 {
@@ -83,7 +84,7 @@ public:
 		max_ = *std::max_element(values_.begin(), values_.end());
 		return max_;
 	}
-	
+
 private:
 
 	template<typename U>
