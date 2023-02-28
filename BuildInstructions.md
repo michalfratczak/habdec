@@ -1,15 +1,33 @@
 # Building HABDEC from source
 
-To build habdec from source code, you need to build it's dependecies first:
-- FFTW
+Habdec relies on following dependencies:
+- FFTW3
 - boost (any version with boost-beast 1.66+)
-- CMake version 3.8.2 (make sure CMake version supports your boost version, otherwise CMake could fail finding stuff)
-- optionally: FLTK
+- CMake version 3.8.2+ (make sure CMake version supports your boost version, otherwise CMake could fail finding stuff)
 
-If you target RaspberryPi, consider starting with PiSDR image https://github.com/luigifcruz/pisdr-image
-It has preinstalled all dependencies except FFTW.
+## Simplified Raspberry Pi Build
+If you target RaspberryPi, consider starting with PiSDR image (https://github.com/luigifcruz/pisdr-image) or DragonOS image (https://cemaxecuter.com/).
+These systems have all required libraries preinstalled.
 
-Below are instructions how to obtain and compile each package. Keep in mind, these are WIP and some adjustment to your build env may be needed.
+You can also try starting with fresh/vanilla Raspberry Pi OS and download dependencies:
+
+    sudo apt install build-essential cmake libfftw3-single3 libboost-dev
+    sudo apt install rtl-sdr soapysdr-tools soapysdr-module-rtlsdr
+
+
+If all depencencies are preinstalled, use these commands to build habdec:
+
+    git clone --recurse-submodules https://github.com/ogre/habdec.git
+    cd habdec
+    mkdir build
+    cd build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=Off ../code
+    make
+    make install
+
+## Full Build With Dependencies
+
+Below are instructions how to obtain and compile each library. Keep in mind, these are WIP and some adjustment to your build env may be needed.
 
 For windows, you need to start 64bit build env, ie: `C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat`
 

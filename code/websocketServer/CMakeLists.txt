@@ -6,13 +6,23 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 include_directories( ${PROJECT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-set ( FFTW3f_DIR ../CMake )
-find_package( FFTW3f REQUIRED )
-include_directories( ${FFTW3f_INCLUDE_DIRS} )
+if(DEFINED FFTW_ROOT) # custom FFTW build
+	set ( FFTW3f_DIR ../CMake )
+	find_package( FFTW3f REQUIRED )
+	include_directories( ${FFTW3f_INCLUDE_DIRS} )
+	message( "FFTW Include:" 	${FFTW3f_INCLUDE_DIRS} )
+	message( "FFTW Lib:" 		${FFTW3f_LIBRARIES} )
+else()
+	find_package(PkgConfig REQUIRED)
+	pkg_search_module(FFTW REQUIRED fftw3f IMPORTED_TARGET)
+	link_libraries     (PkgConfig::FFTW)
+endif()
 
 # boost
 set ( Boost_NO_BOOST_CMAKE ON )
-set ( Boost_NO_SYSTEM_PATHS ON ) #remove line to use system installed boost
+if(DEFINED BOOST_ROOT) # custom boost build
+	set ( Boost_NO_SYSTEM_PATHS ON ) # don't use system installed boost
+endif()
 set ( Boost_USE_STATIC_LIBS ON )
 add_definitions ( -DBOOST_ALL_NO_LIB )
 find_package(Boost REQUIRED COMPONENTS program_options system date_time )

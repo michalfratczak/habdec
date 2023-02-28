@@ -3,11 +3,17 @@
 include_directories( ${PROJECT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-set ( FFTW3f_DIR ../CMake )
-find_package( FFTW3f REQUIRED )
-include_directories( ${FFTW3f_INCLUDE_DIRS} )
-message( "FFTW Include:" 	${FFTW3f_INCLUDE_DIRS} )
-message( "FFTW Lib:" 		${FFTW3f_LIBRARIES} )
+if(DEFINED FFTW_ROOT) # custom FFTW build
+	set ( FFTW3f_DIR ../CMake )
+	find_package( FFTW3f REQUIRED )
+	include_directories( ${FFTW3f_INCLUDE_DIRS} )
+	message( "FFTW Include:" 	${FFTW3f_INCLUDE_DIRS} )
+	message( "FFTW Lib:" 		${FFTW3f_LIBRARIES} )
+else()
+	find_package(PkgConfig REQUIRED)
+	pkg_search_module(FFTW REQUIRED fftw3f IMPORTED_TARGET)
+	link_libraries     (PkgConfig::FFTW)
+endif()
 
 
 # RTTY DECODER
