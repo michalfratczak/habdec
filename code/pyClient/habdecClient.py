@@ -137,7 +137,6 @@ def SendCommand(i_cmd):
 		set:decimation=2		get:decimation
 		set:afc=1				get:afc
 		set:dc_remove=1			get:dc_remove
-		set:payload=9f25cc048d401ebed112479a2ecef4f8
 		power:res=512,zoom=0.5
 		demod:res=256
 		liveprint

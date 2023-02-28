@@ -442,8 +442,3 @@ function SetDCRemove()
 		button.style.color = "#000";
 	}
 }
-
-function SetPayload(i_payload_id)
-{
-	SendCommand("set:payload=" + i_payload_id);
-}
