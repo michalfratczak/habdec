@@ -53,6 +53,7 @@ void SondeHubUploader::upload()
         json tele_json;
 
         tele_json["uploader_callsign"] = uploader_callsign_;
+        tele_json["software_name"] = "habdec";
         tele_json["software_version"] = string(g_GIT_SHA1).substr(0,7);
         tele_json["time_received"] = t.time_received;
         tele_json["upload_time"] = utc_now_str;
@@ -78,7 +79,7 @@ void SondeHubUploader::upload()
 				cpr::Url{api_endpoint_},
 				cpr::Body{payload},
 				cpr::Header{
-					{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
+					{"User-Agent", "habdec"},
 					{"Content-Type", "application/json"}
 				}
 			);

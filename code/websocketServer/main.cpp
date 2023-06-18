@@ -526,7 +526,7 @@ int main(int argc, char** argv)
 			cpr::Url{G.par_.sondehub_ + "/amateur/listeners"},
 			cpr::Body{s.str()},
 			cpr::Header{
-				{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"},
+				{"User-Agent", "habdec"},
 				{"Content-Type", "application/json"}
 			}
 		);
