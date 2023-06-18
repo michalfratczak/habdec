@@ -11,8 +11,8 @@ These systems have all required libraries preinstalled.
 
 You can also try starting with fresh/vanilla Raspberry Pi OS and download dependencies:
 
-    sudo apt install build-essential cmake libfftw3-single3 libboost-dev
-    sudo apt install rtl-sdr soapysdr-tools soapysdr-module-rtlsdr
+    sudo apt install build-essential cmake pkg-config libfftw3-dev libfftw3-single3 libboost-dev
+    sudo apt install rtl-sdr libsoapysdr-dev soapysdr-tools soapysdr-module-rtlsdr
 
 
 If all depencencies are preinstalled, use these commands to build habdec:
