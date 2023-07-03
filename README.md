@@ -11,7 +11,7 @@ Some facts:
 - provides websocket server so can be controlled from any web browser [even on your phone](https://www.youtube.com/watch?v=dli8FEFy5tM)
 - can be easily integrated into your own code
 - has example python client
-- decodes [SSDV](https://ukhas.org.uk/guides:ssdv) images
+- decodes [SSDV](https://ukhas.org.uk/doku.php?id=guides:ssdv) images
 
 Original motivation for habdec was to have a portable tracking device you could take to a chasecar or into a field.
 Fatty laptop with dl-fldigi, full-fledged SDR app and required internet connection is not too comfortable.
