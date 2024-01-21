@@ -117,10 +117,10 @@ float parse_gps_pos(const std::string lat_or_lon)
     }
 
     //check if this NMEA DDMM.MMMM or usual decimal DD.DDDD
-    size_t decimal_pos = coord.find('.');
+    const size_t decimal_pos = coord.find('.');
 
     if(decimal_pos == 2 || decimal_pos == 3)
-        return stof(coord); // usual decimal
+        return stof(lat_or_lon); // usual decimal
 
     // this is NMEA format
     if(decimal_pos == 4) { // latitude
